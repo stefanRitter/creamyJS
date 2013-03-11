@@ -1,0 +1,73 @@
+/*
+ *
+ *  Hi there, have a look at my source files here:
+ *  https://github.com/stefanRitter/
+ *
+ */
+
+@import base
+
+// ********************************************************************************** GLOBALS
+
+$active-color: #CC0E5A
+
+
+// ********************************************************************************** PLACEHOLDERS & MIXINS
+
+
+// ********************************************************************************** GENERAL
+
+canvas
+  position: absolute
+  top: 0
+  left: 0
+
+#loading
+  visibility: hidden
+  position: fixed
+  top: 45%
+  width: 100%
+  text-align: center
+  img
+    display: inline-block
+    height: 3em
+    
+// ********************************************************************************** HEADER
+.mainheader
+  position: fixed
+  top: 3%
+  left: 2%
+  width: 44%
+  background-color: rgba(255,255,255,0.7)
+  padding: 0.5% 1% 1% 1%
+  
+  h1
+    font: bold 2.6em/1.3em Helvetica, sans-serif
+    span
+      display: inline-block
+      font-size: 0.9em
+      +transform(translate(0, 0.03em))
+    strong
+      font-size: 1.3em
+      font-variant: small-caps
+
+  h2
+    font: 1.6em/1.1em 'EB Garamond', serif
+    em
+      font-style: italic
+
+
+// ********************************************************************************** FOOTER
+.mainfooter
+  clear: both
+  position: absolute
+  bottom: 0
+
+  margin: 0 auto 2% 3%
+  font: italic 1em 'EB Garamond', serif
+  a
+    color: black
+
+    
+
+

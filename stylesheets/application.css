@@ -1,0 +1,119 @@
+/*
+ *  Hi there, have a look at my source files here:
+ *  https://github.com/stefanRitter/
+ *
+ */
+/* Global reset
+ * http://meyerweb.com/eric/tools/css/reset/
+ **************************************************************** */
+/* line 14, ../sass/_base.sass */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+/* line 21, ../sass/_base.sass */
+html, body {
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+}
+
+/* SASS placeholder selector clearfix 
+ * http://sasstwo.codeschool.com/
+ **************************************************************** */
+/* line 31, ../sass/_base.sass */
+.clearfix {
+  zoom: 1;
+}
+/* line 34, ../sass/_base.sass */
+.clearfix:before,
+.clearfix:after {
+  content: "";
+  display: table;
+}
+/* line 38, ../sass/_base.sass */
+.clearfix:after {
+  clear: both;
+}
+
+/* line 43, ../sass/_base.sass */
+.group:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* line 20, ../sass/application.sass */
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* line 25, ../sass/application.sass */
+#loading {
+  visibility: hidden;
+  position: fixed;
+  top: 45%;
+  width: 100%;
+  text-align: center;
+}
+/* line 31, ../sass/application.sass */
+#loading img {
+  display: inline-block;
+  height: 3em;
+}
+
+/* line 36, ../sass/application.sass */
+.mainheader {
+  position: fixed;
+  top: 3%;
+  left: 2%;
+  width: 44%;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 0.5% 1% 1% 1%;
+}
+/* line 44, ../sass/application.sass */
+.mainheader h1 {
+  font: bold 2.6em/1.3em Helvetica, sans-serif;
+}
+/* line 46, ../sass/application.sass */
+.mainheader h1 span {
+  display: inline-block;
+  font-size: 0.9em;
+  -webkit-transform: translate(0, 0.03em);
+  -moz-transform: translate(0, 0.03em);
+  -ms-transform: translate(0, 0.03em);
+  -o-transform: translate(0, 0.03em);
+  transform: translate(0, 0.03em);
+}
+/* line 50, ../sass/application.sass */
+.mainheader h1 strong {
+  font-size: 1.3em;
+  font-variant: small-caps;
+}
+/* line 54, ../sass/application.sass */
+.mainheader h2 {
+  font: 1.6em/1.1em "EB Garamond", serif;
+}
+/* line 56, ../sass/application.sass */
+.mainheader h2 em {
+  font-style: italic;
+}
+
+/* line 61, ../sass/application.sass */
+.mainfooter {
+  clear: both;
+  position: absolute;
+  bottom: 0;
+  margin: 0 auto 2% 3%;
+  font: italic 1em "EB Garamond", serif;
+}
+/* line 68, ../sass/application.sass */
+.mainfooter a {
+  color: black;
+}
