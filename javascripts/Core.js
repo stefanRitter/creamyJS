@@ -4,6 +4,14 @@
  *
  */
 
+function xhrGet(reqUri,callback) {
+  var xhr = new XMLHttpRequest();
+
+  xhr.open("GET", reqUri, true);
+  xhr.onload = callback;
+
+  xhr.send();
+}
 
 Array.prototype.erase = function (item) {
   for (var i = this.length; i--; i) {
