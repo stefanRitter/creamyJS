@@ -2,16 +2,41 @@
 
 GameEngineClass = Class.extend({
 
-  entities: [],
+    entities: [],
     factory: {},
     _deferredKill: [],
 
-  //-----------------------------
-  setup: function () {
+    //-----------------------------
+    init: function () {},
 
-    // Create physics engine
-    gPhysicsEngine.create();
-  },
+    //-----------------------------
+    setup: function () {
+
+        // Create physics engine
+        gPhysicsEngine.create();
+
+        // Add contact listener
+        gPhysicsEngine.addContactListener({
+
+            PostSolve: function (bodyA, bodyB, impulse) {
+                var uA = bodyA ? bodyA.GetUserData() : null;
+                var uB = bodyB ? bodyB.GetUserData() : null;
+
+                if (uA !== null) {
+                    if (uA.ent !== null && uA.ent.onTouch) {
+                        uA.ent.onTouch(bodyB, null, impulse);
+                    }
+                }
+
+                if (uB !== null) {
+                    if (uB.ent !== null && uB.ent.onTouch) {
+                        uB.ent.onTouch(bodyA, null, impulse);
+                    }
+                }
+            }
+        });
+
+    },
 
     spawnEntity: function (typename) {
         var ent = new (gGameEngine.factory[typename])();
@@ -32,10 +57,10 @@ GameEngineClass = Class.extend({
         for (var i = 0; i < gGameEngine.entities.length; i++) {
             var ent = gGameEngine.entities[i];
             if(!ent._killed) {
-        ent.update();
-      } else {
-        gGameEngine._deferredKill.push(ent);
-      }
+                ent.update();
+            } else {
+                gGameEngine._deferredKill.push(ent);
+            }
         }
 
         // Loop through the '_deferredKill' list and remove each
@@ -45,11 +70,13 @@ GameEngineClass = Class.extend({
         // it back to the empty array, indicating all entities
         // in it have been removed from the 'entities' list.
         for (var j = 0; j < gGameEngine._deferredKill.length; j++) {
-      gGameEngine.entities.erase(gGameEngine._deferredKill[j]);
+            gGameEngine.entities.erase(gGameEngine._deferredKill[j]);
         }
 
         gGameEngine._deferredKill = [];
 
+        // Update physics engine
+        gPhysicsEngine.update();
     }
 
 });

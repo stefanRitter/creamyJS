@@ -42,6 +42,19 @@ PhysicsEngineClass = Class.extend({
     },
 
     //-----------------------------------------
+    addContactListener: function (callbacks) {
+        var listener = new Box2D.Dynamics.b2ContactListener();
+
+        if(callbacks.PostSolve) listener.PostSolve = function (contact, impulse) {
+            callbacks.PostSolve(contact.GetFixtureA().GetBody(),
+                                contact.GetFixtureB().GetBody(),
+                                impulse.normalImpulses[0]);
+        };
+
+        gPhysicsEngine.world.SetContactListener(listener);
+    },
+
+    //-----------------------------------------
     registerBody: function (bodyDef) {
         var body = gPhysicsEngine.world.CreateBody(bodyDef);
         return body;
@@ -61,6 +74,8 @@ PhysicsEngineClass = Class.extend({
 
         bodyDef.position.x = entityDef.x;
         bodyDef.position.y = entityDef.y;
+
+        if(entityDef.userData)  bodyDef.userData = entityDef.userData;
 
         var body = this.registerBody(bodyDef);
         var fixtureDefinition = new FixtureDef();
