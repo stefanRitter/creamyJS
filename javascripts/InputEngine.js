@@ -11,6 +11,7 @@
  *
  */
 
+
 InputEngineClass = Class.extend({
 
   // A dictionary mapping ASCII key codes to string values

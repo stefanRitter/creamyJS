@@ -1,3 +1,18 @@
+/*
+ *
+ *  Hi there, have a look at my source files here:
+ *  https://github.com/stefanRitter/
+ *  
+ *  PhysicsEngineClass based on Udacity game dev course: 
+ *  https://www.udacity.com/course/cs255
+ *
+ *  and uses Box2D by Erin Catto:
+ *  http://box2d.org/
+ *
+ *  shared under the Creative Commons CC BY-NC-SA license:
+ *  http://creativecommons.org/licenses/by-nc-sa/3.0/
+ *
+ */
 
 
 // These are global shorthands we declare for Box2D primitives
