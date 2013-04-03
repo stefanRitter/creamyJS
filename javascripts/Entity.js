@@ -48,7 +48,7 @@ EnergyCanisterClass = EntityClass.extend({
 
     init: function (x, y, settings) {
         this.parent(x, y, settings);
-        
+
         var startPos = {
             x: x,
             y: y
@@ -92,7 +92,6 @@ EnergyCanisterClass = EntityClass.extend({
         if(!otherBody.GetUserData()) return false;
 
         var physOwner = otherBody.GetUserData().ent;
-        
 
         if(physOwner !== null) {
             if(physOwner._killed) return false;

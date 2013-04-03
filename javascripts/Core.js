@@ -7,7 +7,7 @@
  *
  */
 
-function xhrGet(reqUri,callback) {
+function xhrGet(reqUri, callback) {
   var xhr = new XMLHttpRequest();
 
   xhr.open("GET", reqUri, true);
@@ -181,5 +181,3 @@ newGuid_short = function () {
   };
   return (S4()).toString();
 };
-
-  

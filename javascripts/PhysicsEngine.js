@@ -6,7 +6,7 @@
  *  PhysicsEngineClass based on Udacity game dev course: 
  *  https://www.udacity.com/course/cs255
  *
- *  and uses Box2D by Erin Catto:
+ *  it uses Box2D by Erin Catto:
  *  http://box2d.org/
  *
  *  shared under the Creative Commons CC BY-NC-SA license:
@@ -116,5 +116,5 @@ PhysicsEngineClass = Class.extend({
 
 });
 
-var gPhysicsEngine = new PhysicsEngineClass();
+window.gPhysicsEngine = new PhysicsEngineClass();
 

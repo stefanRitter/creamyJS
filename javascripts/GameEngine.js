@@ -10,7 +10,7 @@
  *  http://creativecommons.org/licenses/by-nc-sa/3.0/
  *
  */
- 
+
 
 GameEngineClass = Class.extend({
 
@@ -89,7 +89,7 @@ GameEngineClass = Class.extend({
 
         // Update physics engine
         gPhysicsEngine.update();
-    }
+    },
 
     //----------------------------
     // Parameters:
@@ -102,7 +102,9 @@ GameEngineClass = Class.extend({
 
         // First we check if the player exists. If not, then we
         // don't need to bother playing sounds.
-        if (gGameEngine.gPlayer0 === null) return;
+        if (gGameEngine.gPlayer0 === null) {
+          return;
+        }
 
         // We set a shorthand for gGameEngine.gMap for ease of use.
         var gMap = gGameEngine.gMap;
@@ -122,7 +124,6 @@ GameEngineClass = Class.extend({
         var dx = Math.abs(oCenter.x - x);
         var dy = Math.abs(oCenter.y - y);
         var dist = Math.sqrt(dx*dx + dy*dy);
-        
 
 
         // Task #2
@@ -136,9 +137,8 @@ GameEngineClass = Class.extend({
         var normDist = dist / viewSize;
         if (normDist > 1) normDist = 1;
         if (normDist < 0) return;
-        
+
         var vol = 1.0 - normDist;
-        
 
         // Task #3
         // Play the sound found at soundURL at the specified volume.
@@ -148,8 +148,7 @@ GameEngineClass = Class.extend({
             gSM.playSound(sObj.path, {volume: vol, looping: false});
         });
     }
-
 });
 
-gGameEngine = new GameEngineClass();
+window.gGameEngine = new GameEngineClass();
 
