@@ -17,11 +17,11 @@
     'images/3.png',
     'javascripts/Spritesheet.js',
     'images/test.json',
-    'images/test.png'
+    'images/test.png',
+    'javascripts/TILEDmap.js'
   ];
 
   /* TODO: test the following
-    'javascripts/TILEDmap.js',
     'javascripts/GameEngine.js',
     'javascripts/PhysicsEngine.js',
     'javascripts/Entity.js',
@@ -44,6 +44,13 @@
     gSM.create();
     gInputEngine.setup();
 
+
+    // test TILED map loading and drawing
+    gMap.load('images/map/desert.json', function() {
+      gMap.centerAt(250, 250, 500, 500);
+      gMap.preDrawCache(); // divide map into rendered tiles
+      gMap.draw(gContext);
+    });
 
     // test sound
     gSM.loadAsync('sound/coin.ogg', function()  {

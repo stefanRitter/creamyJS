@@ -11,7 +11,7 @@
  *
  */
 
-
+/*jshint loopfunc: true */
 
 
 var CanvasTile = Class.extend({
@@ -64,6 +64,7 @@ var CanvasTile = Class.extend({
 
 
 var TILEDMapClass = Class.extend({
+
     // This is where we store the full parsed
     // JSON of the map.json file.
     currMapData: null,
@@ -146,14 +147,15 @@ var TILEDMapClass = Class.extend({
     // memory. This is similar to the requests
     // we've done in the past using
     // XMLHttpRequests.
-    load: function (map) {
+    load: function (map, callbackFn) {
 
         // Perform an XMLHttpRequest to grab the
         // JSON file at url 'map'.
-        xhrGet(map, false, function (data) {
+        //xhrGet(map, false, function (data) {
+        xhrGet(map, function () {
             // Once the XMLHttpRequest loads, call the
             // parseMapJSON method.
-            gMap.parseMapJSON(data.response);
+            gMap.parseMapJSON(this.response, callbackFn);
         });
     },
 
@@ -162,25 +164,26 @@ var TILEDMapClass = Class.extend({
     // stores that data in a number of members
     // of our 'TILEDMapClass' that are defined
     // above.
-    parseMapJSON: function (mapJSON) {
+    parseMapJSON: function (mapJSON, callbackFn) {
+
         // Call JSON.parse on 'mapJSON' and store
         // the resulting map data
         gMap.currMapData = JSON.parse(mapJSON);
 
         var map = gMap.currMapData;
-      
+
         // Set 'numXTiles' and 'numYTiles' from the
         // 'width' and 'height' fields of our parsed
         // map data.
         gMap.numXTiles = map.width;
         gMap.numYTiles = map.height;
-      
+
         // Set the 'tileSize.x' and 'tileSize.y' fields
         // from the 'tilewidth' and 'tileheight' fields
         // of our parsed map data.
         gMap.tileSize.x = map.tilewidth;
         gMap.tileSize.y = map.tileheight;
-      
+
         // Set the 'pixelSize.x' and 'pixelSize.y' fields
         // by multiplying the number of tiles in our map
         // by the size of each tile in pixels.
@@ -198,31 +201,32 @@ var TILEDMapClass = Class.extend({
                 // field of 'TILEDMap' as each tileset is 
                 // loading...
                 gMap.imgLoadCount++;
-                if (gMap.imgLoadCount === gMap.tileSets.length) {
+                if (gMap.imgLoadCount === map.tilesets.length) {
                     // ...Once all the tilesets are loaded, 
                     // set the 'fullyLoaded' flag to true...
                     gMap.fullyLoaded = true;
+
+                    callbackFn(); //let the game know we are done
                 }
             };
-
-            // The 'src' value to load each new Image from is in
-            // the 'image' property of the 'tilesets'.
-            img.src = map.tilesets[i].image;
 
             // This is the javascript object we'll create for
             // the 'tilesets' Array above. First, fill in the
             // given fields with the corresponding fields from
             // the 'tilesets' Array in 'currMapData'.
             var ts = {
-                "firstgid": currMapData.tilesets[i].firstgid,
-
-                // 'image' should equal the Image object we
-                // just created.
+                "firstgid": gMap.currMapData.tilesets[i].firstgid,
 
                 "image": img,
-                "imageheight": currMapData.tilesets[i].imageheight,
-                "imagewidth": currMapData.tilesets[i].imagewidth,
-                "name": currMapData.tilesets[i].name,
+                "imageheight": gMap.currMapData.tilesets[i].imageheight,
+                "imagewidth": gMap.currMapData.tilesets[i].imagewidth,
+                "name": gMap.currMapData.tilesets[i].name,
+
+
+                // some TILED tilesets have the tiles divided by a margin in their source image
+                // store the margin width here for adjustment later when getting the packet info
+
+                "margin": gMap.currMapData.tilesets[i].margin,
 
                 // These next two fields are tricky. You'll
                 // need to calculate this data from the
@@ -233,17 +237,13 @@ var TILEDMapClass = Class.extend({
                 // might need to do a bit of manipulation after
                 // you calculate it.
 
-                "numXTiles": Math.floor(currMapData.tilesets[i].imagewidth / gMap.tileSize.x),
-                "numYTiles": Math.floor(currMapData.tilesets[i].imageheight / gMap.tileSize.y)
+                "numXTiles": Math.floor(gMap.currMapData.tilesets[i].imagewidth / gMap.tileSize.x),
+                "numYTiles": Math.floor(gMap.currMapData.tilesets[i].imageheight / gMap.tileSize.y)
             };
 
-            // After that, push the newly created object into
-            // the 'tilesets' Array above. Javascript Arrays
-            // have a handy method called, appropriately, 'push'
-            // that does exactly this. It takes the object
-            // we'd like to put into the Array as a parameter.
-            // 
-            // YOUR CODE HERE
+            img.src = map.tilesets[i].image;
+            //img.src = "img/" + map.tilesets[i].image.replace(/^.*[\\\/]/, '');
+
             gMap.tilesets.push(ts);
         }
     },
@@ -294,6 +294,7 @@ var TILEDMapClass = Class.extend({
         // 1) The local id of the tile, calculated from the
         //    'tileIndex' of the tile we want to draw and
         //    the 'firstgid' of the tileset we found earlier.
+
         var localIdx = tileIndex - gMap.tilesets[tile].firstgid;
 
         // 2) The (x,y) position of the tile in terms of the
@@ -303,6 +304,7 @@ var TILEDMapClass = Class.extend({
         //    how the tiles are arranged if you don't see this,
         //    It's a little tricky. You might want to use the 
         //    modulo and division operators here.
+
         var lTileX = Math.floor(localIdx % gMap.tilesets[tile].numXTiles);
         var lTileY = Math.floor(localIdx / gMap.tilesets[tile].numXTiles);
 
@@ -313,6 +315,13 @@ var TILEDMapClass = Class.extend({
         pkt.px = (lTileX * gMap.tileSize.x);
         pkt.py = (lTileY * gMap.tileSize.y);
 
+
+        // if the tileset comes with a margin, adjust the starting point accordingly
+        if (gMap.tilesets[tile].margin) {
+          var margin = gMap.tilesets[tile].margin;
+          pkt.px += (lTileX * margin) + margin;
+          pkt.py += (lTileY * margin) + margin;
+        }
 
         return pkt;
     },
@@ -336,24 +345,16 @@ var TILEDMapClass = Class.extend({
     //-----------------------------------------
     // Shifts the 'viewRect' object such that it's
     // center stays at the center of the canvas.
-    centerAt: function(x, y) {
-        // Set the properties of the 'viewRect' such that:
-        //
-        // 1) The width and height is equal to that of the
-        //    canvas.
-        //
-        // 2) The (x,y) position of the top-left corner of
-        //    the 'viewRect' is equal to the passed-in
-        //    (x,y) parameters, shifted by the width and
-        //    height of half the canvas.
-        gMap.viewRect.x = x - (canvas_width / 2);
-        gMap.viewRect.y = y - (canvas_height / 2);
+    centerAt: function(x, y, canvas_width, canvas_height) {
+        gMap.viewRect.x = 0; //x - (canvas_width / 2);
+        gMap.viewRect.y = 0; //y - (canvas_height / 2);
         gMap.viewRect.w = canvas_width;
         gMap.viewRect.h = canvas_height;
     },
 
     //-----------------------------------------
     draw: function (ctx) {
+
         if(!gMap.fullyLoaded) return;
 
         // For each 'CanvasTile' in our 'canvasTileArray', we
@@ -367,10 +368,15 @@ var TILEDMapClass = Class.extend({
         // One thing to keep in mind is that you'll need to
         // adjust the position to draw to based on the position
         // of our 'viewRect'.
+
+        // console.log('tiles to check: ' + gMap.canvasTileArray.length);
         for(var q = 0; q < gMap.canvasTileArray.length; q++) {
+
             var r1 = gMap.canvasTileArray[q];
 
-            if(r1.isVisible()) ctx.drawImage(r1.cvsHdl, r1.x - gMap.viewRect.x, r1.y - gMap.viewRect.y);
+            if(r1.isVisible()) {
+              ctx.drawImage(r1.cvsHdl, r1.x - gMap.viewRect.x, r1.y - gMap.viewRect.y);
+            }
         }
     },
 
@@ -383,8 +389,8 @@ var TILEDMapClass = Class.extend({
         // down.
         //
         // Be careful to make sure that at least 1 canvas is always drawn!
-        var xCanvasCount = /* YOUR CODE HERE */1 + Math.floor(gMap.pixelSize.x / gMap.canvasTileSize.x);
-        var yCanvasCount = /* YOUR CODE HERE */1 + Math.floor(gMap.pixelSize.y / gMap.canvasTileSize.y);
+        var xCanvasCount = 1 + Math.floor(gMap.pixelSize.x / gMap.canvasTileSize.x);
+        var yCanvasCount = 1 + Math.floor(gMap.pixelSize.y / gMap.canvasTileSize.y);
 
         // Now we'll need to create a new 'CanvasTile' for each of the
         // tile positions we calculated above, and initialize it with
@@ -475,16 +481,10 @@ var TILEDMapClass = Class.extend({
 
                 if(!visible) continue;
 
-                // Nine arguments: the element, source (x,y) coordinates, source width and
-                // height (for cropping), destination (x,y) coordinates, and destination width
-                // and height (resize).
-                //
-                // Note that we don't want to stretch our tiles at all, so the
-                // source height and width should be the same as the destination!
-                //
                 // Change the 'drawImage' call below as necessary to draw to the 'ctile' context
                 // instead, and take into account the rectangle you created above when drawing
                 // to the canvas tile.
+                // console.log('cache drawing: image=' + tPKT.img.src +' '+ tPKT.px +' '+ tPKT.py +' '+ this.tileSize.x +' '+ this.tileSize.y);
                 ctx.drawImage(tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX - vRect.left, worldY - vRect.top, this.tileSize.x, this.tileSize.y);
             }
         }
