@@ -24,23 +24,42 @@
 
 	</head>
 	
-	<body>				
+	<body>
+
+    <script>
+    if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/) || !navigator.userAgent.match(/(Chrome)/)  ) { 
+      alert("Sorry, I've only been testing this code on Google Chrome for Desktop!");
+    }
+    </script>
+
+    <div class="horizontal-container">
+      <div class="vertical-container">
 			
-		<header class="mainheader">
-			<h1>coming soon</h1>
-		</header>
-    
-    <canvas id="game"></canvas>
-					
-		<footer class="mainfooter">
-			<p>
-				Written by <a href="http://www.stefanritter.com">Stefan Ritter</a>, using HTML5 &amp; CSS3 + JS.
-			</p>
-		</footer>
+    		<header class="mainheader">
+    			<h1>game title</h1>
+          <p><a href="#" id="screenshot">screenshot</a> &#166; <a href="#" id="soundcontrol">sound on</a></p>
+    		</header>
+        
+
+        <canvas id="game" height="600" width="1000"></canvas>
+    				
+
+    		<footer class="mainfooter">
+    			<p>
+            Based on the <a href="http://www.stefanritter.com">Udacity HTML5 Game Dev Course</a> by Colt McAnlis, Peter Lubbers &amp; Sean Bennett.
+    				Written by <a href="http://www.stefanritter.com">Stefan Ritter</a>, shared under the Creative Commons <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a> license.
+    			</p>
+    		</footer>
+
+      </div>
+    </div>
 
 		<div id="loading"><img src="images/loading.gif" alt="loading..." /></div>
 
 		<!-- scripts -->
+    <script src="javascripts/Core.js"></script>
+    <script src="javascripts/box2D.js"></script>
+    <script src="javascripts/AssetManager.js"></script>
 		<script src="javascripts/application.js"></script>
 
 	</body>

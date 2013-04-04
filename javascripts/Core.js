@@ -7,10 +7,12 @@
  *
  */
 
-function xhrGet(reqUri, callback) {
+
+function xhrGet(reqUri, callback, type) {
   var xhr = new XMLHttpRequest();
 
   xhr.open("GET", reqUri, true);
+  if (type) { xhr.responseType = type; }
   xhr.onload = callback;
 
   xhr.send();

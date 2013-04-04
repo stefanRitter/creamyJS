@@ -228,14 +228,11 @@ var TILEDMapClass = Class.extend({
 
                 "margin": gMap.currMapData.tilesets[i].margin,
 
-                // These next two fields are tricky. You'll
-                // need to calculate this data from the
+                // calculate this data from the
                 // width and height of the overall image and
                 // the size of each individual tile.
                 // 
-                // Remember: This should be an integer, so you
-                // might need to do a bit of manipulation after
-                // you calculate it.
+                // This should be an integer
 
                 "numXTiles": Math.floor(gMap.currMapData.tilesets[i].imagewidth / gMap.tileSize.x),
                 "numYTiles": Math.floor(gMap.currMapData.tilesets[i].imageheight / gMap.tileSize.y)
@@ -346,8 +343,8 @@ var TILEDMapClass = Class.extend({
     // Shifts the 'viewRect' object such that it's
     // center stays at the center of the canvas.
     centerAt: function(x, y, canvas_width, canvas_height) {
-        gMap.viewRect.x = 0; //x - (canvas_width / 2);
-        gMap.viewRect.y = 0; //y - (canvas_height / 2);
+        gMap.viewRect.x = x - (canvas_width / 2);
+        gMap.viewRect.y = y - (canvas_height / 2);
         gMap.viewRect.w = canvas_width;
         gMap.viewRect.h = canvas_height;
     },

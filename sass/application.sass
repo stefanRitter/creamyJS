@@ -17,13 +17,20 @@ $active-color: #CC0E5A
 
 // ********************************************************************************** GENERAL
 
-canvas
-  position: absolute
-  top: 0
-  left: 0
+// center content horizontally
+.horizontal-container
+  height: 100%
+  width: 90%
+  display: table
+  margin: 0 auto
+
+// center content vertically
+.vertical-container
+  display: table-cell
+  vertical-align: middle
 
 #loading
-  visibility: hidden
+  // visibility: hidden
   position: fixed
   top: 45%
   width: 100%
@@ -31,43 +38,37 @@ canvas
   img
     display: inline-block
     height: 3em
-    
+
+
 // ********************************************************************************** HEADER
 .mainheader
-  position: fixed
-  top: 3%
-  left: 2%
-  width: 44%
-  background-color: rgba(255,255,255,0.7)
-  padding: 0.5% 1% 1% 1%
-  
-  h1
-    font: bold 2.6em/1.3em Helvetica, sans-serif
-    span
-      display: inline-block
-      font-size: 0.9em
-      +transform(translate(0, 0.03em))
-    strong
-      font-size: 1.3em
-      font-variant: small-caps
+  width: 1000px // same as canvas
+  margin: 0 auto
+  font: bold 2.6em/1.3em Helvetica, sans-serif
 
-  h2
-    font: 1.6em/1.1em 'EB Garamond', serif
-    em
-      font-style: italic
+  p
+    float: right
+    font: 0.4em 'EB Garamond', serif
+    font-variant: small-caps
+    padding-bottom: 0.4em
+    a
+      text-decoration: none
+      color: black
+
+
+// ********************************************************************************** CANVAS
+canvas
+  display: block
+  clear: both
+  // border: 2px solid black
+  margin: 2% auto
+  // visibility: hidden
 
 
 // ********************************************************************************** FOOTER
 .mainfooter
-  clear: both
-  position: absolute
-  bottom: 0
-
-  margin: 0 auto 2% 3%
-  font: italic 1em 'EB Garamond', serif
+  font: italic 0.8em 'EB Garamond', serif
+  text-align: center
   a
     color: black
-
-    
-
 

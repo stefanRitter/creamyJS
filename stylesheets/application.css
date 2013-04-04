@@ -47,73 +47,65 @@ html, body {
   clear: both;
 }
 
-/* line 20, ../sass/application.sass */
-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
+/* line 21, ../sass/application.sass */
+.horizontal-container {
+  height: 100%;
+  width: 90%;
+  display: table;
+  margin: 0 auto;
 }
 
-/* line 25, ../sass/application.sass */
+/* line 28, ../sass/application.sass */
+.vertical-container {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+/* line 32, ../sass/application.sass */
 #loading {
-  visibility: hidden;
   position: fixed;
   top: 45%;
   width: 100%;
   text-align: center;
 }
-/* line 31, ../sass/application.sass */
+/* line 38, ../sass/application.sass */
 #loading img {
   display: inline-block;
   height: 3em;
 }
 
-/* line 36, ../sass/application.sass */
-.mainheader {
-  position: fixed;
-  top: 3%;
-  left: 2%;
-  width: 44%;
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 0.5% 1% 1% 1%;
-}
 /* line 44, ../sass/application.sass */
-.mainheader h1 {
+.mainheader {
+  width: 1000px;
+  margin: 0 auto;
   font: bold 2.6em/1.3em Helvetica, sans-serif;
 }
-/* line 46, ../sass/application.sass */
-.mainheader h1 span {
-  display: inline-block;
-  font-size: 0.9em;
-  -webkit-transform: translate(0, 0.03em);
-  -moz-transform: translate(0, 0.03em);
-  -ms-transform: translate(0, 0.03em);
-  -o-transform: translate(0, 0.03em);
-  transform: translate(0, 0.03em);
-}
-/* line 50, ../sass/application.sass */
-.mainheader h1 strong {
-  font-size: 1.3em;
+/* line 49, ../sass/application.sass */
+.mainheader p {
+  float: right;
+  font: 0.4em "EB Garamond", serif;
   font-variant: small-caps;
+  padding-bottom: 0.4em;
 }
 /* line 54, ../sass/application.sass */
-.mainheader h2 {
-  font: 1.6em/1.1em "EB Garamond", serif;
-}
-/* line 56, ../sass/application.sass */
-.mainheader h2 em {
-  font-style: italic;
+.mainheader p a {
+  text-decoration: none;
+  color: black;
 }
 
-/* line 61, ../sass/application.sass */
-.mainfooter {
+/* line 60, ../sass/application.sass */
+canvas {
+  display: block;
   clear: both;
-  position: absolute;
-  bottom: 0;
-  margin: 0 auto 2% 3%;
-  font: italic 1em "EB Garamond", serif;
+  margin: 2% auto;
 }
-/* line 68, ../sass/application.sass */
+
+/* line 69, ../sass/application.sass */
+.mainfooter {
+  font: italic 0.8em "EB Garamond", serif;
+  text-align: center;
+}
+/* line 72, ../sass/application.sass */
 .mainfooter a {
   color: black;
 }

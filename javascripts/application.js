@@ -3,74 +3,79 @@
  *  Hi there, have a look at my source files here:
  *  https://github.com/stefanRitter/
  * 
+ *  This project is based on Udacity game dev course: 
+ *  https://www.udacity.com/course/cs255
+ *
+ *  shared under the Creative Commons CC BY-NC-SA license:
+ *  http://creativecommons.org/licenses/by-nc-sa/3.0/
  *
  */
 
-(function(self) { "use strict";
+(function() { "use strict";
 
 	// ******************************************************************************* globals
+	window.gLoading = null;
+  window.gCanvas = null;
+  window.gContext = null;
 
-	var loading;
-
-	// ******************************************************************************* Utils
-
-  function isTouchDevice() {
-    return ("ontouchstart" in window) || navigator.msMaxTouchPoints;
+	// ******************************************************************************* utils
+  function createScreenshot() {
+    window.open(gCanvas.toDataURL(), 'screen shot');
   }
 
-  //AJAX
-	function xhrGet(reqUri, callback, type) {
+  function slideDown() {
+    gLoading.style.position = 'fixed';
+    gLoading.style.top = '45%';
 
-		var caller = xhrGet.caller, xhr = new XMLHttpRequest();
-
-		xhr.open('GET', reqUri, true);
-		if (type) { xhr.responseType = type; }
-
-		xhr.onload = function () {
-			if (callback) {
-				try {
-					callback(xhr);
-				} catch (error) {
-					throw 'xhrGet failed: \n' + reqUri + '\nException: ' + error + '\nCaller: ' + caller + 
-					'\nResponse: ' + xhr.responseText;
-				}
-			}
-		};
-
-		xhr.send();
-	}
-
-  //async script loading
-	function loadScript(src, callback)
-	{
-	  var script, rState;
-	  rState = false;
-	  script = document.createElement('script');
-	  script.type = 'text/javascript';
-	  script.src = src;
-	  script.onload = script.onreadystatechange = function() {
-	    //console.log( this.readyState );
-	    if ( !rState && (!this.readyState || this.readyState === 'complete') )
-	    {
-	      rState = true;
-	      callback();
-	    }
-	  };
-	  document.body.appendChild(script);
-    return script;
-	}
-
-  function createImage(event) {
-    window.open(canvas.toDataUrl(), 'screen shot');
+    var inter = setInterval(function() {
+      gLoading.style.top =  (parseInt(gLoading.style.top, 10) + 1) + '%';
+      if (parseInt(gLoading.style.top, 10) > 80) {
+        clearInterval(inter);
+      }
+    }, 10);
   }
 
-	// ******************************************************************************* window.onload
+  // ******************************************************************************* assets
+  var assets = [
+      'images/controls.png',
+      'javascripts/PhysicsEngine.js',
+      'javascripts/SoundManager.js',
+      'javascripts/InputEngine.js',
+      'javascripts/Spritesheet.js',
+      'javascripts/TILEDmap.js',
+      'javascripts/GameEngine.js' ];
+
+	// ******************************************************************************* onload
 	window.onload = function () {
 
-		// set global
-		loading = document.getElementById('loading');
+    loadAssets(assets, init);
 
-		loading.style.visibility = 'visible';
+    function init() {
 
+      var soundcontrol = document.getElementById('soundcontrol'),
+          screenshot = document.getElementById('screenshot');
+
+      // set globals
+      gLoading = document.getElementById('loading');
+      gCanvas = document.getElementById('game');
+      gContext = gCanvas.getContext('2d');
+
+      // setup UI
+      soundcontrol.addEventListener('click', function(event) {
+        event.preventDefault();
+        gSM.togglemute();
+        soundcontrol.style.textDecoration = (soundcontrol.style.textDecoration === 'line-through') ? 'none' : 'line-through';
+      });
+
+      screenshot.addEventListener('click', function(event) {
+        event.preventDefault();
+        createScreenshot();
+      });
+
+      slideDown(gLoading, 20);
+      gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);
+
+      gGameEngine.setup();
+    }
 	};
-}(this));
+}).call(this);
