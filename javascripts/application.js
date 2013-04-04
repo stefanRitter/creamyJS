@@ -43,6 +43,7 @@
       'javascripts/InputEngine.js',
       'javascripts/Spritesheet.js',
       'javascripts/TILEDmap.js',
+      'javascripts/Entity.js',
       'javascripts/GameEngine.js' ];
 
 	// ******************************************************************************* onload

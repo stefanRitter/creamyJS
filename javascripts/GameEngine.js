@@ -33,8 +33,8 @@
 
     gPlayer: {
       pos: {
-        x: 300,
-        y: 500
+        x: 0,
+        y: 0
       },
 
       walkSpeed: 1
@@ -45,63 +45,79 @@
     //-----------------------------
     setup: function () {
 
-      var assets = [ 'images/blend.png' ];
+      var assets = [
+          'images/blend.png',
+          'images/glowy.png',
+          'images/glowy.json',
+          'javascripts/AnimatedEntity.js' ];
 
-      loadAssets(assets, function() {});
+      loadAssets(assets, function() {
 
-      gSM.create();
-      gInputEngine.setup();
+        gSM.create();
+        gInputEngine.setup();
 
-      var currX = 300;
-      var currY = 500;
-
-      /*
-      gSM.loadAsync('sound/coin.ogg', function()  {
-        gSM.loadAsync('sound/music.mp3', function()  {
-          gSM.playSound('sound/music.mp3', { looping: true });
-          gSM.playSound('sound/coin.ogg');
+        gSM.loadAsync('sound/coin.ogg', function()  {
+          gSM.loadAsync('sound/music.mp3', function()  {
+            gSM.playSound('sound/music.mp3', { looping: true });
+            gSM.playSound('sound/coin.ogg');
+          });
         });
-      }); */
 
+        var spriteTest = new SpriteSheetClass();
+        spriteTest.setAsset('images/glowy.png', gCachedAssets['images/glowy.png']);
+        spriteTest.parseAtlasDefinition(gCachedAssets['images/glowy.json']);
 
-      // test TILED map loading and drawing
-      gMap.load('images/map/desert.json', function() {
-        gMap.centerAt(currX, currY, 600, 1000);
-        gMap.preDrawCache(); // divide map into rendered tiles
+        var entityTest = gGameEngine.spawnEntity('AnimatedEntity');
+        entityTest.pos.x = 300;
+        entityTest.pos.y = 300;
 
-        gLoading.style.visibility = 'hidden';
+        entityTest.setAnimation(['001.png', '002.png', '003.png', '004.png'], 100);
 
-        gGameEngine.startTime = Date.now();
-        requestAnimationFrame(gGameEngine.gameLoop);
-      });
+        /* 
+        // Create physics engine
+        gPhysicsEngine.create();
 
-      /* 
+        // Add contact listener
+        gPhysicsEngine.addContactListener({
 
-      // Create physics engine
-      gPhysicsEngine.create();
+            PostSolve: function (bodyA, bodyB, impulse) {
+                var uA = bodyA ? bodyA.GetUserData() : null;
+                var uB = bodyB ? bodyB.GetUserData() : null;
 
-      // Add contact listener
-      gPhysicsEngine.addContactListener({
+                if (uA !== null) {
+                    if (uA.ent !== null && uA.ent.onTouch) {
+                        uA.ent.onTouch(bodyB, null, impulse);
+                    }
+                }
 
-          PostSolve: function (bodyA, bodyB, impulse) {
-              var uA = bodyA ? bodyA.GetUserData() : null;
-              var uB = bodyB ? bodyB.GetUserData() : null;
+                if (uB !== null) {
+                    if (uB.ent !== null && uB.ent.onTouch) {
+                        uB.ent.onTouch(bodyA, null, impulse);
+                    }
+                }
+            }
+        });
+        */
 
-              if (uA !== null) {
-                  if (uA.ent !== null && uA.ent.onTouch) {
-                      uA.ent.onTouch(bodyB, null, impulse);
-                  }
-              }
+        // load map and start game once loaded
+        gMap.load('images/map/desert.json', function() {
 
-              if (uB !== null) {
-                  if (uB.ent !== null && uB.ent.onTouch) {
-                      uB.ent.onTouch(bodyA, null, impulse);
-                  }
-              }
+          gMap.centerAt(gGameEngine.gPlayer.pos.x, gGameEngine.gPlayer.pos.y, 600, 1000);
+          gMap.preDrawCache(); // divide map into rendered tiles
+
+          // let user know we are ready
+          gLoading.innerHTML = "click to start";
+
+          function startGame() {
+            gLoading.style.visibility = 'hidden';
+
+            gGameEngine.startTime = Date.now();
+            requestAnimationFrame(gGameEngine.gameLoop);
+            gCanvas.removeEventListener('click', startGame, false);
           }
+          gCanvas.addEventListener('click', startGame, false);
+        });
       });
-
-      */
     },
 
     spawnEntity: function (typename) {
@@ -125,16 +141,13 @@
 
       gGameEngine.update(deltaTime);
 
-      gMap.draw(gContext);
-
-      gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
+      gGameEngine.draw(deltaTime);
     },
 
     update: function (deltaTime) {
       // Update player position from previous unit.
       gGameEngine.updatePlayer(deltaTime);
 
-      /*
       // Loop through the entities and call that entity's
       // 'update' method, but only do it if that entity's
       // '_killed' flag is set to true.
@@ -144,7 +157,7 @@
       for (var i = 0; i < gGameEngine.entities.length; i++) {
         var ent = gGameEngine.entities[i];
         if(!ent._killed) {
-          ent.update();
+          ent.update(deltaTime);
         } else {
           gGameEngine._deferredKill.push(ent);
         }
@@ -152,10 +165,6 @@
 
       // Loop through the '_deferredKill' list and remove each
       // entity in it from the 'entities' list.
-      //
-      // Once you're done looping through '_deferredKill', set
-      // it back to the empty array, indicating all entities
-      // in it have been removed from the 'entities' list.
       for (var j = 0; j < gGameEngine._deferredKill.length; j++) {
         gGameEngine.entities.erase(gGameEngine._deferredKill[j]);
       }
@@ -164,15 +173,13 @@
 
       // Update physics engine
       // gPhysicsEngine.update();
-      */
     },
 
     //-----------------------------
-    draw: function () {
-      // Draw map. Note that we're passing a canvas context
-      // of 'null' in. This would normally be our game context,
-      // but we don't need to grade this here.
-      gMap.draw(null);
+    draw: function (deltaTime) {
+
+      gMap.draw(gContext);
+
 
       // Bucket entities by zIndex
       var fudgeVariance = 128;
@@ -198,13 +205,23 @@
       });
 
       // Draw entities sorted by zIndex
+      zIndex_array.sort(function(a,b) { return a - b;});
+      zIndex_array.forEach(function(zindex) {
+        entities_bucketed_by_zIndex[zindex].forEach(function(entity) {
+          entity.draw(deltaTime);
+        });
+      });
 
+      //drawSprite('005.png', 0, 0);
+
+      // draw frame
+      gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
     },
 
     updatePlayer: function (deltaTime) {
 
       gGameEngine.stateTime += deltaTime;
-      if (gGameEngine.stateTime > 100) {
+      if (gGameEngine.stateTime > 50) {
         gGameEngine.stateTime = 0;
 
         if (gInputEngine.actions['move-up']) {

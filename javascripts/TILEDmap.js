@@ -344,7 +344,15 @@ var TILEDMapClass = Class.extend({
     // center stays at the center of the canvas.
     centerAt: function(x, y, canvas_width, canvas_height) {
         gMap.viewRect.x = x - (canvas_width / 2);
+        if (gMap.viewRect.x < 0) gMap.viewRect.x = 0;
+
+        // TODO: convert to world coords and check if view rect is beyond
+        //if (gMap.viewRect.x + (canvas_width/2) > gMap.pixelSize.x) gMap.viewRect.x -= (canvas_width/2);
+
         gMap.viewRect.y = y - (canvas_height / 2);
+        if (gMap.viewRect.y < 0) gMap.viewRect.y = 0;
+        //if (gMap.viewRect.y + canvas_height > gMap.pixelSize.y) gMap.viewRect.y -= canvas_height;
+
         gMap.viewRect.w = canvas_width;
         gMap.viewRect.h = canvas_height;
     },

@@ -67,45 +67,46 @@ html, body {
   top: 45%;
   width: 100%;
   text-align: center;
+  font: bold 1.6em Helvetica, sans-serif;
 }
 /* line 38, ../sass/application.sass */
 #loading img {
   display: inline-block;
-  height: 3em;
+  height: 2em;
 }
 
 /* line 44, ../sass/application.sass */
 .mainheader {
   width: 1000px;
   margin: 0 auto;
-  font: bold 2.6em/1.3em Helvetica, sans-serif;
+  font: bold 2em Helvetica, sans-serif;
 }
-/* line 49, ../sass/application.sass */
+/* line 50, ../sass/application.sass */
 .mainheader p {
   float: right;
-  font: 0.4em "EB Garamond", serif;
+  font: 0.5em "EB Garamond", serif;
   font-variant: small-caps;
   padding-bottom: 0.4em;
 }
-/* line 54, ../sass/application.sass */
+/* line 55, ../sass/application.sass */
 .mainheader p a {
   text-decoration: none;
   color: black;
 }
 
-/* line 60, ../sass/application.sass */
+/* line 61, ../sass/application.sass */
 canvas {
   display: block;
   clear: both;
   margin: 2% auto;
 }
 
-/* line 69, ../sass/application.sass */
+/* line 68, ../sass/application.sass */
 .mainfooter {
-  font: italic 0.8em "EB Garamond", serif;
+  font: italic 0.7em "EB Garamond", serif;
   text-align: center;
 }
-/* line 72, ../sass/application.sass */
+/* line 71, ../sass/application.sass */
 .mainfooter a {
   color: black;
 }
