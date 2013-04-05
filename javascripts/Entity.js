@@ -18,25 +18,13 @@ var EntityClass = Class.extend({
     size : {x:0,y:0},
     last : {x:0,y:0},
     _killed: false,
-
-    currSpriteName : null,
     zindex: 0,
+
+    init: function() {},
 
     // overloaded by child classes
     update : function() { },
-
-    //-----------------------------------------
-    draw : function() {
-
-      if (this.currSpriteName) {
-        drawSprite(this.currSpriteName, this.pos.x, this.pos.y);
-
-        /*drawSprite(this.currSpriteName,
-          this.pos.x.round() - Math.floor(this.size.x / 2),
-          this.pos.y.round() - Math.floor(this.size.y / 2)
-        );*/
-      }
-    }
+    draw : function() { }
 });
 
 

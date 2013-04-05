@@ -31,17 +31,6 @@
     factory: {},
     _deferredKill: [],
 
-    gPlayer: {
-      pos: {
-        x: 0,
-        y: 0
-      },
-
-      walkSpeed: 1
-
-      // mpPhysBody: new BodyDef()
-    },
-
     // ******************************************************************************* setup
     setup: function () {
 
@@ -49,59 +38,24 @@
           'images/blend.png',
           'images/glowy.png',
           'images/glowy.json',
-          'javascripts/AnimatedEntity.js' ];
+          'javascripts/AnimatedEntity.js',
+          'javascripts/EnemyEntity.js',
+          'javascripts/Player.js' ];
 
       loadAssets(assets, function() {
 
-        gSM.create();
+        // setup the rest of the game's engine
+        gSM.setup();
         gInputEngine.setup();
+        gPhysicsEngine.setup();
 
-        gSM.loadAsync('sound/coin.ogg', function()  {
-          gSM.loadAsync('sound/music.mp3', function()  {
-            gSM.playSound('sound/music.mp3', { looping: true });
-            gSM.playSound('sound/coin.ogg');
-          });
-        });
+        // gGameEngine.setupSounds();
+        gGameEngine.setupSpritesAndEntities();
 
-        var spriteTest = new SpriteSheetClass();
-        spriteTest.setAsset('images/glowy.png', gCachedAssets['images/glowy.png']);
-        spriteTest.parseAtlasDefinition(gCachedAssets['images/glowy.json']);
-
-        var entityTest = gGameEngine.spawnEntity('AnimatedEntity');
-        entityTest.pos.x = 300;
-        entityTest.pos.y = 300;
-
-        entityTest.setAnimation(['001.png', '002.png', '003.png', '004.png'], 400, true);
-
-
-        // Create physics engine
-        gPhysicsEngine.create();
-
-        // Add collision listener
-        gPhysicsEngine.addContactListener({
-
-            PostSolve: function (bodyA, bodyB, impulse) {
-                var uA = bodyA ? bodyA.GetUserData() : null;
-                var uB = bodyB ? bodyB.GetUserData() : null;
-
-                if (uA !== null) {
-                    if (uA.ent !== null && uA.ent.onTouch) {
-                        uA.ent.onTouch(bodyB, null, impulse);
-                    }
-                }
-
-                if (uB !== null) {
-                    if (uB.ent !== null && uB.ent.onTouch) {
-                        uB.ent.onTouch(bodyA, null, impulse);
-                    }
-                }
-            }
-        });
-
-        // load map and start game once loaded
+        // lastly load & parse the map and start game once it's loaded
         gMap.load('images/map/desert.json', function() {
 
-          gMap.centerAt(gGameEngine.gPlayer.pos.x, gGameEngine.gPlayer.pos.y, 600, 1000);
+          gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
           gMap.preDrawCache(); // divide map into pre-rendered tiles
 
           // let user know we are ready
@@ -129,18 +83,19 @@
 
 
       gGameEngine.update(deltaTime);
-      gGameEngine.draw(deltaTime);
+      // gGameEngine.draw();
     },
 
     // ******************************************************************************* update
     update: function (deltaTime) {
 
-      gGameEngine.updatePlayer(deltaTime);
+      gPlayer.update(deltaTime);
 
 
       // update entity or move to kill array if killed
+      var ent = null;
       for (var i = 0; i < gGameEngine.entities.length; i++) {
-        var ent = gGameEngine.entities[i];
+        ent = gGameEngine.entities[i];
         if(!ent._killed) {
           ent.update(deltaTime);
         } else {
@@ -159,7 +114,7 @@
     },
 
     // ******************************************************************************* draw
-    draw: function (deltaTime) {
+    draw: function () {
 
       gMap.draw(gContext);
 
@@ -190,9 +145,12 @@
       zIndex_array.sort(function(a,b) { return a - b;});
       zIndex_array.forEach(function(zindex) {
         entities_bucketed_by_zIndex[zindex].forEach(function(entity) {
-          entity.draw(deltaTime);
+          entity.draw();
         });
       });
+
+
+      gPlayer.draw();
 
       // draw frame
       // gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
@@ -205,122 +163,6 @@
       gGameEngine.entities.push(ent);
 
       return ent;
-    },
-
-    updatePlayer: function (deltaTime) {
-
-      gGameEngine.stateTime += deltaTime;
-      if (gGameEngine.stateTime > 50) {
-        gGameEngine.stateTime = 0;
-
-        if (gInputEngine.actions['move-up']) {
-          this.gPlayer.pos.y -= 20;
-        }
-        if (gInputEngine.actions['move-right']) {
-          this.gPlayer.pos.x += 20;
-        }
-        if (gInputEngine.actions['move-left']) {
-          this.gPlayer.pos.x -= 20;
-        }
-        if (gInputEngine.actions['move-down']) {
-          this.gPlayer.pos.y += 20;
-        }
-
-        gMap.centerAt(this.gPlayer.pos.x, this.gPlayer.pos.y, 600, 1000);
-      }
-
-
-      /*
-
-      // move_dir is a Vec2 object from the Box2d
-      // physics library, which is of the form
-      // {
-      //     x: 0,
-      //     y: 0
-      // }
-      // 
-      // We'll be going more into Box2D later in
-      // the course. The Vec2 constructor takes
-      // an initial x and y value to set the
-      // vector to.
-
-      if (gInputEngine.actions['move-up']) {
-        // adjust the move_dir by 1 in the
-        // y direction. Remember, in our
-        // coordinate system, up is the
-        // negative-y direction, and down
-        // is the positive-y direction!
-        gGameEngine.move_dir.y -= 1;
-      }
-      if (gInputEngine.actions['move-down']) {
-        // adjust the move_dir by 1 in the
-        // y direction. Remember, in our
-        // coordinate system, up is the
-        // negative-y direction, and down
-        // is the positive-y direction!
-        gGameEngine.move_dir.y += 1;
-      }
-      if (gInputEngine.actions['move-left']) {
-        // adjust the move_dir by 1 in the
-        // x direction.
-        gGameEngine.move_dir.x -= 1;
-      }
-      if (gInputEngine.actions['move-right']) {
-        // adjust the move_dir by 1 in the
-        // x direction.
-        gGameEngine.move_dir.x += 1;
-      }
-
-      // After modifying the move_dir above, we check
-      // if the vector is non-zero. If it is, we adjust
-      // the vector length based on the player's walk
-      // speed.
-      if (gGameEngine.move_dir.LengthSquared()) {
-        // First set 'move_dir' to a unit vector in
-        // the same direction it's currently pointing.
-        gGameEngine.move_dir.Normalize();
-
-        // Next, multiply 'move_dir' by the player's
-        // set 'walkSpeed'. We do this in case we might
-        // want to change the player's walk speed due
-        // to a power-up, etc.
-        gGameEngine.move_dir.Multiply(gGameEngine.gPlayer0.walkSpeed);
-      }
-
-      gGameEngine.gPlayer0.mpPhysBody.setLinearVelocity(gGameEngine.move_dir.x, gGameEngine.move_dir.y);
-
-      // Keyboard based facing & firing direction
-      if (gInputEngine.actions.fire0 || gInputEngine.actions.fire1) {
-
-        // Grab the player's screen position in space.
-        var playerInScreenSpace = {
-          x: gRenderEngine.getScreenPosition(this.gPlayer0.pos).x,
-          y: gRenderEngine.getScreenPosition(this.gPlayer0.pos).y
-        };
-
-        // Set the dirVec property to the difference between the
-        // current mouse position and the player's position in
-        // screen space.
-        dirVec.x = gInputEngine.mouse.x - playerInScreenSpace.x;
-        dirVec.y = gInputEngine.mouse.y - playerInScreenSpace.y;
-
-        dirVec.normalize();
-      }
-
-      // Modify dirVec based on the current state of the 'fire-up',
-      // 'fire-down', 'fire-left', 'fire-right'.
-      if (gInputEngine.actions['fire-up']) {
-        gGameEngine.dirVec.y--;
-      } else if (gInputEngine.actions['fire-down']) {
-        gGameEngine.dirVec.y++;
-      }
-
-      if (gInputEngine.actions['fire-left']) {
-        gGameEngine.dirVec.x--;
-      } else if (gInputEngine.actions['fire-right']) {
-        gGameEngine.dirVec.x++;
-      }
-      */
     },
 
     //----------------------------
@@ -366,6 +208,25 @@
       // Play the sound 
       var sound = gSM.loadAsync(soundURL, function(sObj) {
           gSM.playSound(sObj.path, {volume: vol, looping: false});
+      });
+    },
+
+    // ******************************************************************************* load sounds and entities
+    setupSpritesAndEntities: function() {
+      var spriteTest = new SpriteSheetClass();
+      spriteTest.setAsset('images/glowy.png', gCachedAssets['images/glowy.png']);
+      spriteTest.parseAtlasDefinition(gCachedAssets['images/glowy.json']);
+
+      var entityTest = gGameEngine.spawnEntity('EnemyEntity');
+      entityTest.create(500, 300, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+    },
+
+    setupSounds: function() {
+      gSM.loadAsync('sound/coin.ogg', function()  {
+        gSM.loadAsync('sound/music.mp3', function() {
+          gSM.playSound('sound/music.mp3', { looping: true });
+          gSM.playSound('sound/coin.ogg');
+        });
       });
     }
   });

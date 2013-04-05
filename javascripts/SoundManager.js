@@ -10,7 +10,7 @@
  *  http://creativecommons.org/licenses/by-nc-sa/3.0/
  *
  */
- 
+
 
 (function() { "use strict";
 
@@ -21,7 +21,7 @@
    _mainNode: null,
 
     //----------------------------
-    create: function () {
+    setup: function () {
       try {
         gSM._context = new webkitAudioContext();
       } catch (e) {

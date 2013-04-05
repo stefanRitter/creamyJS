@@ -1,4 +1,8 @@
 /*
+ *
+ *  Hi there, have a look at my source files here:
+ *  https://github.com/stefanRitter/
+ *  
  *  Core.js based on Udacity game dev course: 
  *  https://www.udacity.com/course/cs255
  * 
