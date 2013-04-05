@@ -18,7 +18,7 @@
   window.requestAnimationFrame = requestAnimationFrame;
 })();
 
-(function() { //"use strict";
+(function() {
   var GameEngineClass = Class.extend({
 
     startTime: 0,
@@ -38,8 +38,9 @@
           'images/blend.png',
           'images/glowy.png',
           'images/glowy.json',
-          'javascripts/AnimatedEntity.js',
           'javascripts/EnemyEntity.js',
+          'javascripts/GoalEntity.js',
+          'javascripts/PlatformEntity.js',
           'javascripts/Player.js' ];
 
       loadAssets(assets, function() {
@@ -48,6 +49,7 @@
         gSM.setup();
         gInputEngine.setup();
         gPhysicsEngine.setup();
+        gPlayer.setup();
 
         // gGameEngine.setupSounds();
         gGameEngine.setupSpritesAndEntities();
@@ -83,7 +85,7 @@
 
 
       gGameEngine.update(deltaTime);
-      // gGameEngine.draw();
+      gGameEngine.draw();
     },
 
     // ******************************************************************************* update
@@ -98,6 +100,7 @@
         ent = gGameEngine.entities[i];
         if(!ent._killed) {
           ent.update(deltaTime);
+
         } else {
           gGameEngine._deferredKill.push(ent);
         }
@@ -105,6 +108,7 @@
 
       // erase killed entities
       for (var j = 0; j < gGameEngine._deferredKill.length; j++) {
+        if (gGameEngine._deferredKill[j].kill) { gGameEngine._deferredKill[j].kill(); }
         gGameEngine.entities.erase(gGameEngine._deferredKill[j]);
       }
       gGameEngine._deferredKill = [];
@@ -218,7 +222,7 @@
       spriteTest.parseAtlasDefinition(gCachedAssets['images/glowy.json']);
 
       var entityTest = gGameEngine.spawnEntity('EnemyEntity');
-      entityTest.create(500, 300, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+      entityTest.create(500, 300, 50, 100, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
     },
 
     setupSounds: function() {

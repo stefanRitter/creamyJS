@@ -35,7 +35,7 @@
     setup: function () {
       // Example usage of bind, where we're setting up
       // the W, A, S, and D keys in that order.
-      gInputEngine.bind(87, 'move-up');
+      gInputEngine.bind(87, 'jump');
       gInputEngine.bind(65, 'move-left');
       gInputEngine.bind(83, 'move-down');
       gInputEngine.bind(68, 'move-right');

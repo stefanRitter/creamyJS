@@ -11,136 +11,99 @@
 (function() { "use strict";
 
   var PlayerClass = Class.extend({
-    pos: {
-      x: 500,
-      y: 300
-    },
+    pos: { x: 500, y: 300 },
     stateTime: 0,
     walkSpeed: 1,
-    mpPhysBody: new BodyDef(),
+    physBody: null,
+    readyToJump: false,
+    jumpStrength: -40,
+    speed: 10/2,
+    maxSpeed: 10/2,
+    currVel: null,
 
-    init: function() { },
+    setup: function() {
+
+      this.physBody = gPhysicsEngine.addBody( {
+        x: this.pos.x/gPhysicsEngine.scale,
+        y: this.pos.y/gPhysicsEngine.scale,
+        type: 'dynamic',
+        density: 1.0,
+        friction: 1.0,
+        restitution: 0.2,
+        radius: 32/gPhysicsEngine.scale,
+        userData: {
+          "id": 'player',
+          "ent": this
+        }
+      });
+    },
 
     draw: function() { },
 
     update: function(deltaTime) {
+
+      this.pos = this.physBody.GetPosition();
+      this.currVel = this.physBody.GetLinearVelocity();
+
       this.stateTime += deltaTime;
-      if (this.stateTime > 50) {
+      //if (this.stateTime > 50) {
         this.stateTime = 0;
 
-        if (gInputEngine.actions['move-up']) {
-          this.pos.y -= 20;
-        }
-        if (gInputEngine.actions['move-right']) {
-          this.pos.x += 20;
-        }
-        if (gInputEngine.actions['move-left']) {
-          this.pos.x -= 20;
-        }
-        if (gInputEngine.actions['move-down']) {
-          this.pos.y += 20;
+        // slow down running
+        //this.physBody.ApplyImpulse({ x: -(this.currVel.x/10), y:0}, this.pos);
+
+        if (gInputEngine.actions['jump']) {
+          // apply vertical impulse only if ready to jump
+          if (this.readyToJump) {
+            this.physBody.ApplyImpulse({ x:0, y: this.jumpStrength}, this.pos);
+            this.readyToJump = false;
+          }
         }
 
-        gMap.centerAt(this.pos.x, this.pos.y, 600, 1000);
+        if (gInputEngine.actions['move-right']) {
+
+          if (this.currVel.x < this.maxSpeed) {
+            this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
+          }
+        }
+        if (gInputEngine.actions['move-left']) {
+          if (this.currVel.x > -this.maxSpeed) {
+            this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
+          }
+        }
+      //}
+
+      // convert back to pixels for renderer
+      this.pos.x *= gPhysicsEngine.scale;
+      this.pos.y *= gPhysicsEngine.scale;
+
+      gMap.centerAt(this.pos.x, this.pos.y, 600, 1000);
+    },
+
+    onTouch: function (otherBody, impulse) {
+      this.readyToJump = true;
+
+      if(!this.physBody) return false;
+      if(!otherBody.GetUserData()) return false;
+
+      var physOwner = otherBody.GetUserData().ent;
+
+      if(physOwner) {
+        if(physOwner._killed) return false;
+
+        // what did the player hit?
+        // if wall or floor then this.readyToJump = true;
+
+        return true;
       }
+
+      return false;
+    },
+
+    onEndContact: function () {
+      this.readyToJump = false;
     }
   });
 
   window.gPlayer = new PlayerClass();
 }).call(this);
-
-/*
-updatePlayer: function (deltaTime) {
-
-  
-
-  // move_dir is a Vec2 object from the Box2d
-  // physics library, which is of the form
-  // {
-  //     x: 0,
-  //     y: 0
-  // }
-  // 
-  // We'll be going more into Box2D later in
-  // the course. The Vec2 constructor takes
-  // an initial x and y value to set the
-  // vector to.
-
-  if (gInputEngine.actions['move-up']) {
-    // adjust the move_dir by 1 in the
-    // y direction. Remember, in our
-    // coordinate system, up is the
-    // negative-y direction, and down
-    // is the positive-y direction!
-    gGameEngine.move_dir.y -= 1;
-  }
-  if (gInputEngine.actions['move-down']) {
-    // adjust the move_dir by 1 in the
-    // y direction. Remember, in our
-    // coordinate system, up is the
-    // negative-y direction, and down
-    // is the positive-y direction!
-    gGameEngine.move_dir.y += 1;
-  }
-  if (gInputEngine.actions['move-left']) {
-    // adjust the move_dir by 1 in the
-    // x direction.
-    gGameEngine.move_dir.x -= 1;
-  }
-  if (gInputEngine.actions['move-right']) {
-    // adjust the move_dir by 1 in the
-    // x direction.
-    gGameEngine.move_dir.x += 1;
-  }
-
-  // After modifying the move_dir above, we check
-  // if the vector is non-zero. If it is, we adjust
-  // the vector length based on the player's walk
-  // speed.
-  if (gGameEngine.move_dir.LengthSquared()) {
-    // First set 'move_dir' to a unit vector in
-    // the same direction it's currently pointing.
-    gGameEngine.move_dir.Normalize();
-
-    // Next, multiply 'move_dir' by the player's
-    // set 'walkSpeed'. We do this in case we might
-    // want to change the player's walk speed due
-    // to a power-up, etc.
-    gGameEngine.move_dir.Multiply(gGameEngine.gPlayer0.walkSpeed);
-  }
-
-  gGameEngine.gPlayer0.mpPhysBody.setLinearVelocity(gGameEngine.move_dir.x, gGameEngine.move_dir.y);
-
-  // Keyboard based facing & firing direction
-  if (gInputEngine.actions.fire0 || gInputEngine.actions.fire1) {
-
-    // Grab the player's screen position in space.
-    var playerInScreenSpace = {
-      x: gRenderEngine.getScreenPosition(this.gPlayer0.pos).x,
-      y: gRenderEngine.getScreenPosition(this.gPlayer0.pos).y
-    };
-
-    // Set the dirVec property to the difference between the
-    // current mouse position and the player's position in
-    // screen space.
-    dirVec.x = gInputEngine.mouse.x - playerInScreenSpace.x;
-    dirVec.y = gInputEngine.mouse.y - playerInScreenSpace.y;
-
-    dirVec.normalize();
-  }
-
-  // Modify dirVec based on the current state of the 'fire-up',
-  // 'fire-down', 'fire-left', 'fire-right'.
-  if (gInputEngine.actions['fire-up']) {
-    gGameEngine.dirVec.y--;
-  } else if (gInputEngine.actions['fire-down']) {
-    gGameEngine.dirVec.y++;
-  }
-
-  if (gInputEngine.actions['fire-left']) {
-    gGameEngine.dirVec.x--;
-  } else if (gInputEngine.actions['fire-right']) {
-    gGameEngine.dirVec.x++;
-  }
-}
-*/

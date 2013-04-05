@@ -21,6 +21,10 @@
 		
 		<!-- styles -->
 		<link href="stylesheets/application.css" rel="stylesheet" type="text/css">
+
+    <!-- scripts -->
+    <script src="javascripts/Core.js"></script>
+    <script src="javascripts/box2D.js"></script>
 	</head>
 	
 	<body>
@@ -36,7 +40,7 @@
 			
     		<header class="mainheader">
     			<h1>TechnoColorCreamy</h1>
-          <p><a href="#" id="screenshot">screenshot</a> &#166; <a href="#" id="soundcontrol">sound on</a></p>
+          <p><a href="#" id="screenshot">screenshot</a> &#166; <a href="#" id="soundcontrol">sound</a></p>
     		</header>
         
 
@@ -48,7 +52,7 @@
             Based on the <a href="https://www.udacity.com/course/cs255">Udacity HTML5 Game Dev Course</a> by <a href="http://mainroach.blogspot.com/">Colt McAnlis</a>, <a href="https://twitter.com/peterlubbers">Peter Lubbers</a> &amp; <a href="https://twitter.com/SeanUdacity">Sean Bennett</a>. Written by <a href="http://www.stefanritter.com">Stefan Ritter</a>, source shared on <a href="https://github.com/stefanRitter/creamyJS">GitHub</a> under the Creative Commons <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">CC BY-NC-SA 3.0</a> license.
     			</p>
           <p>
-            Physics simulated with Erin Catto's <a href="http://box2d.org/">Box2D</a>. Music by <a href="http://freemusicarchive.org/music/Epsilon_Not/old_new_realism/10_vanilla_ice_cream">Epsilon Not</a>. Sound effects from LINK. Sprites packed with <a href="http://www.codeandweb.com/texturepacker">TexturePacker</a>, and the levels are built with <a href="http://www.mapeditor.org/">Tiled</a>.
+            Physics simulated with Erin Catto's <a href="http://box2d.org/">Box2D</a>. Music by <a href="http://freemusicarchive.org/music/Epsilon_Not/old_new_realism/10_vanilla_ice_cream">Epsilon Not</a>. Sound effects from LINK. The sprites were packed with <a href="http://www.codeandweb.com/texturepacker">TexturePacker</a>, and the levels were built with <a href="http://www.mapeditor.org/">Tiled</a>.
           </p>
     		</footer>
       </div>
@@ -57,9 +61,9 @@
 		<div id="loading"><img src="images/loading.gif" alt="loading..." /></div>
 
 		<!-- scripts -->
-    <script src="javascripts/Core.js"></script>
-    <script src="javascripts/box2D.js"></script>
+    <script src="javascripts/PhysicsEngine.js"></script>
     <script src="javascripts/AssetManager.js"></script>
+    <script src="javascripts/Entity.js"></script>
 		<script src="javascripts/application.js"></script>
 	</body>
 </html>

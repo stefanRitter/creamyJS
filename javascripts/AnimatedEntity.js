@@ -17,17 +17,13 @@ var AnimatedEntity = EntityClass.extend({
   stateTime: 0,
   loop: false,
 
-  init: function() {},
+  create: function(x, y, w, h, images, animLength, looping) {
+    this.parent(x, y, w, h, null);
 
-  setAnimation: function(images, animLength, looping) {
     this.assets = images;
     this.numFrames = images.length;
     this.frameLength = animLength / this.numFrames;
     this.loop = looping || false;
-
-    // TODO: pre-process sprite sheet info
-    // TODO: set size property
-    // TODO: set half size property
   },
 
   update: function(deltaTime) {
@@ -47,9 +43,8 @@ var AnimatedEntity = EntityClass.extend({
   },
 
   draw: function() {
-    // TODO: convert world to screen pos
-    // TODO: minus half size
-    drawSprite(this.assets[this.currentFrame], this.pos.x, this.pos.y);
+    this.setSprite(this.assets[this.currentFrame]);
+    this.parent();
   }
 });
 

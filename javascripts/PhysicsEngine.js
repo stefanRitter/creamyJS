@@ -14,7 +14,7 @@
  *
  */
 
-(function() { "use strict";
+(function() {
 
   // global short-hands for Box2D primitives
   window.Vec2 = Box2D.Common.Math.b2Vec2;
@@ -41,27 +41,44 @@
           true              // allow sleep
       );
 
-      // Add collision listener
+      // Add collision listeners
       gPhysicsEngine.addContactListener( {
         PostSolve: function (bodyA, bodyB, impulse) {
           var uA = bodyA ? bodyA.GetUserData() : null,
               uB = bodyB ? bodyB.GetUserData() : null;
 
-          if (uA !== null) {
-            if (uA.ent !== null && uA.ent.onTouch) {
+          if (uA) {
+            if (uA.ent && uA.ent.onTouch) {
                 uA.ent.onTouch(bodyB, impulse);
             }
           }
 
-          if (uB !== null) {
-            if (uB.ent !== null && uB.ent.onTouch) {
+          if (uB) {
+            if (uB.ent && uB.ent.onTouch) {
                 uB.ent.onTouch(bodyA, impulse);
+            }
+          }
+        },
+
+        EndContact: function (bodyA, bodyB) {
+          var uA = bodyA ? bodyA.GetUserData() : null,
+              uB = bodyB ? bodyB.GetUserData() : null;
+
+          if (uA) {
+            if (uA.ent && uA.ent.onEndContact) {
+                uA.ent.onEndContact();
+            }
+          }
+
+          if (uB) {
+            if (uB.ent && uB.ent.onEndContact) {
+                uB.ent.onEndContact();
             }
           }
         }
       });
 
-      gPhysicsEngine.testEngine();
+      // gPhysicsEngine.testEngine();
     },
 
     //-----------------------------------------
@@ -74,17 +91,27 @@
       );
       gPhysicsEngine.world.ClearForces();
 
-      gPhysicsEngine.world.DrawDebugData();
+      // gPhysicsEngine.world.DrawDebugData();
     },
 
     //-----------------------------------------
     addContactListener: function (callbacks) {
       var listener = new Box2D.Dynamics.b2ContactListener();
 
-      if(callbacks.PostSolve) listener.PostSolve = function (contact, impulse) {
+      if (callbacks.PostSolve) listener.PostSolve = function (contact, impulse) {
           callbacks.PostSolve(contact.GetFixtureA().GetBody(),
                               contact.GetFixtureB().GetBody(),
                               impulse.normalImpulses[0]);
+      };
+
+      if (callbacks.BeginContact) listener.BeginContact = function (contact) {
+          callbacks.BeginContact(contact.GetFixtureA().GetBody(),
+                                 contact.GetFixtureB().GetBody());
+      };
+
+      if (callbacks.EndContact) listener.EndContact = function (contact) {
+          callbacks.EndContact(contact.GetFixtureA().GetBody(),
+                               contact.GetFixtureB().GetBody());
       };
 
       gPhysicsEngine.world.SetContactListener(listener);
@@ -110,8 +137,8 @@
 
       bodyDef.position.x = entityDef.x;
       bodyDef.position.y = entityDef.y;
-
-      if(entityDef.userData)  bodyDef.userData = entityDef.userData;
+      bodyDef.linearDamping = entityDef.linearDamping || bodyDef.linearDamping;
+      bodyDef.userData = entityDef.userData || null;
 
       body = this.registerBody(bodyDef);
 
@@ -150,7 +177,7 @@
 
     testEngine: function() {
       var debugDraw = new DebugDraw(),
-          floor, rect, circle;
+          rect, circle, wall;
 
       debugDraw.SetSprite(gContext);
       debugDraw.SetDrawScale(gPhysicsEngine.scale);
@@ -160,15 +187,7 @@
       debugDraw.SetFlags(DebugDraw.e_shapeBit | DebugDraw.e_jointBit);
       gPhysicsEngine.world.SetDebugDraw(debugDraw);
 
-
-      floor = gPhysicsEngine.addBody( {
-        x: 1000/2/gPhysicsEngine.scale,
-        y: 500/gPhysicsEngine.scale,
-        halfWidth: 500/gPhysicsEngine.scale,
-        halfHeight: 10/gPhysicsEngine.scale,
-        type: 'static'
-      });
-
+      /*
       rect = gPhysicsEngine.addBody( {
         x: 40/gPhysicsEngine.scale,
         y: 100/gPhysicsEngine.scale,
@@ -179,7 +198,7 @@
         friction: 0.5,
         restitution: 0.3
       });
-
+      
       circle = gPhysicsEngine.addBody( {
         x: 130/gPhysicsEngine.scale,
         y: 100/gPhysicsEngine.scale,
@@ -190,6 +209,38 @@
         friction: 0.5,
         restitution: 0.7,
         radius: 32/gPhysicsEngine.scale
+      });
+      */
+      wall = gPhysicsEngine.addBody( {
+        x: 0,
+        y: 32/gPhysicsEngine.scale,
+        halfWidth: 30/gPhysicsEngine.scale,
+        halfHeight: 600/gPhysicsEngine.scale,
+        type: 'static'
+      });
+
+      wall = gPhysicsEngine.addBody( {
+        x: 990/gPhysicsEngine.scale,
+        y: 32/gPhysicsEngine.scale,
+        halfWidth: 30/gPhysicsEngine.scale,
+        halfHeight: 600/gPhysicsEngine.scale,
+        type: 'static'
+      });
+      wall = gPhysicsEngine.addBody( {
+        x: 1000/2/gPhysicsEngine.scale,
+        y: 580/gPhysicsEngine.scale,
+        halfWidth: 500/gPhysicsEngine.scale,
+        halfHeight: 10/gPhysicsEngine.scale,
+        type: 'static',
+        friction: 1.0
+      });
+      wall = gPhysicsEngine.addBody( {
+        x: 1000/2/gPhysicsEngine.scale,
+        y: 20/gPhysicsEngine.scale,
+        halfWidth: 1000/gPhysicsEngine.scale,
+        halfHeight: 10/gPhysicsEngine.scale,
+        type: 'static',
+        friction: 1.0
       });
     }
   });

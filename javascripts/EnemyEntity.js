@@ -10,14 +10,12 @@
 
 
 var EnemyEntity = AnimatedEntity.extend({
-  zindex: 1,
+  zindex: 2,
   physBody: null,
+  newPos: {x:0,y:0},
 
-  init: function() {},
-
-  create: function(x, y, images, animLength) {
-    this.pos.x = x;
-    this.pos.y = y;
+  create: function(x, y, w, h, images, animLength) {
+    this.parent(x, y, w, h, images, animLength, true);
 
     this.physBody = gPhysicsEngine.addBody( {
       x: x/gPhysicsEngine.scale,
@@ -28,10 +26,12 @@ var EnemyEntity = AnimatedEntity.extend({
       density: 1.0,
       friction: 0.5,
       restitution: 0.7,
-      radius: 32/gPhysicsEngine.scale
+      radius: 32/gPhysicsEngine.scale,
+      userData: {
+        "id": "enemy",
+        "ent": this
+      }
     });
-
-    this.setAnimation(images, animLength, true);
   },
 
   onTouch: function (otherBody, impulse) {
@@ -53,7 +53,11 @@ var EnemyEntity = AnimatedEntity.extend({
   },
 
   update: function(deltaTime) {
-    // TODO: get position form physics engine
+    this.newPos = this.physBody.GetPosition();
+    this.newPos.x *= gPhysicsEngine.scale;
+    this.newPos.y *= gPhysicsEngine.scale;
+
+    this.position(this.newPos.x, this.newPos.y);
 
     this.parent(deltaTime);
   }

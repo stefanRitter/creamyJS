@@ -13,95 +13,50 @@
 
 
 var EntityClass = Class.extend({
-    // can all be referenced by child classes
+    // referenced by child classes
     pos :  {x:0,y:0},
+    canvaspos: {x:0,y:0},
     size : {x:0,y:0},
+    halfsize : {x:0,y:0},
     last : {x:0,y:0},
     _killed: false,
     zindex: 0,
+    sprite: '',
 
-    init: function() {},
+    create: function(x, y, w, h, image) {
+      this.pos.x = x;
+      this.pos.y = y;
+      this.size.x = w;
+      this.size.y = h;
+      this.halfsize.x = w/2;
+      this.halfsize.y = h/2;
+      this.sprite = image;
+
+      this.convertPosToScreen();
+    },
+
+    // define setter for the this.pos member,
+    // this a work-around of an inheritance bug 
+    // I ran into with the chrome debugger
+    position: function(x, y) {
+      this.pos.x = x;
+      this.pos.y = y;
+    },
+
+    setSprite: function(image) {
+      this.sprite = image;
+    },
 
     // overloaded by child classes
     update : function() { },
-    draw : function() { }
-});
 
-
-/*
-
-//
-// example with physics ontouch
-//
-
-EnergyCanisterClass = EntityClass.extend({
-    physBody: null,
-    _killed: false,
-
-    init: function (x, y, settings) {
-        this.parent(x, y, settings);
-
-        var startPos = {
-            x: x,
-            y: y
-        };
-
-        // Create our physics body;
-        var entityDef = {
-            id: "EnergyCanister",
-            type: 'static',
-            x: startPos.x,
-            y: startPos.y,
-            halfHeight: 18 * 0.5,
-            halfWidth: 19 * 0.5,
-            damping: 0,
-            angle: 0,
-            categories: ['projectile'],
-            collidesWith: ['player'],
-            userData: {
-                "id": "EnergyCanister",
-                "ent": this
-            }
-        };
-
-        this.physBody = gPhysicsEngine.addBody(entityDef);
-        this.physBody.SetLinearVelocity(new Vec2(0, 0));
+    convertPosToScreen: function() {
+      this.canvaspos.x = this.pos.x - gMap.viewRect.x;
+      this.canvaspos.y = this.pos.y - gMap.viewRect.y;
     },
 
-    //-----------------------------------------
-    kill: function () {
-        // Remove my physics body
-        gPhysicsEngine.removeBody(this.physBody);
-        this.physBody = null;
-
-        // Destroy me as an entity
-        this._killed = true;
-    },
-
-    //-----------------------------------------
-    onTouch: function (otherBody, point, impulse) {
-        if(!this.physBody) return false;
-        if(!otherBody.GetUserData()) return false;
-
-        var physOwner = otherBody.GetUserData().ent;
-
-        if(physOwner !== null) {
-            if(physOwner._killed) return false;
-
-            // Increase the 'energy' property of 'physOwner' by
-            // 10 when it touches this EnergyCanister.
-            //
-            // YOUR CODE HERE
-            physOwner.energy += 10;
-
-            this.markForDeath = true;
-        }
-
-        return true;
+    draw : function() {
+      this.convertPosToScreen();
+      drawSprite(this.sprite, this.canvaspos.x - this.halfsize.x, this.canvaspos.y - this.halfsize.y);
     }
-
 });
-
-gGameEngine.factory['EnergyCanister'] = EnergyCanisterClass;
-
-*/

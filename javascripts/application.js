@@ -38,13 +38,12 @@
   // ******************************************************************************* assets
   var assets = [
       'images/controls.png',
-      'javascripts/PhysicsEngine.js',
       'javascripts/SoundManager.js',
       'javascripts/InputEngine.js',
       'javascripts/Spritesheet.js',
       'javascripts/TILEDmap.js',
-      'javascripts/Entity.js',
-      'javascripts/GameEngine.js' ];
+      'javascripts/GameEngine.js',
+      'javascripts/AnimatedEntity.js' ];
 
 	// ******************************************************************************* onload
 	window.onload = function () {
