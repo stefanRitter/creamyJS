@@ -119,6 +119,7 @@
 
     // ******************************************************************************* draw
     draw: function () {
+      gContext.clearRect(0,0,gCanvas.width, gCanvas.height);
 
       gMap.draw(gContext);
 

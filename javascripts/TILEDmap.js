@@ -13,7 +13,7 @@
 
 /*jshint loopfunc: true */
 
-(function() { //"use strict";
+(function() {
 
   // ******************************************************************************* CanvasTile Class
   var CanvasTile = Class.extend({
@@ -67,440 +67,438 @@
   // ******************************************************************************* TILEDMapClass
   var TILEDMapClass = Class.extend({
 
-      // This is where we store the full parsed
-      // JSON of the map.json file.
-      currMapData: null,
+    // This is where we store the full parsed
+    // JSON of the map.json file.
+    currMapData: null,
 
-      // tilesets stores each individual tileset
-      // from the map.json's 'tilesets' Array.
-      // The structure of each entry of this
-      // Array is explained below in the
-      // parseAtlasDefinition method.
-      tilesets: [],
+    // tilesets stores each individual tileset
+    // from the map.json's 'tilesets' Array.
+    // The structure of each entry of this
+    // Array is explained below in the
+    // parseAtlasDefinition method.
+    tilesets: [],
 
-      // Our 'viewRect' determines what position
-      // of the map that is visible on our canvas.
-      // It defaults to the top-left corner of the
-      // map with a width of 1000 and a height of
-      // 1000.
-      viewRect: {
-          "x": 0,
-          "y": 0,
-          "w": 1000,
-          "h": 1000
-      },
+    // Our 'viewRect' determines what position
+    // of the map that is visible on our canvas.
+    // It defaults to the top-left corner of the
+    // map with a width of 1000 and a height of
+    // 1000.
+    viewRect: {
+        "x": 0,
+        "y": 0,
+        "w": 1000,
+        "h": 1000
+    },
 
-      // This is where we store the width and
-      // height of the map in tiles. This is
-      // in the 'width' and 'height' fields
-      // of map.json, respectively.
-      // The values 100 here are just set
-      // so these fields are initialized to
-      // something, rather than null.
-      numXTiles: 100,
-      numYTiles: 100,
+    // This is where we store the width and
+    // height of the map in tiles. This is
+    // in the 'width' and 'height' fields
+    // of map.json, respectively.
+    // The values 100 here are just set
+    // so these fields are initialized to
+    // something, rather than null.
+    numXTiles: 100,
+    numYTiles: 100,
 
-      // The size of each individual map
-      // tile, in pixels. This is in the
-      // 'tilewidth' and 'tileheight' fields
-      // of map.json, respectively.
-      // The values 64 here are just set
-      // so these fields are initialized to
-      // something, rather than null.
-      tileSize: {
-          "x": 64,
-          "y": 64
-      },
+    // The size of each individual map
+    // tile, in pixels. This is in the
+    // 'tilewidth' and 'tileheight' fields
+    // of map.json, respectively.
+    // The values 64 here are just set
+    // so these fields are initialized to
+    // something, rather than null.
+    tileSize: {
+        "x": 64,
+        "y": 64
+    },
 
-      // The size of the entire map,
-      // in pixels. This is calculated
-      // based on the 'numXTiles', 'numYTiles',
-      // and 'tileSize' parameters.
-      // The values 64 here are just set
-      // so these fields are initialized to
-      // something, rather than null.
-      pixelSize: {
-          "x": 64,
-          "y": 64
-      },
+    // The size of the entire map,
+    // in pixels. This is calculated
+    // based on the 'numXTiles', 'numYTiles',
+    // and 'tileSize' parameters.
+    // The values 64 here are just set
+    // so these fields are initialized to
+    // something, rather than null.
+    pixelSize: {
+        "x": 64,
+        "y": 64
+    },
 
-      // Counter to keep track of how many tile
-      // images we have successfully loaded.
-      imgLoadCount: 0,
+    // Counter to keep track of how many tile
+    // images we have successfully loaded.
+    imgLoadCount: 0,
 
-      // Boolean flag we set once our tile images
-      // has finished loading.
-      fullyLoaded: false,
+    // Boolean flag we set once our tile images
+    // has finished loading.
+    fullyLoaded: false,
 
-      // Gives a default size for all of our
-      // 'CanvasTiles' in pixels.
-      canvasTileSize: {
-          "x": 1024,
-          "y": 1024
-      },
+    // Gives a default size for all of our
+    // 'CanvasTiles' in pixels.
+    canvasTileSize: {
+        "x": 1024,
+        "y": 1024
+    },
 
-      // An array to store all of our 'CanvasTile'
-      // objects, so that we can cache them using
-      // the preDrawCache method below.
-      canvasTileArray: [],
+    // An array to store all of our 'CanvasTile'
+    // objects, so that we can cache them using
+    // the preDrawCache method below.
+    canvasTileArray: [],
 
-      canvas_width: 0,
-      canvas_height: 0,
+    canvas_width: 0,
+    canvas_height: 0,
 
-      // ******************************************************************************* load functions
-      //-----------------------------------------
-      // Load the json file at the url 'map' into
-      // memory. This is similar to the requests
-      // we've done in the past using
-      // XMLHttpRequests.
-      load: function (map, callbackFn, canvas_width, canvas_height) {
+    // ******************************************************************************* load functions
+    //-----------------------------------------
+    // Load the json file at the url 'map' into
+    // memory. This is similar to the requests
+    // we've done in the past using
+    // XMLHttpRequests.
+    load: function (map, callbackFn, canvas_width, canvas_height) {
 
-        gMap.canvas_width = canvas_width;
-        gMap.canvas_height = canvas_height;
+      gMap.canvas_width = canvas_width;
+      gMap.canvas_height = canvas_height;
 
-        xhrGet(map, function () {
-            // Once the XMLHttpRequest loads, call the
-            // parseMapJSON method.
-            gMap.parseMapJSON(this.response, callbackFn);
-        });
-      },
+      xhrGet(map, function () {
+          // Once the XMLHttpRequest loads, call the
+          // parseMapJSON method.
+          gMap.parseMapJSON(this.response, callbackFn);
+      });
+    },
 
-      //-----------------------------------------
-      // Parses the map data from 'mapJSON', then
-      // stores that data in a number of members
-      // of our 'TILEDMapClass' that are defined
-      // above.
-      parseMapJSON: function (mapJSON, callbackFn) {
+    //-----------------------------------------
+    // Parses the map data from 'mapJSON', then
+    // stores that data in a number of members
+    // of our 'TILEDMapClass' that are defined
+    // above.
+    parseMapJSON: function (mapJSON, callbackFn) {
 
-          // Call JSON.parse on 'mapJSON' and store
-          // the resulting map data
-          gMap.currMapData = JSON.parse(mapJSON);
+      // Call JSON.parse on 'mapJSON' and store
+      // the resulting map data
+      gMap.currMapData = JSON.parse(mapJSON);
 
-          var map = gMap.currMapData;
+      var map = gMap.currMapData;
 
-          // Set 'numXTiles' and 'numYTiles' from the
-          // 'width' and 'height' fields of our parsed
-          // map data.
-          gMap.numXTiles = map.width;
-          gMap.numYTiles = map.height;
+      // Set 'numXTiles' and 'numYTiles' from the
+      // 'width' and 'height' fields of our parsed
+      // map data.
+      gMap.numXTiles = map.width;
+      gMap.numYTiles = map.height;
 
-          // Set the 'tileSize.x' and 'tileSize.y' fields
-          // from the 'tilewidth' and 'tileheight' fields
-          // of our parsed map data.
-          gMap.tileSize.x = map.tilewidth;
-          gMap.tileSize.y = map.tileheight;
+      // Set the 'tileSize.x' and 'tileSize.y' fields
+      // from the 'tilewidth' and 'tileheight' fields
+      // of our parsed map data.
+      gMap.tileSize.x = map.tilewidth;
+      gMap.tileSize.y = map.tileheight;
 
-          // Set the 'pixelSize.x' and 'pixelSize.y' fields
-          // by multiplying the number of tiles in our map
-          // by the size of each tile in pixels.
-          gMap.pixelSize.x = gMap.numXTiles * gMap.tileSize.x;
-          gMap.pixelSize.y = gMap.numYTiles * gMap.tileSize.y;
+      // Set the 'pixelSize.x' and 'pixelSize.y' fields
+      // by multiplying the number of tiles in our map
+      // by the size of each tile in pixels.
+      gMap.pixelSize.x = gMap.numXTiles * gMap.tileSize.x;
+      gMap.pixelSize.y = gMap.numYTiles * gMap.tileSize.y;
 
-          // Loop through 'map.tilesets', an Array...
-          for(var i = 0; i < map.tilesets.length; i++) {
+      // Loop through 'map.tilesets', an Array...
+      for(var i = 0; i < map.tilesets.length; i++) {
 
-              // ...loading each of the provided tilesets as
-              // Images...
-              var img = new Image();
-              img.onload = function () {
-                  // ...Increment the above 'imgLoadCount'
-                  // field of 'TILEDMap' as each tileset is 
-                  // loading...
-                  gMap.imgLoadCount++;
-                  if (gMap.imgLoadCount === map.tilesets.length) {
-                      // ...Once all the tilesets are loaded, 
-                      // set the 'fullyLoaded' flag to true...
-                      gMap.fullyLoaded = true;
+        // ...loading each of the provided tilesets as
+        // Images...
+        var img = new Image();
+        img.onload = function () {
+          // ...Increment the above 'imgLoadCount'
+          // field of 'TILEDMap' as each tileset is 
+          // loading...
+          gMap.imgLoadCount++;
+          if (gMap.imgLoadCount === map.tilesets.length) {
+              // ...Once all the tilesets are loaded, 
+              // set the 'fullyLoaded' flag to true...
+              gMap.fullyLoaded = true;
 
-                      callbackFn(); //let the game know we are done
-                  }
-              };
-
-              // This is the javascript object we'll create for
-              // the 'tilesets' Array above. First, fill in the
-              // given fields with the corresponding fields from
-              // the 'tilesets' Array in 'currMapData'.
-              var ts = {
-                  "firstgid": gMap.currMapData.tilesets[i].firstgid,
-
-                  "image": img,
-                  "imageheight": gMap.currMapData.tilesets[i].imageheight,
-                  "imagewidth": gMap.currMapData.tilesets[i].imagewidth,
-                  "name": gMap.currMapData.tilesets[i].name,
-
-
-                  // some TILED tilesets have the tiles divided by a margin in their source image
-                  // store the margin width here for adjustment later when getting the packet info
-
-                  "margin": gMap.currMapData.tilesets[i].margin,
-
-                  // calculate this data from the
-                  // width and height of the overall image and
-                  // the size of each individual tile.
-                  // 
-                  // This should be an integer
-
-                  "numXTiles": Math.floor(gMap.currMapData.tilesets[i].imagewidth / gMap.tileSize.x),
-                  "numYTiles": Math.floor(gMap.currMapData.tilesets[i].imageheight / gMap.tileSize.y)
-              };
-
-              img.src = map.tilesets[i].image;
-              //img.src = "img/" + map.tilesets[i].image.replace(/^.*[\\\/]/, '');
-
-              gMap.tilesets.push(ts);
+              callbackFn(); //let the game know we are done
           }
-      },
+        };
 
-      //-----------------------------------------
-      // Grabs a tile from our 'layer' data and returns
-      // the 'pkt' object for the layer we want to draw.
-      // It takes as a parameter 'tileIndex', which is
-      // the id of the tile we'd like to draw in our
-      // layer data.
-      getTilePacket: function (tileIndex) {
+        // This is the javascript object we'll create for
+        // the 'tilesets' Array above. First, fill in the
+        // given fields with the corresponding fields from
+        // the 'tilesets' Array in 'currMapData'.
+        var ts = {
+          "firstgid": gMap.currMapData.tilesets[i].firstgid,
 
-          // We define a 'pkt' object that will contain
+          "image": img,
+          "imageheight": gMap.currMapData.tilesets[i].imageheight,
+          "imagewidth": gMap.currMapData.tilesets[i].imagewidth,
+          "name": gMap.currMapData.tilesets[i].name,
+
+
+          // some TILED tilesets have the tiles divided by a margin in their source image
+          // store the margin width here for adjustment later when getting the packet info
+
+          "margin": gMap.currMapData.tilesets[i].margin,
+
+          // calculate this data from the
+          // width and height of the overall image and
+          // the size of each individual tile.
           // 
-          // 1) The Image object of the given tile.
-          // 2) The (x,y) values that we want to draw
-          //    the tile to in map coordinates.
-          var pkt = {
-              "img": null,
-              "px": 0,
-              "py": 0
-          };
+          // This should be an integer
 
-          // The first thing we need to do is find the
-          // appropriate tileset that we want to draw
-          // from.
-          //
-          // Remember, if the tileset's 'firstgid'
-          // parameter is less than the 'tileIndex'
-          // of the tile we want to draw, then we know
-          // that tile is not in the given tileset and
-          // we can skip to the next one.
-          var tile = 0;
-          for(tile = gMap.tilesets.length - 1; tile >= 0; tile--) {
-              if(gMap.tilesets[tile].firstgid <= tileIndex) break;
-          }
+          "numXTiles": Math.floor(gMap.currMapData.tilesets[i].imagewidth / gMap.tileSize.x),
+          "numYTiles": Math.floor(gMap.currMapData.tilesets[i].imageheight / gMap.tileSize.y)
+        };
 
-          // Next, we need to set the 'img' parameter
-          // in our 'pkt' object to the Image object
-          // of the appropriate 'tileset' that we found
-          // above.
-          pkt.img = gMap.tilesets[tile].image;
+        img.src = map.tilesets[i].image;
+        //img.src = "img/" + map.tilesets[i].image.replace(/^.*[\\\/]/, '');
 
+        gMap.tilesets.push(ts);
+      }
+    },
 
-          // Finally, we need to calculate the position to
-          // draw to based on:
-          //
-          // 1) The local id of the tile, calculated from the
-          //    'tileIndex' of the tile we want to draw and
-          //    the 'firstgid' of the tileset we found earlier.
+    //-----------------------------------------
+    // Grabs a tile from our 'layer' data and returns
+    // the 'pkt' object for the layer we want to draw.
+    // It takes as a parameter 'tileIndex', which is
+    // the id of the tile we'd like to draw in our
+    // layer data.
+    getTilePacket: function (tileIndex) {
 
-          var localIdx = tileIndex - gMap.tilesets[tile].firstgid;
+      // We define a 'pkt' object that will contain
+      // 
+      // 1) The Image object of the given tile.
+      // 2) The (x,y) values that we want to draw
+      //    the tile to in map coordinates.
+      var pkt = {
+          "img": null,
+          "px": 0,
+          "py": 0
+      };
 
-          // 2) The (x,y) position of the tile in terms of the
-          //    number of tiles in our tileset. This is based on
-          //    the 'numXTiles' of the given tileset. Note that
-          //    'numYTiles' isn't actually needed here. Think about
-          //    how the tiles are arranged if you don't see this,
-          //    It's a little tricky. You might want to use the 
-          //    modulo and division operators here.
+      // The first thing we need to do is find the
+      // appropriate tileset that we want to draw
+      // from.
+      //
+      // Remember, if the tileset's 'firstgid'
+      // parameter is less than the 'tileIndex'
+      // of the tile we want to draw, then we know
+      // that tile is not in the given tileset and
+      // we can skip to the next one.
+      var tile = 0;
+      for(tile = gMap.tilesets.length - 1; tile >= 0; tile--) {
+          if(gMap.tilesets[tile].firstgid <= tileIndex) break;
+      }
 
-          var lTileX = Math.floor(localIdx % gMap.tilesets[tile].numXTiles);
-          var lTileY = Math.floor(localIdx / gMap.tilesets[tile].numXTiles);
-
-          // 3) the (x,y) pixel position in our tileset image of the
-          //    tile we want to draw. This is based on the tile
-          //    position we just calculated and the (x,y) size of
-          //    each tile in pixels.
-          pkt.px = (lTileX * gMap.tileSize.x);
-          pkt.py = (lTileY * gMap.tileSize.y);
+      // Next, we need to set the 'img' parameter
+      // in our 'pkt' object to the Image object
+      // of the appropriate 'tileset' that we found
+      // above.
+      pkt.img = gMap.tilesets[tile].image;
 
 
-          // if the tileset comes with a margin, adjust the starting point accordingly
-          if (gMap.tilesets[tile].margin) {
-            var margin = gMap.tilesets[tile].margin;
-            pkt.px += (lTileX * margin) + margin;
-            pkt.py += (lTileY * margin) + margin;
-          }
+      // Finally, we need to calculate the position to
+      // draw to based on:
+      //
+      // 1) The local id of the tile, calculated from the
+      //    'tileIndex' of the tile we want to draw and
+      //    the 'firstgid' of the tileset we found earlier.
 
-          return pkt;
-      },
+      var localIdx = tileIndex - gMap.tilesets[tile].firstgid;
 
-      // ******************************************************************************* draw functions
-      draw: function (ctx) {
+      // 2) The (x,y) position of the tile in terms of the
+      //    number of tiles in our tileset. This is based on
+      //    the 'numXTiles' of the given tileset. Note that
+      //    'numYTiles' isn't actually needed here. Think about
+      //    how the tiles are arranged if you don't see this,
+      //    It's a little tricky. You might want to use the 
+      //    modulo and division operators here.
 
-          if(!gMap.fullyLoaded) return;
+      var lTileX = Math.floor(localIdx % gMap.tilesets[tile].numXTiles);
+      var lTileY = Math.floor(localIdx / gMap.tilesets[tile].numXTiles);
 
-          // For each 'CanvasTile' in our 'canvasTileArray', we
-          // need to test whether or not it is currently visible.
-          // the 'isVisible' method of our canvas tile might be
-          // useful here...
-          //
-          // If it is visible, then we need to draw the 'cvsHdl'
-          // to our game canvas.
-          //
-          // One thing to keep in mind is that you'll need to
-          // adjust the position to draw to based on the position
-          // of our 'viewRect'.
+      // 3) the (x,y) pixel position in our tileset image of the
+      //    tile we want to draw. This is based on the tile
+      //    position we just calculated and the (x,y) size of
+      //    each tile in pixels.
+      pkt.px = (lTileX * gMap.tileSize.x);
+      pkt.py = (lTileY * gMap.tileSize.y);
 
-          // console.log('tiles to check: ' + gMap.canvasTileArray.length);
-          for(var q = 0; q < gMap.canvasTileArray.length; q++) {
 
-              var r1 = gMap.canvasTileArray[q];
+      // if the tileset comes with a margin, adjust the starting point accordingly
+      if (gMap.tilesets[tile].margin) {
+        var margin = gMap.tilesets[tile].margin;
+        pkt.px += (lTileX * margin) + margin;
+        pkt.py += (lTileY * margin) + margin;
+      }
 
-              if(r1.isVisible()) {
-                ctx.drawImage(r1.cvsHdl, r1.x - gMap.viewRect.x, r1.y - gMap.viewRect.y);
-              }
-          }
-      },
+      return pkt;
+    },
 
-      //-----------------------------------------
-      // Draws all of our map tiles to the 'canvasTileArray'
-      // property of our 'TILEDMapClass' that we defined above.
-      preDrawCache: function () {
-          // First let's grab the total number of canvases (canvi? canvii?)
-          // that we need to draw to fully tile our map, both across and
-          // down.
-          //
-          // Be careful to make sure that at least 1 canvas is always drawn!
-          var xCanvasCount = 1 + Math.floor(gMap.pixelSize.x / gMap.canvasTileSize.x);
-          var yCanvasCount = 1 + Math.floor(gMap.pixelSize.y / gMap.canvasTileSize.y);
+    // ******************************************************************************* draw functions
+    draw: function (ctx) {
 
-          // Now we'll need to create a new 'CanvasTile' for each of the
-          // tile positions we calculated above, and initialize it with
-          // the default size of our canvases as defined in our
-          // 'canvasTileSize' property defined above.
-          //
-          // Finally, we'll need to push this new canvas to our
-          // 'canvasTileArray'.
-          for(var yC = 0; yC < yCanvasCount; yC++) {
-              for(var xC = 0; xC < xCanvasCount; xC++) {
-                  var canvasTile = new CanvasTile();
-                  canvasTile.create(gMap.canvasTileSize.x, gMap.canvasTileSize.y);
-                  canvasTile.x = xC * gMap.canvasTileSize.x;
-                  canvasTile.y = yC * gMap.canvasTileSize.y;
-                  gMap.canvasTileArray.push(canvasTile);
+      if(!gMap.fullyLoaded) return;
 
-                  gMap.fillCanvasTile(canvasTile);
-              }
-          }
+      // For each 'CanvasTile' in our 'canvasTileArray', we
+      // need to test whether or not it is currently visible.
+      // the 'isVisible' method of our canvas tile might be
+      // useful here...
+      //
+      // If it is visible, then we need to draw the 'cvsHdl'
+      // to our game canvas.
+      //
+      // One thing to keep in mind is that you'll need to
+      // adjust the position to draw to based on the position
+      // of our 'viewRect'.
 
-          gMap.fullyLoaded = true;
-      },
+      // console.log('tiles to check: ' + gMap.canvasTileArray.length);
+      for(var q = 0; q < gMap.canvasTileArray.length; q++) {
 
-      //-----------------------------------------
-      // Draws all the relevant data to the passed-in
-      // 'CanvasTile'. Note that this is very similar
-      // to our 'draw' method above, but draws to the
-      // context of the passed-in 'ctile'.
-      fillCanvasTile: function (ctile) {
-          // What we'd like to do is draw to Canvas context
-          // of the passed-in 'ctile', rather than the
-          // context of our game canvas.
-          // We also need to create a new rectangle object
-          // to use with intersectRect to test against
-          // drawing below.
-          // Create this here instead of within the for loop.
-          var ctx = ctile.ctx;
-          ctx.fillRect(0, 0, ctile.w, ctile.h);
-          var vRect = {
-              top: ctile.y,
-              left: ctile.x,
-              bottom: ctile.y + ctile.h,
-              right: ctile.x + ctile.w
-          };
+          var r1 = gMap.canvasTileArray[q];
 
-          // Now, for every single layer in the 'layers' Array
-          // of 'currMapData'...
-          for(var layerIdx = 0; layerIdx < gMap.currMapData.layers.length; layerIdx++) {
-              // Check if the 'type' of the layer is "tilelayer". If it isn't, we don't
-              // care about drawing it...
-              if(gMap.currMapData.layers[layerIdx].type != "tilelayer") continue;
-
-              // ...Grab the 'data' Array of the given layer...
-              var dat = gMap.currMapData.layers[layerIdx].data;
-
-              // ...For each tileID in the 'data' Array...
-              for(var tileIDX = 0; tileIDX < dat.length; tileIDX++) {
-                  // ...Check if that tileID is 0. Remember, we don't draw
-                  // draw those, so we can skip processing them...
-                  var tID = dat[tileIDX];
-                  if(tID === 0) continue;
-
-                  // ...If the tileID is not 0, then we grab the
-                  // packet data using getTilePacket.
-                  var tPKT = gMap.getTilePacket(tID);
-
-                  // Now we need to calculate the (x,y) position we want to draw
-                  // to in our game world.
-                  //
-                  // We've performed a similar calculation in 'getTilePacket',
-                  // think about how to calculate this based on the tile id and
-                  // various tile properties that our TILEDMapClass has.
-                  var worldX = Math.floor(tileIDX % gMap.numXTiles) * gMap.tileSize.x;
-                  var worldY = Math.floor(tileIDX / gMap.numXTiles) * gMap.tileSize.y;
-
-                  // We also need to test whether the world position we're drawing to
-                  // is within the bounds of our 'ctile'.
-                  //
-                  // Use the rectangle you created above and the 'intersectRect' method
-                  // to determine this. If it isn't visible, then don't continue with
-                  // drawing.
-                  var visible = gMap.intersectRect(vRect, {
-                      top: worldY,
-                      left: worldX,
-                      bottom: worldY + gMap.tileSize.y,
-                      right: worldX + gMap.tileSize.x
-                  });
-
-                  if(!visible) continue;
-
-                  // Change the 'drawImage' call below as necessary to draw to the 'ctile' context
-                  // instead, and take into account the rectangle you created above when drawing
-                  // to the canvas tile.
-                  ctx.drawImage(tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y,
-                    worldX - vRect.left, worldY - vRect.top, this.tileSize.x, this.tileSize.y);
-              }
-          }
-      },
-
-      // ******************************************************************************* utils
-      //-----------------------------------------
-      // Test if two rectangles intersect. The parameters
-      // are objects of the shape:
-      // {
-      //     top: The 'y' coordinate of the top edge
-      //     left: The 'x' coordinate of the left edge
-      //     bottom: The 'y' coordinate of the bottom edge
-      //     right: The 'x' coordinate of the right edge
-      // }
-      intersectRect: function (r1, r2) {
-          // returning true if they do intersect and false if they do not intersect.
-          return !(r2.left > r1.right || r2.right < r1.left || r2.top > r1.bottom || r2.bottom < r1.top);
-      },
-
-      //-----------------------------------------
-      // Shifts the 'viewRect' object such that it's
-      // center stays at the center of the canvas.
-      centerAt: function(x, y) {
-
-          gMap.viewRect.x = x - gMap.canvas_width/2;
-          if (gMap.viewRect.x < 0) {
-            gMap.viewRect.x = 0;
-          } else if (gMap.viewRect.x + gMap.canvas_width > gMap.pixelSize.x) {
-            gMap.viewRect.x = gMap.pixelSize.x - gMap.canvas_width;
-          }
-
-          gMap.viewRect.y = y - gMap.canvas_height/2;
-          if (gMap.viewRect.y < 0) {
-            gMap.viewRect.y = 0;
-          } else if (gMap.viewRect.y + gMap.canvas_height > gMap.pixelSize.y) {
-            gMap.viewRect.y = gMap.pixelSize.y - gMap.canvas_height;
+          if(r1.isVisible()) {
+            ctx.drawImage(r1.cvsHdl, r1.x - gMap.viewRect.x, r1.y - gMap.viewRect.y);
           }
       }
+    },
+
+    //-----------------------------------------
+    // Draws all of our map tiles to the 'canvasTileArray'
+    // property of our 'TILEDMapClass' that we defined above.
+    preDrawCache: function () {
+      // First let's grab the total number of canvases (canvi? canvii?)
+      // that we need to draw to fully tile our map, both across and
+      // down.
+      //
+      // Be careful to make sure that at least 1 canvas is always drawn!
+      var xCanvasCount = 1 + Math.floor(gMap.pixelSize.x / gMap.canvasTileSize.x);
+      var yCanvasCount = 1 + Math.floor(gMap.pixelSize.y / gMap.canvasTileSize.y);
+
+      // Now we'll need to create a new 'CanvasTile' for each of the
+      // tile positions we calculated above, and initialize it with
+      // the default size of our canvases as defined in our
+      // 'canvasTileSize' property defined above.
+      //
+      // Finally, we'll need to push this new canvas to our
+      // 'canvasTileArray'.
+      for(var yC = 0; yC < yCanvasCount; yC++) {
+          for(var xC = 0; xC < xCanvasCount; xC++) {
+              var canvasTile = new CanvasTile();
+              canvasTile.create(gMap.canvasTileSize.x, gMap.canvasTileSize.y);
+              canvasTile.x = xC * gMap.canvasTileSize.x;
+              canvasTile.y = yC * gMap.canvasTileSize.y;
+              gMap.canvasTileArray.push(canvasTile);
+
+              gMap.fillCanvasTile(canvasTile);
+          }
+      }
+
+      gMap.fullyLoaded = true;
+    },
+
+    //-----------------------------------------
+    // Draws all the relevant data to the passed-in
+    // 'CanvasTile'. Note that this is very similar
+    // to our 'draw' method above, but draws to the
+    // context of the passed-in 'ctile'.
+    fillCanvasTile: function (ctile) {
+      // What we'd like to do is draw to Canvas context
+      // of the passed-in 'ctile', rather than the
+      // context of our game canvas.
+      // We also need to create a new rectangle object
+      // to use with intersectRect to test against
+      // drawing below.
+      // Create this here instead of within the for loop.
+      var ctx = ctile.ctx;
+      ctx.clearRect(0, 0, ctile.w, ctile.h);
+
+      var vRect = {
+          top: ctile.y,
+          left: ctile.x,
+          bottom: ctile.y + ctile.h,
+          right: ctile.x + ctile.w
+      };
+
+      // Now, for every single layer in the 'layers' Array
+      // of 'currMapData'...
+      for(var layerIdx = 0; layerIdx < gMap.currMapData.layers.length; layerIdx++) {
+        // Check if the 'type' of the layer is "tilelayer". If it isn't, we don't
+        // care about drawing it...
+        if(gMap.currMapData.layers[layerIdx].type != "tilelayer") continue;
+
+        // ...Grab the 'data' Array of the given layer...
+        var dat = gMap.currMapData.layers[layerIdx].data;
+
+        // ...For each tileID in the 'data' Array...
+        for(var tileIDX = 0; tileIDX < dat.length; tileIDX++) {
+          // ...Check if that tileID is 0. Remember, we don't draw
+          // draw those, so we can skip processing them...
+          var tID = dat[tileIDX];
+          if(tID === 0) continue;
+
+          // ...If the tileID is not 0, then we grab the
+          // packet data using getTilePacket.
+          var tPKT = gMap.getTilePacket(tID);
+
+          // Now we need to calculate the (x,y) position we want to draw
+          // to in our game world.
+          //
+          // We've performed a similar calculation in 'getTilePacket',
+          // think about how to calculate this based on the tile id and
+          // various tile properties that our TILEDMapClass has.
+          var worldX = Math.floor(tileIDX % gMap.numXTiles) * gMap.tileSize.x;
+          var worldY = Math.floor(tileIDX / gMap.numXTiles) * gMap.tileSize.y;
+
+          // We also need to test whether the world position we're drawing to
+          // is within the bounds of our 'ctile'.
+          //
+          // Use the rectangle you created above and the 'intersectRect' method
+          // to determine this. If it isn't visible, then don't continue with
+          // drawing.
+          var visible = gMap.intersectRect(vRect, {
+              top: worldY,
+              left: worldX,
+              bottom: worldY + gMap.tileSize.y,
+              right: worldX + gMap.tileSize.x
+          });
+
+          if(!visible) continue;
+
+          ctx.drawImage(tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y,
+            worldX - vRect.left, worldY - vRect.top, this.tileSize.x, this.tileSize.y);
+        }
+      }
+    },
+
+    // ******************************************************************************* utils
+    //-----------------------------------------
+    // Test if two rectangles intersect. The parameters
+    // are objects of the shape:
+    // {
+    //     top: The 'y' coordinate of the top edge
+    //     left: The 'x' coordinate of the left edge
+    //     bottom: The 'y' coordinate of the bottom edge
+    //     right: The 'x' coordinate of the right edge
+    // }
+    intersectRect: function (r1, r2) {
+      // returning true if they do intersect and false if they do not intersect.
+      return !(r2.left > r1.right || r2.right < r1.left || r2.top > r1.bottom || r2.bottom < r1.top);
+    },
+
+    //-----------------------------------------
+    // Shifts the 'viewRect' object such that it's
+    // center stays at the center of the canvas.
+    centerAt: function(x, y) {
+
+      gMap.viewRect.x = x - gMap.canvas_width/2;
+      if (gMap.viewRect.x < 0) {
+        gMap.viewRect.x = 0;
+      } else if (gMap.viewRect.x + gMap.canvas_width > gMap.pixelSize.x) {
+        gMap.viewRect.x = gMap.pixelSize.x - gMap.canvas_width;
+      }
+
+      gMap.viewRect.y = y - gMap.canvas_height/2;
+      if (gMap.viewRect.y < 0) {
+        gMap.viewRect.y = 0;
+      } else if (gMap.viewRect.y + gMap.canvas_height > gMap.pixelSize.y) {
+        gMap.viewRect.y = gMap.pixelSize.y - gMap.canvas_height;
+      }
+    }
   });
 
   window.gMap = new TILEDMapClass();
