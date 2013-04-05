@@ -42,7 +42,7 @@
       // mpPhysBody: new BodyDef()
     },
 
-    //-----------------------------
+    // ******************************************************************************* setup
     setup: function () {
 
       var assets = [
@@ -71,13 +71,13 @@
         entityTest.pos.x = 300;
         entityTest.pos.y = 300;
 
-        entityTest.setAnimation(['001.png', '002.png', '003.png', '004.png'], 100);
+        entityTest.setAnimation(['001.png', '002.png', '003.png', '004.png'], 400, true);
 
-        /* 
+
         // Create physics engine
         gPhysicsEngine.create();
 
-        // Add contact listener
+        // Add collision listener
         gPhysicsEngine.addContactListener({
 
             PostSolve: function (bodyA, bodyB, impulse) {
@@ -97,13 +97,12 @@
                 }
             }
         });
-        */
 
         // load map and start game once loaded
         gMap.load('images/map/desert.json', function() {
 
           gMap.centerAt(gGameEngine.gPlayer.pos.x, gGameEngine.gPlayer.pos.y, 600, 1000);
-          gMap.preDrawCache(); // divide map into rendered tiles
+          gMap.preDrawCache(); // divide map into pre-rendered tiles
 
           // let user know we are ready
           gLoading.innerHTML = "click to start";
@@ -115,45 +114,31 @@
             requestAnimationFrame(gGameEngine.gameLoop);
             gCanvas.removeEventListener('click', startGame, false);
           }
+
           gCanvas.addEventListener('click', startGame, false);
-        });
+        }, 1000, 600);
       });
     },
 
-    spawnEntity: function (typename) {
-        var ent = new (gGameEngine.factory[typename])();
-
-        gGameEngine.entities.push(ent);
-
-        return ent;
-    },
-
-    removeEntity: function(removeEnt) {
-    // We don't do anything with this right now.
-    // We'll fill it in later this unit.
-    },
-
+    // ******************************************************************************* game loop
     gameLoop: function() {
       requestAnimationFrame(gGameEngine.gameLoop);
 
       var deltaTime = Date.now() - gGameEngine.startTime;
       gGameEngine.startTime = Date.now();
 
-      gGameEngine.update(deltaTime);
 
+      gGameEngine.update(deltaTime);
       gGameEngine.draw(deltaTime);
     },
 
+    // ******************************************************************************* update
     update: function (deltaTime) {
-      // Update player position from previous unit.
+
       gGameEngine.updatePlayer(deltaTime);
 
-      // Loop through the entities and call that entity's
-      // 'update' method, but only do it if that entity's
-      // '_killed' flag is set to true.
-      //
-      // Otherwise, push that entity onto the '_deferredKill'
-      // list defined above.
+
+      // update entity or move to kill array if killed
       for (var i = 0; i < gGameEngine.entities.length; i++) {
         var ent = gGameEngine.entities[i];
         if(!ent._killed) {
@@ -163,28 +148,26 @@
         }
       }
 
-      // Loop through the '_deferredKill' list and remove each
-      // entity in it from the 'entities' list.
+      // erase killed entities
       for (var j = 0; j < gGameEngine._deferredKill.length; j++) {
         gGameEngine.entities.erase(gGameEngine._deferredKill[j]);
       }
-
       gGameEngine._deferredKill = [];
 
-      // Update physics engine
-      // gPhysicsEngine.update();
+
+      gPhysicsEngine.update();
     },
 
-    //-----------------------------
+    // ******************************************************************************* draw
     draw: function (deltaTime) {
 
       gMap.draw(gContext);
 
 
       // Bucket entities by zIndex
-      var fudgeVariance = 128;
-      var zIndex_array = [];
-      var entities_bucketed_by_zIndex = {};
+      var fudgeVariance = 128,
+          zIndex_array = [],
+          entities_bucketed_by_zIndex = {};
 
       gGameEngine.entities.forEach(function(entity) {
         //don't draw entities that are off screen
@@ -192,9 +175,8 @@
            entity.pos.x < gMap.viewRect.x + gMap.viewRect.w + fudgeVariance &&
            entity.pos.y >= gMap.viewRect.y - fudgeVariance &&
            entity.pos.y < gMap.viewRect.y + gMap.viewRect.h + fudgeVariance) {
-            // Bucket the entities in the entities list by their zindex
-            // property.
 
+            // Bucket the entities in the entities list by their zindex property.
             if (zIndex_array.indexOf(entity.zindex) === -1) {
                 zIndex_array.push(entity.zindex);
                 entities_bucketed_by_zIndex[entity.zindex] = [];
@@ -212,10 +194,17 @@
         });
       });
 
-      //drawSprite('005.png', 0, 0);
-
       // draw frame
-      gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
+      // gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
+    },
+
+    // ******************************************************************************* utils
+    spawnEntity: function (typename) {
+      var ent = new (gGameEngine.factory[typename])();
+
+      gGameEngine.entities.push(ent);
+
+      return ent;
     },
 
     updatePlayer: function (deltaTime) {
@@ -226,20 +215,18 @@
 
         if (gInputEngine.actions['move-up']) {
           this.gPlayer.pos.y -= 20;
-          gMap.centerAt(this.gPlayer.pos.x, this.gPlayer.pos.y, 600, 1000);
         }
         if (gInputEngine.actions['move-right']) {
           this.gPlayer.pos.x += 20;
-          gMap.centerAt(this.gPlayer.pos.x, this.gPlayer.pos.y, 600, 1000);
         }
         if (gInputEngine.actions['move-left']) {
           this.gPlayer.pos.x -= 20;
-          gMap.centerAt(this.gPlayer.pos.x, this.gPlayer.pos.y, 600, 1000);
         }
         if (gInputEngine.actions['move-down']) {
           this.gPlayer.pos.y += 20;
-          gMap.centerAt(this.gPlayer.pos.x, this.gPlayer.pos.y, 600, 1000);
         }
+
+        gMap.centerAt(this.gPlayer.pos.x, this.gPlayer.pos.y, 600, 1000);
       }
 
 
@@ -345,12 +332,6 @@
     //----------------------------
     playWorldSound: function (soundURL, x, y) {
 
-      // First we check if the player exists. If not, then we
-      // don't need to bother playing sounds.
-      if (gGameEngine.gPlayer0 === null) {
-        return;
-      }
-
       // We set a shorthand for gGameEngine.gMap for ease of use.
       var gMap = gGameEngine.gMap;
 
@@ -359,9 +340,8 @@
       var viewSize = Math.max(gMap.viewRect.w, gMap.viewRect.h) * 0.5;
 
       // Grab the player's position.
-      var oCenter = gGameEngine.gPlayer0.pos;
+      var oCenter = gGameEngine.gPlayer.pos;
 
-      // Task #1
       // Calculate the distance from the player's position to the
       // sound's position. Note that we don't want negative distances,
       // so you'll need to use the Math.abs function to get the
@@ -370,8 +350,6 @@
       var dy = Math.abs(oCenter.y - y);
       var dist = Math.sqrt(dx*dx + dy*dy);
 
-
-      // Task #2
       // Normalize the distance from the player to the sound based
       // on the viewSize we calculated earlier.
       // 
@@ -385,10 +363,7 @@
 
       var vol = 1.0 - normDist;
 
-      // Task #3
-      // Play the sound found at soundURL at the specified volume.
-      // You can use the loadAsync and playSound methods to
-      // accomplish this.
+      // Play the sound 
       var sound = gSM.loadAsync(soundURL, function(sObj) {
           gSM.playSound(sObj.path, {volume: vol, looping: false});
       });

@@ -16,7 +16,6 @@
 
 
 // These are global shorthands we declare for Box2D primitives
-// we'll be using very frequently.
 Vec2 = Box2D.Common.Math.b2Vec2;
 BodyDef = Box2D.Dynamics.b2BodyDef;
 Body = Box2D.Dynamics.b2Body;
@@ -47,9 +46,9 @@ PhysicsEngineClass = Class.extend({
         var start = Date.now();
 
         gPhysicsEngine.world.Step(
-            gPhysicsEngine.PHYSICS_LOOP_HZ,    //frame-rate
-            10,                 //velocity iterations
-            10                  //position iterations
+            gPhysicsEngine.PHYSICS_LOOP_HZ,  //frame-rate
+            10,                              //velocity iterations
+            10                               //position iterations
         );
         gPhysicsEngine.world.ClearForces();
 
