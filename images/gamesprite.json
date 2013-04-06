@@ -40,9 +40,25 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":78},
 	"sourceSize": {"w":59,"h":78}
 },
+"goal01.png":
+{
+	"frame": {"x":63,"y":82,"w":80,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":80},
+	"sourceSize": {"w":80,"h":80}
+},
+"goal02.png":
+{
+	"frame": {"x":145,"y":82,"w":80,"h":80},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":80},
+	"sourceSize": {"w":80,"h":80}
+},
 "platform.png":
 {
-	"frame": {"x":2,"y":162,"w":200,"h":29},
+	"frame": {"x":2,"y":164,"w":200,"h":29},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":29},
@@ -55,6 +71,6 @@
 	"format": "RGBA8888",
 	"size": {"w":256,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:b7b796a874a314c881386ebdf27a7f97$"
+	"smartupdate": "$TexturePacker:SmartUpdate:ea5d982a3a650a2498928c6eca045968$"
 }
 }

@@ -139,9 +139,9 @@
 
       bodyDef.userData = entityDef.userData || null;
 
-      fixtureDefinition.density = entityDef.density || 1.0;
-      fixtureDefinition.friction = entityDef.friction || 0.5;
-      fixtureDefinition.restitution = entityDef.restitution || 0.7;
+      fixtureDefinition.density = entityDef.density || fixtureDefinition.density;
+      fixtureDefinition.friction = entityDef.friction || fixtureDefinition.friction;
+      fixtureDefinition.restitution = entityDef.restitution || fixtureDefinition.restitution;
 
       if (entityDef.shape) {
         fixtureDefinition.shape = entityDef.shape;
@@ -176,9 +176,6 @@
       // show shapes and joints
       debugDraw.SetFlags(DebugDraw.e_shapeBit | DebugDraw.e_jointBit);
       gPhysicsEngine.world.SetDebugDraw(debugDraw);
-
-      gPhysicsEngine.createCircularBody();
-      gPhysicsEngine.createCircularBody3();
     }
   });
 

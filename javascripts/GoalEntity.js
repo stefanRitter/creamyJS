@@ -17,25 +17,27 @@ var GoalEntity = AnimatedEntity.extend({
     this.parent(x, y, w, h, images, animLength, true);
 
     this.physBody = gPhysicsEngine.addBody( {
-      x: x/gPhysicsEngine.scale,
-      y: y/gPhysicsEngine.scale,
+      x: x,
+      y: y,
       type: 'static',
-      radius: (w > h ? w : h)/gPhysicsEngine.scale,
+      radius: 32,
       userData: {
         "id": "goal",
         "ent": this
       }
     });
-  },
-
+  }
+  /*
   onTouch: function (otherBody, impulse) {
-    return; 
+    return;
     // TODO: if touched by player do something amazing
   },
 
   update: function(deltaTime) {
     // TODO: if touched by player do something amazing
+    this.parent(deltaTime);
   }
+  */
 });
 
 gGameEngine.factory['GoalEntity'] = GoalEntity;

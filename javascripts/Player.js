@@ -104,7 +104,6 @@
       if(!otherBody.GetUserData()) return;
 
       var physOwner = otherBody.GetUserData();
-      console.log(physOwner.id);
 
       if(physOwner.ent) {
         if(physOwner.ent._killed) return;

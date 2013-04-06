@@ -31,7 +31,7 @@ var EnemyEntity = AnimatedEntity.extend({
       }
     });
   },
-
+/*
   onTouch: function (otherBody, impulse) {
     if(!this.physBody) return;
     if(!otherBody.GetUserData()) return;
@@ -43,14 +43,10 @@ var EnemyEntity = AnimatedEntity.extend({
 
       if (physOwner.id === 'platform') {
         //reverse direction
-
-      } else if (physOwner.id === 'player') {
-        gGameEngine.gameState = gGameEngine.STATE.GAMEOVER;
-
-      }
+      } 
     }
   },
-
+*/
   update: function(deltaTime) {
     this.newPos = this.physBody.GetPosition();
 

@@ -46,9 +46,11 @@
 
       var assets = [
           'images/blend.png',
+          'images/background.png',
           'images/gamesprite.png',
           'images/gamesprite.json',
           'javascripts/EnemyEntity.js',
+          'javascripts/Background.js',
           'javascripts/GoalEntity.js',
           'javascripts/PlatformEntity.js',
           'javascripts/Player.js' ];
@@ -60,6 +62,7 @@
         gInputEngine.setup();
         gPhysicsEngine.setup();
         gPlayer.setup();
+        gBackground.setup('images/background.png');
 
         // load & parse the map and start game once it's loaded
         gMap.load('images/map/desert.json', function() {
@@ -89,9 +92,9 @@
 
     // ******************************************************************************************** game loop
     gameLoop: function() {
+      gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
 
       if (gGameEngine.gameState === gGameEngine.STATE.PLAY) {
-        gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
 
         var deltaTime = Date.now() - gGameEngine.startTime;
         gGameEngine.startTime = Date.now();
@@ -101,10 +104,10 @@
         gGameEngine.draw();
 
       } else if (gGameEngine.gameState === gGameEngine.STATE.GAMEOVER) {
-        console.log('game over');
+        alert('game over');
         cancelAnimationFrame(gGameEngine.request);
-      } else if (gGameEngine.gameState === gGameEngine.STATE.PLAY){
-        console.log('you did it!');
+      } else if (gGameEngine.gameState === gGameEngine.STATE.WIN){
+        alert('you did it!');
         cancelAnimationFrame(gGameEngine.request);
       }
     },
@@ -139,7 +142,7 @@
 
     // ******************************************************************************************** draw
     draw: function () {
-      gContext.clearRect(0,0,gCanvas.width, gCanvas.height);
+      gBackground.draw();
 
       gMap.draw(gContext);
 
@@ -174,7 +177,7 @@
       gPlayer.draw();
 
       // draw frame
-      // gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
+      gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
     },
 
     // ******************************************************************************************** utils
@@ -238,11 +241,14 @@
       sprite.setAsset('images/gamesprite.png', gCachedAssets['images/gamesprite.png']);
       sprite.parseAtlasDefinition(gCachedAssets['images/gamesprite.json']);
 
-      var entityTest = gGameEngine.spawnEntity('EnemyEntity');
-      entityTest.create(800, 300, 59, 78, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+      var entity = gGameEngine.spawnEntity('EnemyEntity');
+      entity.create(800, 300, 59, 78, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
 
-      entityTest = gGameEngine.spawnEntity('EnemyEntity');
-      entityTest.create(820, 100, 59, 78, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+      entity = gGameEngine.spawnEntity('EnemyEntity');
+      entity.create(820, 100, 59, 78, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+
+      entity = gGameEngine.spawnEntity('GoalEntity');
+      entity.create(920, 450, 80, 80, ['goal01.png', 'goal02.png'], 400);
 
       // main walls around the perimeter of the map
       var top = gGameEngine.spawnEntity('PlatformEntity');

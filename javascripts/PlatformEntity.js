@@ -35,6 +35,10 @@ var PlatformEntity = EntityClass.extend({
     // TODO: implement different behaviours ?
   },
 
+  draw: function() {
+    // don't draw anything
+  },
+
   onTouch: function (otherBody, impulse) {
     return;
     // TODO: implement different behaviours ?
