@@ -30,16 +30,18 @@
   window.RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
 
   var PhysicsEngineClass = Class.extend({
+    stateTime: 0,
     world: null,
     scale: 32, // one map tile = 1 meter
-    PHYSICS_LOOP_HZ : 1.0 / 60.0,
 
     //-----------------------------------------
     setup: function () {
-      gPhysicsEngine.world = new World(
-          new Vec2(0, 9.8), // Gravity vector
-          true              // allow sleep
-      );
+      // Setup the box2d World that will do most of they physics calculation
+      var gravity = new Vec2(0,9.8);
+      var allowSleep = true;
+
+      gPhysicsEngine.world = new World(gravity, allowSleep);
+
 
       // Add collision listeners
       gPhysicsEngine.addContactListener( {
@@ -82,12 +84,15 @@
     },
 
     //-----------------------------------------
-    update: function () {
+    update: function (deltaTime) {
+
+      var timestamp = deltaTime/1000;
+      if (timestamp > 2/60) timestamp = 2/60;
 
       gPhysicsEngine.world.Step(
-          gPhysicsEngine.PHYSICS_LOOP_HZ, //frame-rate
-          8,                              //velocity iterations
-          3                               //position iterations
+          timestamp,                 //frame-rate
+          8,                         //velocity iterations
+          3                          //position iterations
       );
       gPhysicsEngine.world.ClearForces();
 
@@ -118,53 +123,39 @@
     },
 
     //-----------------------------------------
-    registerBody: function (bodyDef) {
-      var body = gPhysicsEngine.world.CreateBody(bodyDef);
-      return body;
-    },
-
-    //-----------------------------------------
     addBody: function (entityDef) {
       var bodyDef = new BodyDef(),
           fixtureDefinition = new FixtureDef(),
           body = null;
 
-      if(entityDef.type == 'static') {
+      if(entityDef.type === 'static') {
           bodyDef.type = Body.b2_staticBody;
       } else {
           bodyDef.type = Body.b2_dynamicBody;
       }
 
-      bodyDef.position.x = entityDef.x;
-      bodyDef.position.y = entityDef.y;
-      bodyDef.linearDamping = entityDef.linearDamping || bodyDef.linearDamping;
+      bodyDef.position.x = entityDef.x/gPhysicsEngine.scale;
+      bodyDef.position.y = entityDef.y/gPhysicsEngine.scale;
+
       bodyDef.userData = entityDef.userData || null;
 
-      body = this.registerBody(bodyDef);
-
-      fixtureDefinition.density = entityDef.density || fixtureDefinition.density;
-      fixtureDefinition.friction = entityDef.friction || fixtureDefinition.friction;
-      fixtureDefinition.restitution = entityDef.restitution || fixtureDefinition.restitution;
-
-      /*
-      if(entityDef.useBouncyFixture) {
-          fixtureDefinition.density = 1.0;
-          fixtureDefinition.friction = 0;
-          fixtureDefinition.restitution = 1.0;
-      }
-      */
+      fixtureDefinition.density = entityDef.density || 1.0;
+      fixtureDefinition.friction = entityDef.friction || 0.5;
+      fixtureDefinition.restitution = entityDef.restitution || 0.7;
 
       if (entityDef.shape) {
         fixtureDefinition.shape = entityDef.shape;
 
       } else if (entityDef.radius) {
-        fixtureDefinition.shape = new CircleShape(entityDef.radius);
+        fixtureDefinition.shape = new CircleShape(entityDef.radius/gPhysicsEngine.scale);
 
       } else {
         fixtureDefinition.shape = new PolygonShape();
-        fixtureDefinition.shape.SetAsBox(entityDef.halfWidth, entityDef.halfHeight);
+        fixtureDefinition.shape.SetAsBox(entityDef.halfWidth/gPhysicsEngine.scale,
+          entityDef.halfHeight/gPhysicsEngine.scale);
       }
 
+      body = gPhysicsEngine.world.CreateBody(bodyDef);
       body.CreateFixture(fixtureDefinition);
 
       return body;
@@ -176,8 +167,7 @@
     },
 
     testEngine: function() {
-      var debugDraw = new DebugDraw(),
-          rect, circle, wall;
+      var debugDraw = new DebugDraw();
 
       debugDraw.SetSprite(gContext);
       debugDraw.SetDrawScale(gPhysicsEngine.scale);
@@ -187,61 +177,8 @@
       debugDraw.SetFlags(DebugDraw.e_shapeBit | DebugDraw.e_jointBit);
       gPhysicsEngine.world.SetDebugDraw(debugDraw);
 
-      /*
-      rect = gPhysicsEngine.addBody( {
-        x: 40/gPhysicsEngine.scale,
-        y: 100/gPhysicsEngine.scale,
-        halfWidth: 30/gPhysicsEngine.scale,
-        halfHeight: 50/gPhysicsEngine.scale,
-        type: 'dynamic',
-        density: 1.0,
-        friction: 0.5,
-        restitution: 0.3
-      });
-      
-      circle = gPhysicsEngine.addBody( {
-        x: 130/gPhysicsEngine.scale,
-        y: 100/gPhysicsEngine.scale,
-        halfWidth: 30/gPhysicsEngine.scale,
-        halfHeight: 50/gPhysicsEngine.scale,
-        type: 'dynamic',
-        density: 1.0,
-        friction: 0.5,
-        restitution: 0.7,
-        radius: 32/gPhysicsEngine.scale
-      });
-      */
-      wall = gPhysicsEngine.addBody( {
-        x: 0,
-        y: 32/gPhysicsEngine.scale,
-        halfWidth: 30/gPhysicsEngine.scale,
-        halfHeight: 600/gPhysicsEngine.scale,
-        type: 'static'
-      });
-
-      wall = gPhysicsEngine.addBody( {
-        x: 990/gPhysicsEngine.scale,
-        y: 32/gPhysicsEngine.scale,
-        halfWidth: 30/gPhysicsEngine.scale,
-        halfHeight: 600/gPhysicsEngine.scale,
-        type: 'static'
-      });
-      wall = gPhysicsEngine.addBody( {
-        x: 1000/2/gPhysicsEngine.scale,
-        y: 580/gPhysicsEngine.scale,
-        halfWidth: 500/gPhysicsEngine.scale,
-        halfHeight: 10/gPhysicsEngine.scale,
-        type: 'static',
-        friction: 1.0
-      });
-      wall = gPhysicsEngine.addBody( {
-        x: 1000/2/gPhysicsEngine.scale,
-        y: 20/gPhysicsEngine.scale,
-        halfWidth: 1000/gPhysicsEngine.scale,
-        halfHeight: 10/gPhysicsEngine.scale,
-        type: 'static',
-        friction: 1.0
-      });
+      gPhysicsEngine.createCircularBody();
+      gPhysicsEngine.createCircularBody3();
     }
   });
 

@@ -201,7 +201,7 @@ var SpriteSheetClass = Class.extend({
 // External-facing function for drawing sprites based
 // on the sprite name (ie. "chaingun.png", and the
 // position on the canvas to draw to.
-function drawSprite(spritename, posX, posY) {
+function drawSprite(spritename, posX, posY, width, height) {
 
   // Walk through all our spritesheets defined in
   // 'gSpriteSheets' and for each sheet...
@@ -220,39 +220,11 @@ function drawSprite(spritename, posX, posY) {
       continue;
     }
 
-    __drawSpriteInternal(sprite, sheet, posX, posY);
+    if (sheet === null) {
+      return;
+    }
 
-    // Once we've called __drawSpriteInternal, we
-    // assume there isn't another sprite of the
-    // given 'spritename' that we want to draw,
-    // so we return.
-    // If you make this assumption, make sure
-    // your design team doesn't make sprites with
-    // the same name!
+    gContext.drawImage(sheet.img, sprite.x, sprite.y, sprite.w, sprite.h, posX, posY, width, height);
     return;
   }
-}
-
-//-----------------------------------------
-// External-facing function for drawing sprites based
-// on the sprite object stored in the 'sprites Array,
-// the 'SpriteSheetClass' object stored in the
-// 'gSpriteSheets' dictionary, and the position on
-// canvas to draw to.
-function __drawSpriteInternal(spt, sheet, posX, posY) {
-
-  // First, check if the sprite or sheet objects are null.
-  if (spt === null || sheet === null) {
-    return;
-  }
-
-  var hlf = {
-    x: spt.cx,
-    y: spt.cy
-  };
-
-  gContext.drawImage(sheet.img, spt.x, spt.y, spt.w, spt.h, posX, posY, spt.w, spt.h);
-
-  //gContext.drawImage(sheet.img, spt.x, spt.y, spt.w, spt.h, posX + hlf.x, posY + hlf.y, spt.w, spt.h);
-
 }

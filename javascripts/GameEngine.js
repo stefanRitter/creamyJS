@@ -16,13 +16,23 @@
   var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                               window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
   window.requestAnimationFrame = requestAnimationFrame;
+
+  var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame ||
+                             window.webkitCancelAnimationFrame;
+  window.cancelAnimationFrame = cancelAnimationFrame;
 })();
 
 (function() {
   var GameEngineClass = Class.extend({
 
     startTime: 0,
-    stateTime: 0,
+    request: null,
+    gameState: 0,
+    STATE: {
+      PLAY: 1,
+      GAMEOVER: 2,
+      WIN: 3
+    },
 
     move_dir: new Vec2(0,0),
     dirVec: new Vec2(0,0),
@@ -31,13 +41,13 @@
     factory: {},
     _deferredKill: [],
 
-    // ******************************************************************************* setup
+    // ******************************************************************************************** setup
     setup: function () {
 
       var assets = [
           'images/blend.png',
-          'images/glowy.png',
-          'images/glowy.json',
+          'images/gamesprite.png',
+          'images/gamesprite.json',
           'javascripts/EnemyEntity.js',
           'javascripts/GoalEntity.js',
           'javascripts/PlatformEntity.js',
@@ -51,11 +61,11 @@
         gPhysicsEngine.setup();
         gPlayer.setup();
 
-        // gGameEngine.setupSounds();
-        gGameEngine.setupSpritesAndEntities();
-
-        // lastly load & parse the map and start game once it's loaded
+        // load & parse the map and start game once it's loaded
         gMap.load('images/map/desert.json', function() {
+
+          gGameEngine.setupSounds();
+          gGameEngine.setupSpritesAndEntities();
 
           gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
           gMap.preDrawCache(); // divide map into pre-rendered tiles
@@ -67,7 +77,8 @@
             gLoading.style.visibility = 'hidden';
 
             gGameEngine.startTime = Date.now();
-            requestAnimationFrame(gGameEngine.gameLoop);
+            gGameEngine.gameState = gGameEngine.STATE.PLAY;
+            gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
             gCanvas.removeEventListener('click', startGame, false);
           }
 
@@ -76,21 +87,30 @@
       });
     },
 
-    // ******************************************************************************* game loop
+    // ******************************************************************************************** game loop
     gameLoop: function() {
-      requestAnimationFrame(gGameEngine.gameLoop);
 
-      var deltaTime = Date.now() - gGameEngine.startTime;
-      gGameEngine.startTime = Date.now();
+      if (gGameEngine.gameState === gGameEngine.STATE.PLAY) {
+        gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
+
+        var deltaTime = Date.now() - gGameEngine.startTime;
+        gGameEngine.startTime = Date.now();
 
 
-      gGameEngine.update(deltaTime);
-      gGameEngine.draw();
+        gGameEngine.update(deltaTime);
+        gGameEngine.draw();
+
+      } else if (gGameEngine.gameState === gGameEngine.STATE.GAMEOVER) {
+        console.log('game over');
+        cancelAnimationFrame(gGameEngine.request);
+      } else if (gGameEngine.gameState === gGameEngine.STATE.PLAY){
+        console.log('you did it!');
+        cancelAnimationFrame(gGameEngine.request);
+      }
     },
 
-    // ******************************************************************************* update
+    // ******************************************************************************************** update
     update: function (deltaTime) {
-
       gPlayer.update(deltaTime);
 
 
@@ -114,10 +134,10 @@
       gGameEngine._deferredKill = [];
 
 
-      gPhysicsEngine.update();
+      gPhysicsEngine.update(deltaTime);
     },
 
-    // ******************************************************************************* draw
+    // ******************************************************************************************** draw
     draw: function () {
       gContext.clearRect(0,0,gCanvas.width, gCanvas.height);
 
@@ -125,16 +145,12 @@
 
 
       // Bucket entities by zIndex
-      var fudgeVariance = 128,
-          zIndex_array = [],
+      var zIndex_array = [],
           entities_bucketed_by_zIndex = {};
 
       gGameEngine.entities.forEach(function(entity) {
         //don't draw entities that are off screen
-        if(entity.pos.x >= gMap.viewRect.x - fudgeVariance &&
-           entity.pos.x < gMap.viewRect.x + gMap.viewRect.w + fudgeVariance &&
-           entity.pos.y >= gMap.viewRect.y - fudgeVariance &&
-           entity.pos.y < gMap.viewRect.y + gMap.viewRect.h + fudgeVariance) {
+        if( entity.isVisible ) {
 
             // Bucket the entities in the entities list by their zindex property.
             if (zIndex_array.indexOf(entity.zindex) === -1) {
@@ -161,7 +177,7 @@
       // gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
     },
 
-    // ******************************************************************************* utils
+    // ******************************************************************************************** utils
     spawnEntity: function (typename) {
       var ent = new (gGameEngine.factory[typename])();
 
@@ -216,14 +232,38 @@
       });
     },
 
-    // ******************************************************************************* load sounds and entities
+    // ******************************************************************************************** load sounds and entities
     setupSpritesAndEntities: function() {
-      var spriteTest = new SpriteSheetClass();
-      spriteTest.setAsset('images/glowy.png', gCachedAssets['images/glowy.png']);
-      spriteTest.parseAtlasDefinition(gCachedAssets['images/glowy.json']);
+      var sprite = new SpriteSheetClass();
+      sprite.setAsset('images/gamesprite.png', gCachedAssets['images/gamesprite.png']);
+      sprite.parseAtlasDefinition(gCachedAssets['images/gamesprite.json']);
 
       var entityTest = gGameEngine.spawnEntity('EnemyEntity');
-      entityTest.create(500, 300, 50, 100, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+      entityTest.create(800, 300, 59, 78, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+
+      entityTest = gGameEngine.spawnEntity('EnemyEntity');
+      entityTest.create(820, 100, 59, 78, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+
+      // main walls around the perimeter of the map
+      var top = gGameEngine.spawnEntity('PlatformEntity');
+      top.create(0, 0,
+                  gMap.pixelSize.x, gPhysicsEngine.scale,
+                  'platform.png', null);
+
+      var right = gGameEngine.spawnEntity('PlatformEntity');
+      right.create(gMap.pixelSize.x - gPhysicsEngine.scale, 0,
+                  gPhysicsEngine.scale, gMap.pixelSize.y,
+                  'platform.png', null);
+
+      var bottom = gGameEngine.spawnEntity('PlatformEntity');
+      bottom.create(0, gMap.pixelSize.y - gPhysicsEngine.scale,
+                  gMap.pixelSize.x, gPhysicsEngine.scale,
+                  'platform.png', null);
+
+      var left = gGameEngine.spawnEntity('PlatformEntity');
+      left.create(0, 0,
+                  gPhysicsEngine.scale, gMap.pixelSize.y,
+                  'platform.png', null);
     },
 
     setupSounds: function() {

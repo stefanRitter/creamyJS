@@ -14,31 +14,38 @@ var PlatformEntity = EntityClass.extend({
   physBody: null,
   newPos: {x:0, y:0},
 
-  create: function(x, y, w, h, image) {
-    this.parent(x, y, w, h, image);
+  create: function(x, y, w, h, image, behaviour) {
+    var hlfWidth = w/2,
+        hlfHeight = h/2;
 
-    // TODO: implement different behaviours ?
+    this.parent(x+hlfWidth, y+hlfHeight, w, h, image);
 
     this.physBody = gPhysicsEngine.addBody( {
-      x: x/gPhysicsEngine.scale,
-      y: y/gPhysicsEngine.scale,
-      halfWidth: w/gPhysicsEngine.scale,
-      halfHeight: h/gPhysicsEngine.scale,
+      halfWidth: hlfWidth,
+      halfHeight: hlfHeight,
+      x: (x+hlfWidth),
+      y: (y+hlfHeight),
       type: 'static',
       userData: {
         "id": "platform",
         "ent": this
       }
     });
+
+    // TODO: implement different behaviours ?
   },
 
   onTouch: function (otherBody, impulse) {
-    return; 
+    return;
     // TODO: implement different behaviours ?
   },
 
   update: function(deltaTime) {
     // TODO: implement different behaviours ?
+  },
+
+  kill: function() {
+    gPhysicsEngine.removeBody(this.physBody);
   }
 });
 

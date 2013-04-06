@@ -18,15 +18,13 @@ var EnemyEntity = AnimatedEntity.extend({
     this.parent(x, y, w, h, images, animLength, true);
 
     this.physBody = gPhysicsEngine.addBody( {
-      x: x/gPhysicsEngine.scale,
-      y: y/gPhysicsEngine.scale,
-      halfWidth: 30/gPhysicsEngine.scale,
-      halfHeight: 50/gPhysicsEngine.scale,
+      x: x,
+      y: y,
       type: 'dynamic',
       density: 1.0,
       friction: 0.5,
       restitution: 0.7,
-      radius: 32/gPhysicsEngine.scale,
+      radius: 32,
       userData: {
         "id": "enemy",
         "ent": this
@@ -35,31 +33,34 @@ var EnemyEntity = AnimatedEntity.extend({
   },
 
   onTouch: function (otherBody, impulse) {
-    if(!this.physBody) return false;
-    if(!otherBody.GetUserData()) return false;
+    if(!this.physBody) return;
+    if(!otherBody.GetUserData()) return;
 
     var physOwner = otherBody.GetUserData().ent;
 
     if(physOwner) {
-      if(physOwner._killed) return false;
+      if(physOwner._killed) return;
 
-      // if other body is a wall reverse direction
-      // if other body is player ignore because the player just died
+      if (physOwner.id === 'platform') {
+        //reverse direction
 
-      return true;
+      } else if (physOwner.id === 'player') {
+        gGameEngine.gameState = gGameEngine.STATE.GAMEOVER;
+
+      }
     }
-
-    return false;
   },
 
   update: function(deltaTime) {
     this.newPos = this.physBody.GetPosition();
-    this.newPos.x *= gPhysicsEngine.scale;
-    this.newPos.y *= gPhysicsEngine.scale;
 
-    this.position(this.newPos.x, this.newPos.y);
+    this.position(this.newPos.x * gPhysicsEngine.scale, this.newPos.y * gPhysicsEngine.scale);
 
     this.parent(deltaTime);
+  },
+
+  kill: function() {
+    gPhysicsEngine.removeBody(this.physBody);
   }
 });
 

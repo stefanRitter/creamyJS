@@ -25,7 +25,10 @@
       try {
         gSM._context = new webkitAudioContext();
       } catch (e) {
-       alert('Web Audio API is not supported in this browser');
+       console.log('Web Audio API is not supported in this browser');
+       gSM._context = null;
+       gSM.enabled = false;
+       return;
      }
 
      gSM._mainNode = gSM._context.createGainNode(0);
@@ -78,6 +81,7 @@
 
     //----------------------------
     togglemute: function() {
+      if (!gSM.enabled) return false;
       // Check if the gain value of the main node is 
       // 0. If so, set it to 1. Otherwise, set it to 0.
       if(gSM._mainNode.gain.value>0) {

@@ -10,8 +10,14 @@
 
 (function() { "use strict";
 
+  var STATE_JUMP = 2,
+      STATE_RUN = 1,
+      STATE_IDLE = 0;
+
   var PlayerClass = Class.extend({
     pos: { x: 500, y: 300 },
+    newpos: { x: 0, y: 0},
+    canvaspos: { x: 0, y: 0},
     stateTime: 0,
     walkSpeed: 1,
     physBody: null,
@@ -21,16 +27,17 @@
     maxSpeed: 10/2,
     currVel: null,
 
+    // ******************************************************************************* setup
     setup: function() {
 
       this.physBody = gPhysicsEngine.addBody( {
-        x: this.pos.x/gPhysicsEngine.scale,
-        y: this.pos.y/gPhysicsEngine.scale,
+        x: this.pos.x,
+        y: this.pos.y,
         type: 'dynamic',
         density: 1.0,
         friction: 1.0,
-        restitution: 0.2,
-        radius: 32/gPhysicsEngine.scale,
+        restitution: 0.1,
+        radius: 32,
         userData: {
           "id": 'player',
           "ent": this
@@ -38,19 +45,31 @@
       });
     },
 
-    draw: function() { },
+    // ******************************************************************************* draw
+    draw: function() {
+      this.convertPosToScreen();
 
+      gContext.beginPath();
+      gContext.arc(this.canvaspos.x, this.canvaspos.y, 32, 0 , 2 * Math.PI, false);
+      gContext.fillStyle = 'green';
+      gContext.fill();
+      gContext.lineWidth = 5;
+      gContext.strokeStyle = '#003300';
+      gContext.stroke();
+    },
+
+    // ******************************************************************************* update
     update: function(deltaTime) {
 
       this.pos = this.physBody.GetPosition();
       this.currVel = this.physBody.GetLinearVelocity();
 
       this.stateTime += deltaTime;
-      //if (this.stateTime > 50) {
+      if (this.stateTime > 50) {
         this.stateTime = 0;
 
         // slow down running
-        //this.physBody.ApplyImpulse({ x: -(this.currVel.x/10), y:0}, this.pos);
+        this.physBody.ApplyImpulse({ x: -(this.currVel.x/10), y:0}, this.pos);
 
         if (gInputEngine.actions['jump']) {
           // apply vertical impulse only if ready to jump
@@ -61,7 +80,6 @@
         }
 
         if (gInputEngine.actions['move-right']) {
-
           if (this.currVel.x < this.maxSpeed) {
             this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
           }
@@ -71,37 +89,46 @@
             this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
           }
         }
-      //}
-
-      // convert back to pixels for renderer
-      this.pos.x *= gPhysicsEngine.scale;
-      this.pos.y *= gPhysicsEngine.scale;
-
-      gMap.centerAt(this.pos.x, this.pos.y, 600, 1000);
-    },
-
-    onTouch: function (otherBody, impulse) {
-      this.readyToJump = true;
-
-      if(!this.physBody) return false;
-      if(!otherBody.GetUserData()) return false;
-
-      var physOwner = otherBody.GetUserData().ent;
-
-      if(physOwner) {
-        if(physOwner._killed) return false;
-
-        // what did the player hit?
-        // if wall or floor then this.readyToJump = true;
-
-        return true;
       }
 
-      return false;
+      // convert back to pixels for renderer
+      this.newpos.x = this.pos.x * gPhysicsEngine.scale;
+      this.newpos.y = this.pos.y * gPhysicsEngine.scale;
+
+      gMap.centerAt(this.newpos.x, this.newpos.y, 600, 1000);
+    },
+
+    // ******************************************************************************* collisions
+    onTouch: function (otherBody, impulse) {
+      if(!this.physBody) return;
+      if(!otherBody.GetUserData()) return;
+
+      var physOwner = otherBody.GetUserData();
+      console.log(physOwner.id);
+
+      if(physOwner.ent) {
+        if(physOwner.ent._killed) return;
+
+        if (physOwner.id === 'platform') {
+          this.readyToJump = true;
+
+        } else if (physOwner.id === 'enemy') {
+          gGameEngine.gameState = gGameEngine.STATE.GAMEOVER;
+
+        } else if (physOwner.id === 'goal') {
+          gGameEngine.gameState = gGameEngine.STATE.WIN;
+        }
+      }
     },
 
     onEndContact: function () {
       this.readyToJump = false;
+    },
+
+    // ******************************************************************************* utils
+    convertPosToScreen: function() {
+      this.canvaspos.x = this.newpos.x - gMap.viewRect.x;
+      this.canvaspos.y = this.newpos.y - gMap.viewRect.y;
     }
   });
 

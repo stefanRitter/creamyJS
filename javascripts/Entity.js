@@ -11,14 +11,13 @@
  *
  */
 
+var fudgeVariance = 128;
 
 var EntityClass = Class.extend({
-    // referenced by child classes
-    pos :  {x:0,y:0},
+    pos :  {x:0,y:0}, // center of the sprite!
     canvaspos: {x:0,y:0},
     size : {x:0,y:0},
     halfsize : {x:0,y:0},
-    last : {x:0,y:0},
     _killed: false,
     zindex: 0,
     sprite: '',
@@ -35,9 +34,7 @@ var EntityClass = Class.extend({
       this.convertPosToScreen();
     },
 
-    // define setter for the this.pos member,
-    // this a work-around of an inheritance bug 
-    // I ran into with the chrome debugger
+    // setters
     position: function(x, y) {
       this.pos.x = x;
       this.pos.y = y;
@@ -57,6 +54,33 @@ var EntityClass = Class.extend({
 
     draw : function() {
       this.convertPosToScreen();
-      drawSprite(this.sprite, this.canvaspos.x - this.halfsize.x, this.canvaspos.y - this.halfsize.y);
+
+      /*
+      // draw a circle around the centre for debug
+      gContext.beginPath();
+      gContext.arc(this.canvaspos.x, this.canvaspos.y, 32, 0 , 2 * Math.PI, false);
+      gContext.fillStyle = 'green';
+      gContext.fill();
+      gContext.lineWidth = 5;
+      gContext.strokeStyle = '#003300';
+      gContext.stroke();
+      */
+
+      drawSprite(this.sprite, this.canvaspos.x - this.halfsize.x, this.canvaspos.y - this.halfsize.y, this.size.x, this.size.y);
+    },
+
+    isVisible: function() {
+      if ( entity.pos.x >= gMap.viewRect.x - fudgeVariance &&
+           entity.pos.x < gMap.viewRect.x + gMap.viewRect.w + fudgeVariance &&
+           entity.pos.y >= gMap.viewRect.y - fudgeVariance &&
+           entity.pos.y < gMap.viewRect.y + gMap.viewRect.h + fudgeVariance ) {
+        // entity is in view
+        return true;
+
+      } else {
+        //check if entity is intersection view, this is necessary because some of my entities are bigger than the canvas...
+        return !( gMap.viewRect.x > (this.pos.x+this.halfsize.x) || (gMap.viewRect.x+gMap.viewRect.w) < (this.pos.x-this.halfsize.x) ||
+                  gMap.viewRect.y > (this.pos.y+this.halfsize.y) || (gMap.viewRect.y+gMap.viewRect.h) < (this.pos.y+this.halfsize.y));
+      }
     }
 });
