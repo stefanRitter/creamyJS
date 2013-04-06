@@ -11,11 +11,14 @@
 (function() { "use strict";
 
   var PlayerClass = Class.extend({
-    pos: { x: 500, y: 300 },
+    // positions for physics, movement, rendering, beaming
+    startPos: { x: 0, y: 0},
+    pos: { x: 0, y: 0 },
+    forcePos: null,
     newpos: { x: 0, y: 0},
     canvaspos: { x: 0, y: 0},
+
     stateTime: 0,
-    walkSpeed: 1,
     physBody: null,
 
     // jump logic
@@ -29,11 +32,13 @@
     currVel: null,
 
     // ******************************************************************************************** setup
-    setup: function() {
+    setup: function(x, y) {
+      this.startPos.x = x;
+      this.startPos.y = y;
 
       this.physBody = gPhysicsEngine.addBody( {
-        x: this.pos.x,
-        y: this.pos.y,
+        x: x,
+        y: y,
         type: 'dynamic',
         density: 1.0,
         friction: 1,
@@ -52,11 +57,9 @@
 
       gContext.beginPath();
       gContext.arc(this.canvaspos.x, this.canvaspos.y, 32, 0 , 2 * Math.PI, false);
-      gContext.fillStyle = 'green';
+      gContext.fillStyle = 'blue';
       gContext.fill();
-      gContext.lineWidth = 5;
-      gContext.strokeStyle = '#003300';
-      gContext.stroke();
+      gContext.closePath();
     },
 
     // ******************************************************************************************** update
@@ -64,6 +67,11 @@
 
       this.pos = this.physBody.GetPosition();
       this.currVel = this.physBody.GetLinearVelocity();
+
+      if (this.forcePos) {
+        this.physBody.SetPosition(new Vec2(this.forcePos.x/gPhysicsEngine.scale, this.forcePos.y/gPhysicsEngine.scale));
+        this.forcePos = null;
+      }
 
       // attach to surface by applying negative gravity
       if (this.jumpVec.y > 0) {
@@ -145,7 +153,7 @@
 
         } else if (physOwner.id === 'enemy') {
           // if we hit an enemy we have to start over
-          this.physBody.SetPosition({x: 500/gPhysicsEngine.scale, y: 300/gPhysicsEngine.scale});
+          this.forcePos = { x: this.startPos.x , y: this.startPos.y };
 
         } else if (physOwner.id === 'goal') {
           gGameEngine.gameState = gGameEngine.STATE.WIN;

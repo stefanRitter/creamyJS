@@ -36,7 +36,7 @@ var PlatformEntity = EntityClass.extend({
   },
 
   draw: function() {
-    // don't draw anything
+    this.parent();
   },
 
   onTouch: function (otherBody, impulse) {

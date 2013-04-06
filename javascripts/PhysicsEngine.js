@@ -77,7 +77,7 @@
         }
       });
 
-      gPhysicsEngine.testEngine();
+      // gPhysicsEngine.testEngine();
     },
 
     //-----------------------------------------
@@ -93,7 +93,7 @@
       );
       gPhysicsEngine.world.ClearForces();
 
-      gPhysicsEngine.world.DrawDebugData();
+      // gPhysicsEngine.world.DrawDebugData();
     },
 
     //-----------------------------------------
