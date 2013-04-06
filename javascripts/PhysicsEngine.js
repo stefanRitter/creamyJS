@@ -30,34 +30,31 @@
   window.RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef;
 
   var PhysicsEngineClass = Class.extend({
+    gravity: new Vec2(0,9.8),
     stateTime: 0,
     world: null,
     scale: 32, // one map tile = 1 meter
 
     //-----------------------------------------
     setup: function () {
-      // Setup the box2d World that will do most of they physics calculation
-      var gravity = new Vec2(0,9.8);
-      var allowSleep = true;
-
-      gPhysicsEngine.world = new World(gravity, allowSleep);
-
+      // Setup the Box2D World that will do most of they physics calculation
+      gPhysicsEngine.world = new World(gPhysicsEngine.gravity, true);
 
       // Add collision listeners
       gPhysicsEngine.addContactListener( {
-        PostSolve: function (bodyA, bodyB, impulse) {
+        PostSolve: function (bodyA, bodyB, impulse, contact) {
           var uA = bodyA ? bodyA.GetUserData() : null,
               uB = bodyB ? bodyB.GetUserData() : null;
 
           if (uA) {
             if (uA.ent && uA.ent.onTouch) {
-                uA.ent.onTouch(bodyB, impulse);
+                uA.ent.onTouch(bodyB, impulse, contact);
             }
           }
 
           if (uB) {
             if (uB.ent && uB.ent.onTouch) {
-                uB.ent.onTouch(bodyA, impulse);
+                uB.ent.onTouch(bodyA, impulse, contact);
             }
           }
         },
@@ -80,7 +77,7 @@
         }
       });
 
-      // gPhysicsEngine.testEngine();
+      gPhysicsEngine.testEngine();
     },
 
     //-----------------------------------------
@@ -96,7 +93,7 @@
       );
       gPhysicsEngine.world.ClearForces();
 
-      // gPhysicsEngine.world.DrawDebugData();
+      gPhysicsEngine.world.DrawDebugData();
     },
 
     //-----------------------------------------
@@ -106,7 +103,7 @@
       if (callbacks.PostSolve) listener.PostSolve = function (contact, impulse) {
           callbacks.PostSolve(contact.GetFixtureA().GetBody(),
                               contact.GetFixtureB().GetBody(),
-                              impulse.normalImpulses[0]);
+                              impulse, contact);
       };
 
       if (callbacks.BeginContact) listener.BeginContact = function (contact) {

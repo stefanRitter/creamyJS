@@ -101,7 +101,7 @@
 
 
         gGameEngine.update(deltaTime);
-        gGameEngine.draw();
+        //gGameEngine.draw();
 
       } else if (gGameEngine.gameState === gGameEngine.STATE.GAMEOVER) {
         alert('game over');
@@ -240,7 +240,7 @@
       var sprite = new SpriteSheetClass();
       sprite.setAsset('images/gamesprite.png', gCachedAssets['images/gamesprite.png']);
       sprite.parseAtlasDefinition(gCachedAssets['images/gamesprite.json']);
-
+      /*
       var entity = gGameEngine.spawnEntity('EnemyEntity');
       entity.create(800, 300, 59, 78, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
 
@@ -249,7 +249,7 @@
 
       entity = gGameEngine.spawnEntity('GoalEntity');
       entity.create(920, 450, 80, 80, ['goal01.png', 'goal02.png'], 400);
-
+      */
       // main walls around the perimeter of the map
       var top = gGameEngine.spawnEntity('PlatformEntity');
       top.create(0, 0,

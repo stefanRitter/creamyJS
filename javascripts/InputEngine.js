@@ -33,9 +33,9 @@
 
     //-----------------------------
     setup: function () {
-      // Example usage of bind, where we're setting up
-      // the W, A, S, and D keys in that order.
-      gInputEngine.bind(87, 'jump');
+
+      // bind W, A, S, and D keys to events
+      gInputEngine.bind(32, 'jump'); // 87 = W 32 = SPACE
       gInputEngine.bind(65, 'move-left');
       gInputEngine.bind(83, 'move-down');
       gInputEngine.bind(68, 'move-right');
@@ -61,6 +61,7 @@
       // You'll need to use the bindings object you set in 'bind'
       // in order to do this.
       var action = gInputEngine.bindings[event.keyCode];
+      // console.log(event.keyCode);
 
       if (action) {
         gInputEngine.actions[action] = true;

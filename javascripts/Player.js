@@ -10,10 +10,6 @@
 
 (function() { "use strict";
 
-  var STATE_JUMP = 2,
-      STATE_RUN = 1,
-      STATE_IDLE = 0;
-
   var PlayerClass = Class.extend({
     pos: { x: 500, y: 300 },
     newpos: { x: 0, y: 0},
@@ -21,13 +17,18 @@
     stateTime: 0,
     walkSpeed: 1,
     physBody: null,
+
+    // jump logic
     readyToJump: false,
-    jumpStrength: -40,
-    speed: 10/2,
-    maxSpeed: 10/2,
+    jumpStrength: 40,
+    jumpVec: { x: 0, y: 0},
+
+    // move logic
+    speed: 5,
+    maxSpeed: 7,
     currVel: null,
 
-    // ******************************************************************************* setup
+    // ******************************************************************************************** setup
     setup: function() {
 
       this.physBody = gPhysicsEngine.addBody( {
@@ -35,8 +36,8 @@
         y: this.pos.y,
         type: 'dynamic',
         density: 1.0,
-        friction: 1.0,
-        restitution: 0.1,
+        friction: 1,
+        restitution: -2, // sticky
         radius: 32,
         userData: {
           "id": 'player',
@@ -45,7 +46,7 @@
       });
     },
 
-    // ******************************************************************************* draw
+    // ******************************************************************************************** draw
     draw: function() {
       this.convertPosToScreen();
 
@@ -58,35 +59,60 @@
       gContext.stroke();
     },
 
-    // ******************************************************************************* update
+    // ******************************************************************************************** update
     update: function(deltaTime) {
 
       this.pos = this.physBody.GetPosition();
       this.currVel = this.physBody.GetLinearVelocity();
 
+      // attach to surface by applying negative gravity
+      if (this.jumpVec.y > 0) {
+        this.physBody.ApplyImpulse({ x: 0, y:-(gPhysicsEngine.gravity.y)}, this.pos);
+      }
+
       this.stateTime += deltaTime;
       if (this.stateTime > 50) {
         this.stateTime = 0;
 
-        // slow down running
-        this.physBody.ApplyImpulse({ x: -(this.currVel.x/10), y:0}, this.pos);
+        // slow down
+        this.physBody.ApplyImpulse({ x: -(this.currVel.x/10), y:-(this.currVel.x/10)}, this.pos);
 
         if (gInputEngine.actions['jump']) {
           // apply vertical impulse only if ready to jump
           if (this.readyToJump) {
-            this.physBody.ApplyImpulse({ x:0, y: this.jumpStrength}, this.pos);
+            this.physBody.ApplyImpulse(this.jumpVec, this.pos);
+
+            // detach from surface
+            this.jumpVec.x = 0;
+            this.jumpVec.y = 0;
             this.readyToJump = false;
           }
         }
 
-        if (gInputEngine.actions['move-right']) {
-          if (this.currVel.x < this.maxSpeed) {
-            this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
+        if (this.readyToJump === true) { // only move left or right when not jumping
+
+          if (gInputEngine.actions['move-right']) {
+
+            if (this.currVel.x < this.maxSpeed) { // limit max velocity
+
+              if (this.jumpVec.x === 0) { // move normal to jump vector
+                this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
+              } else {
+                this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
+              }
+            }
           }
-        }
-        if (gInputEngine.actions['move-left']) {
-          if (this.currVel.x > -this.maxSpeed) {
-            this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
+
+          if (gInputEngine.actions['move-left']) {
+
+            if (this.currVel.x > -this.maxSpeed) {
+
+              if (this.jumpVec.x === 0) {
+                this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
+              } else {
+                this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
+              }
+            }
           }
         }
       }
@@ -98,8 +124,8 @@
       gMap.centerAt(this.newpos.x, this.newpos.y, 600, 1000);
     },
 
-    // ******************************************************************************* collisions
-    onTouch: function (otherBody, impulse) {
+    // ******************************************************************************************** collisions
+    onTouch: function (otherBody, impulse, contact) {
       if(!this.physBody) return;
       if(!otherBody.GetUserData()) return;
 
@@ -111,8 +137,15 @@
         if (physOwner.id === 'platform') {
           this.readyToJump = true;
 
+          var manifold = contact.GetManifold();
+          var normal = manifold.m_localPlaneNormal;
+
+          // jump normal to current surface
+          this.jumpVec = { x: normal.x * this.jumpStrength, y: normal.y * this.jumpStrength};
+
         } else if (physOwner.id === 'enemy') {
-          gGameEngine.gameState = gGameEngine.STATE.GAMEOVER;
+          // if we hit an enemy we have to start over
+          this.physBody.SetPosition({x: 500/gPhysicsEngine.scale, y: 300/gPhysicsEngine.scale});
 
         } else if (physOwner.id === 'goal') {
           gGameEngine.gameState = gGameEngine.STATE.WIN;
@@ -121,10 +154,13 @@
     },
 
     onEndContact: function () {
+      // detach from surface
+      this.jumpVec.x = 0;
+      this.jumpVec.y = 0;
       this.readyToJump = false;
     },
 
-    // ******************************************************************************* utils
+    // ******************************************************************************************** utils
     convertPosToScreen: function() {
       this.canvaspos.x = this.newpos.x - gMap.viewRect.x;
       this.canvaspos.y = this.newpos.y - gMap.viewRect.y;
