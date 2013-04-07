@@ -15,57 +15,57 @@
 
 (function() {
 
-  // ******************************************************************************* CanvasTile Class
+  // ******************************************************************************************** CanvasTile Class
   var CanvasTile = Class.extend({
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-      cvsHdl: null,
-      ctx: null,
+    x: 0,
+    y: 0,
+    w: 100,
+    h: 100,
+    cvsHdl: null,
+    ctx: null,
 
-      //-----------------------------------------
-      // Initializes this CanvasTile with initial
-      // values and creates a new Canvas element
-      // and context for it.
-      create: function (width, height) {
-          this.x = -1;
-          this.y = -1;
-          this.w = width;
-          this.h = height;
-          var can2 = document.createElement('canvas');
-          can2.width = width;
-          can2.height = height;
-          this.cvsHdl = can2;
-          this.ctx = can2.getContext('2d');
+    //-----------------------------------------
+    // Initializes this CanvasTile with initial
+    // values and creates a new Canvas element
+    // and context for it.
+    create: function (width, height) {
+      this.x = -1;
+      this.y = -1;
+      this.w = width;
+      this.h = height;
+      var can2 = document.createElement('canvas');
+      can2.width = width;
+      can2.height = height;
+      this.cvsHdl = can2;
+      this.ctx = can2.getContext('2d');
+    },
 
-
-      },
-
-      //-----------------------------------------
-      // Tests if this CanvasTile intersects the
-      // 'viewRect' of the 'TILEDMapClass' using
-      // the 'intersectRect' method below.
-      isVisible: function () {
-          var r2 = gMap.viewRect;
-          var r1 = this;
-          return gMap.intersectRect({
-              top: r1.y,
-              left: r1.x,
-              bottom: r1.y + r1.h,
-              right: r1.x + r1.w
-          }, {
-              top: r2.y,
-              left: r2.x,
-              bottom: r2.y + r2.h,
-              right: r2.x + r2.w
-          });
-      }
-
+    //-----------------------------------------
+    // Tests if this CanvasTile intersects the
+    // 'viewRect' of the 'TILEDMapClass' using
+    // the 'intersectRect' method below.
+    isVisible: function () {
+      var r2 = gMap.viewRect;
+      var r1 = this;
+      return gMap.intersectRect({
+          top: r1.y,
+          left: r1.x,
+          bottom: r1.y + r1.h,
+          right: r1.x + r1.w
+      }, {
+          top: r2.y,
+          left: r2.x,
+          bottom: r2.y + r2.h,
+          right: r2.x + r2.w
+      });
+    }
   });
 
-  // ******************************************************************************* TILEDMapClass
+  // ******************************************************************************************** TILEDMapClass
   var TILEDMapClass = Class.extend({
+
+    // used to construct entities out of tiles on layer border
+    collectPlatforms: [],
 
     // This is where we store the full parsed
     // JSON of the map.json file.
@@ -147,7 +147,7 @@
     canvas_width: 0,
     canvas_height: 0,
 
-    // ******************************************************************************* load functions
+    // ******************************************************************************************** load functions
     //-----------------------------------------
     // Load the json file at the url 'map' into
     // memory. This is similar to the requests
@@ -244,8 +244,9 @@
           "numYTiles": Math.floor(gMap.currMapData.tilesets[i].imageheight / gMap.tileSize.y)
         };
 
-        img.src = map.tilesets[i].image;
-        //img.src = "img/" + map.tilesets[i].image.replace(/^.*[\\\/]/, '');
+        // img.src = map.tilesets[i].image;
+        // replace direct path with indirect location
+        img.src = "images/" + map.tilesets[i].image.replace(/^.*[\\\/]/, '');
 
         gMap.tilesets.push(ts);
       }
@@ -329,7 +330,7 @@
       return pkt;
     },
 
-    // ******************************************************************************* draw functions
+    // ******************************************************************************************** draw functions
     draw: function (ctx) {
 
       if(!gMap.fullyLoaded) return;
@@ -352,6 +353,7 @@
           var r1 = gMap.canvasTileArray[q];
 
           if(r1.isVisible()) {
+            // ctx.drawImage(r1.cvsHdl, r1.x - gMap.viewRect.x, r1.y - gMap.viewRect.y);
             ctx.drawImage(r1.cvsHdl, r1.x - gMap.viewRect.x, r1.y - gMap.viewRect.y);
           }
       }
@@ -421,6 +423,9 @@
         // care about drawing it...
         if(gMap.currMapData.layers[layerIdx].type != "tilelayer") continue;
 
+        // don't draw borders layer, I use this to place entities
+        if(gMap.currMapData.layers[layerIdx].name === "borders") continue;
+
         // ...Grab the 'data' Array of the given layer...
         var dat = gMap.currMapData.layers[layerIdx].data;
 
@@ -434,6 +439,7 @@
           // ...If the tileID is not 0, then we grab the
           // packet data using getTilePacket.
           var tPKT = gMap.getTilePacket(tID);
+
 
           // Now we need to calculate the (x,y) position we want to draw
           // to in our game world.
@@ -465,7 +471,78 @@
       }
     },
 
-    // ******************************************************************************* utils
+    // ******************************************************************************************** createEntities
+
+    createEntities: function() {
+      var worldX = 0, worldY = 0, layerIdx = 0, tileIDX = 0, tID = 0, dat = [];
+
+      for(layerIdx = 0; layerIdx < gMap.currMapData.layers.length; layerIdx++) {
+        // I called the layer with entity information borders
+        if(gMap.currMapData.layers[layerIdx].name === "borders") {
+
+          // ...Grab the 'data' Array of the given layer...
+          dat = gMap.currMapData.layers[layerIdx].data;
+
+          for(tileIDX = 0; tileIDX < dat.length; tileIDX++) {
+
+            tID = dat[tileIDX];
+
+            worldX = Math.floor(tileIDX % gMap.numXTiles) * gMap.tileSize.x;
+            worldY = Math.floor(tileIDX / gMap.numXTiles) * gMap.tileSize.y;
+
+            if (tID === 4574) {
+              gGameEngine.createGoal(worldX, worldY);
+            }
+
+            if (tID === 4575) {
+              gGameEngine.createEnemy(worldX, worldY);
+            }
+
+            gMap.buildHorizontalPlatform(tID, worldX, worldY);
+          }
+        }
+      }
+
+      // gMap.verticalPlatforms();
+    },
+
+    horizBuilder: {
+      newPlatform: true,
+      size: 0,
+      start: {x:0, y: 0},
+      vertical: []
+    },
+
+    buildHorizontalPlatform: function (tID, worldX, worldY) {
+
+      if (gMap.horizBuilder.newPlatform) {
+        if (tID === 4573) {
+          gMap.horizBuilder.newPlatform = false;
+          gMap.horizBuilder.size = 1;
+          gMap.horizBuilder.start.x = worldX;
+          gMap.horizBuilder.start.y = worldY;
+        }
+      } else {
+
+        if (tID !== 4573) {
+          // either push it onto vertical if size = 1 or create it
+          if (gMap.horizBuilder.size === 1) {
+            gMap.horizBuilder.vertical.push(gMap.horizBuilder.start);
+            gMap.horizBuilder.newPlatform = true;
+          } else {
+            gGameEngine.createPlatform(gMap.horizBuilder.start.x, gMap.horizBuilder.start.y,
+                                       64 * gMap.horizBuilder.size, 64);
+            gMap.horizBuilder.newPlatform = true;
+          }
+
+        } else {
+          //growing platform
+          gMap.horizBuilder.size += 1;
+        }
+      }
+    },
+
+    // ******************************************************************************************** utils
     //-----------------------------------------
     // Test if two rectangles intersect. The parameters
     // are objects of the shape:

@@ -36,7 +36,15 @@ var PlatformEntity = EntityClass.extend({
   },
 
   draw: function() {
-    this.parent();
+    this.convertPosToScreen();
+
+    gContext.beginPath();
+    gContext.arc(this.canvaspos.x, this.canvaspos.y, 12, 0 , 2 * Math.PI, false);
+    gContext.fillStyle = 'blue';
+    gContext.fill();
+    gContext.stroke();
+    gContext.closePath();
+    // this.parent();
   },
 
   onTouch: function (otherBody, impulse) {

@@ -65,13 +65,19 @@
     // ******************************************************************************************** update
     update: function(deltaTime) {
 
-      this.pos = this.physBody.GetPosition();
-      this.currVel = this.physBody.GetLinearVelocity();
-
-      if (this.forcePos) {
+      if (this.newpos.y > gMap.pixelSize.y) {
+        // we are off the map we get sent back to the start
+        this.forcePos = { x: this.startPos.x , y: this.startPos.y };
+      }
+      if (this.forcePos) { // set by onTouch when we hit an enemy entity
         this.physBody.SetPosition(new Vec2(this.forcePos.x/gPhysicsEngine.scale, this.forcePos.y/gPhysicsEngine.scale));
         this.forcePos = null;
       }
+
+
+
+      this.pos = this.physBody.GetPosition();
+      this.currVel = this.physBody.GetLinearVelocity();
 
       // attach to surface by applying negative gravity
       if (this.jumpVec.y > 0) {

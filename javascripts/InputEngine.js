@@ -34,11 +34,11 @@
     //-----------------------------
     setup: function () {
 
-      // bind W, A, S, and D keys to events
-      gInputEngine.bind(32, 'jump'); // 87 = W 32 = SPACE
-      gInputEngine.bind(65, 'move-left');
-      gInputEngine.bind(83, 'move-down');
-      gInputEngine.bind(68, 'move-right');
+      // bind keys to events
+      gInputEngine.bind(32, 'jump'); // 87 = W, 32 = SPACE
+      gInputEngine.bind(37, 'move-left'); // 65 = A, 37 = left arrow
+      // gInputEngine.bind(83, 'move-down');
+      gInputEngine.bind(39, 'move-right'); // 68 = D, 39 = right arrow
 
       // Adding the event listeners for the appropriate DOM events.
       //document.getElementById('my_canvas').addEventListener('mousemove', gInputEngine.onMouseMove);
