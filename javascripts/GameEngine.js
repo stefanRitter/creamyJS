@@ -24,8 +24,6 @@
 
 (function() {
 
-  var platformCount = 0;
-
   var GameEngineClass = Class.extend({
 
     startTime: 0,
@@ -280,8 +278,6 @@
 
     // these helpers are used by gMap to populate the level
     createPlatform: function(x, y, w, h) {
-      console.log('platform: ' + platformCount++);
-
       var entity = gGameEngine.spawnEntity('PlatformEntity');
       entity.create(x, y, w, h, 'platform.png', null);
     },

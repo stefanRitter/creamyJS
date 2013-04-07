@@ -15,6 +15,8 @@
 
 (function() {
 
+  var breakcount = 0;
+
   // ******************************************************************************************** CanvasTile Class
   var CanvasTile = Class.extend({
     x: 0,
@@ -65,7 +67,12 @@
   var TILEDMapClass = Class.extend({
 
     // used to construct entities out of tiles on layer border
-    collectPlatforms: [],
+    platformBuilder: {
+      newPlatform: true,
+      size: 0,
+      start: {x:0, y: 0},
+      vertical: []
+    },
 
     // This is where we store the full parsed
     // JSON of the map.json file.
@@ -499,45 +506,76 @@
             }
 
             gMap.buildHorizontalPlatform(tID, worldX, worldY);
+
+            // register linebreak
+            if ((tileIDX+1) % gMap.numXTiles === 0) {
+              gMap.buildHorizontalPlatform(-1);
+            }
           }
         }
       }
-
-      // gMap.verticalPlatforms();
-    },
-
-    horizBuilder: {
-      newPlatform: true,
-      size: 0,
-      start: {x:0, y: 0},
-      vertical: []
+      gMap.platformBuilder.newPlatform = true;
+      gMap.buildVerticalPlatforms();
     },
 
     buildHorizontalPlatform: function (tID, worldX, worldY) {
 
-      if (gMap.horizBuilder.newPlatform) {
+      if (gMap.platformBuilder.newPlatform) {
         if (tID === 4573) {
-          gMap.horizBuilder.newPlatform = false;
-          gMap.horizBuilder.size = 1;
-          gMap.horizBuilder.start.x = worldX;
-          gMap.horizBuilder.start.y = worldY;
+          gMap.platformBuilder.newPlatform = false;
+          gMap.platformBuilder.size = 1;
+          gMap.platformBuilder.start.x = worldX;
+          gMap.platformBuilder.start.y = worldY;
         }
       } else {
 
         if (tID !== 4573) {
           // either push it onto vertical if size = 1 or create it
-          if (gMap.horizBuilder.size === 1) {
-            gMap.horizBuilder.vertical.push(gMap.horizBuilder.start);
-            gMap.horizBuilder.newPlatform = true;
+          if (gMap.platformBuilder.size === 1) {
+            gMap.platformBuilder.vertical.push({ x: gMap.platformBuilder.start.x, y: gMap.platformBuilder.start.y});
+            gMap.platformBuilder.newPlatform = true;
           } else {
-            gGameEngine.createPlatform(gMap.horizBuilder.start.x, gMap.horizBuilder.start.y,
-                                       64 * gMap.horizBuilder.size, 64);
-            gMap.horizBuilder.newPlatform = true;
+            gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y,
+                                       64 * gMap.platformBuilder.size, 64);
+            gMap.platformBuilder.newPlatform = true;
           }
 
         } else {
           //growing platform
-          gMap.horizBuilder.size += 1;
+          gMap.platformBuilder.size += 1;
+        }
+      }
+    },
+
+    buildVerticalPlatforms: function() {
+
+      var len = gMap.platformBuilder.vertical.length,
+          vertical = gMap.platformBuilder.vertical;
+
+      for (var i = 0; i < len; i++) {
+
+        if (gMap.platformBuilder.newPlatform) {
+          gMap.platformBuilder.newPlatform = false;
+          gMap.platformBuilder.size = 1;
+          gMap.platformBuilder.start.x = vertical[i].x;
+          gMap.platformBuilder.start.y = vertical[i].y;
+
+        } else {
+          // create a platform for each time tiles have not the same X or an incremental Y
+          // or if we reached the end of the array
+          if (!vertical[i+1]) {
+            gMap.platformBuilder.size += 1;
+            gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y,
+                                       64, 64  * gMap.platformBuilder.size);
+
+          } else if ( (vertical[i].x !== vertical[i+1].x) || (vertical[i].y !==  (vertical[i+1].y-64)) ) {
+
+            gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y,
+                                       64, 64  * gMap.platformBuilder.size);
+            gMap.platformBuilder.newPlatform = true;
+          } else {
+            gMap.platformBuilder.size += 1;
+          }
         }
       }
     },
