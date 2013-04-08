@@ -190,21 +190,21 @@
         gLoading.innerHTML = gGameEngine.loadingHTML;
         gLoading.style.visibility = 'visible';
 
-        // load & parse the map and start game once it's loaded
-        var level = 'images/level' + gGameEngine.currentLevel + '.json';
 
         // reset game
         gPhysicsEngine.setup();
         gGameEngine.entities = [];
         gGameEngine._deferredKill = [];
-        gPlayer.setup(500, 300);
 
+
+        // load & parse the map and start game once it's loaded
+        var level = 'images/level' + gGameEngine.currentLevel + '.json';
         gMap = new TILEDMapClass();
         gMap.load(level, function() {
 
-          gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
           gMap.preDrawCache(); // pre-render canvas tiles
           gMap.createEntities();
+          gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
 
           // let user know we are ready
           gLoading.innerHTML = "click to start";

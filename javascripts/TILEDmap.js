@@ -503,6 +503,10 @@
               gGameEngine.createEnemy(worldX, worldY);
             }
 
+            if (tID === 4576) {
+              gPlayer.setup(worldX, worldY);
+            }
+
             gMap.buildHorizontalPlatform(tID, worldX, worldY);
 
             // register linebreak
