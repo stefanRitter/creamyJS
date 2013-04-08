@@ -16,6 +16,7 @@ var AnimatedEntity = EntityClass.extend({
   frameLength: 0,
   stateTime: 0,
   loop: false,
+  direction: 1,
 
   create: function(x, y, w, h, images, animLength, looping) {
     this.parent(x, y, w, h, null);
@@ -32,13 +33,18 @@ var AnimatedEntity = EntityClass.extend({
     if (this.stateTime > this.frameLength) {
       this.stateTime = 0;
 
-      this.currentFrame += 1;
-      if (this.currentFrame >= this.numFrames) {
-        this.currentFrame = 0;
+      this.currentFrame += this.direction;
+
+      if (this.currentFrame >= this.numFrames || this.currentFrame < 0) {
+        this.currentFrame -= this.direction;
+        this.direction *= -1;
+
         if (!this.loop) {
           this._killed = true;
         }
       }
+
+      if (this.currentFrame < 0 || this.currentFrame >= this.numFrames) alert('wrong frame');
     }
   },
 

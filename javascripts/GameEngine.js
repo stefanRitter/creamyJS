@@ -324,11 +324,18 @@
     },
     createGoal: function(x, y) {
       var entity = gGameEngine.spawnEntity('GoalEntity');
-      entity.create(x, y, 160, 160, ['goal01.png', 'goal02.png'], 400);
+      entity.create(x, y, 380, 380, ['goal01.png', 'goal02.png', 'goal03.png', 'goal04.png', 'goal05.png',
+        'goal06.png', 'goal07.png', 'goal08.png', 'goal09.png', 'goal10.png'], 700);
     },
-    createEnemy: function(x, y) {
+    createDynamicEnemy: function(x, y) {
       var entity = gGameEngine.spawnEntity('EnemyEntity');
-      entity.create(x, y, 59, 78, ['001.png', '002.png', '003.png', '004.png', '005.png'], 400);
+      entity.create(x, y, 139, 120, ['enemydynamic01.png', 'enemydynamic02.png', 'enemydynamic03.png', 'enemydynamic04.png',
+        'enemydynamic05.png', 'enemydynamic06.png', 'enemydynamic07.png'], 500, true);
+    },
+    createStaticEnemy: function(x, y) {
+      var entity = gGameEngine.spawnEntity('EnemyEntity');
+      entity.create(x, y, 408, 141, ['enemystatic01.png', 'enemystatic02.png', 'enemystatic03.png', 'enemystatic04.png',
+        'enemystatic05.png', 'enemystatic06.png', 'enemystatic06.png'], 800, false);
     }
   });
 

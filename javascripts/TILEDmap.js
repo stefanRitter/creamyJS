@@ -500,11 +500,15 @@
             }
 
             if (tID === 4575) {
-              gGameEngine.createEnemy(worldX, worldY);
+              gGameEngine.createDynamicEnemy(worldX, worldY);
             }
 
             if (tID === 4576) {
               gPlayer.setup(worldX, worldY);
+            }
+
+            if (tID === 4577) {
+              gGameEngine.createStaticEnemy(worldX, worldY);
             }
 
             gMap.buildHorizontalPlatform(tID, worldX, worldY);
@@ -522,6 +526,8 @@
 
     buildHorizontalPlatform: function (tID, worldX, worldY) {
 
+      var correctionValue = 26; // adjust position to graphics
+
       if (gMap.platformBuilder.newPlatform) {
         if (tID === 4573) {
           gMap.platformBuilder.newPlatform = false;
@@ -537,8 +543,8 @@
             gMap.platformBuilder.vertical.push({ x: gMap.platformBuilder.start.x, y: gMap.platformBuilder.start.y});
             gMap.platformBuilder.newPlatform = true;
           } else {
-            gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y,
-                                       64 * gMap.platformBuilder.size, 64);
+            gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y + correctionValue,
+                                       64 * gMap.platformBuilder.size, 50);
             gMap.platformBuilder.newPlatform = true;
           }
 
