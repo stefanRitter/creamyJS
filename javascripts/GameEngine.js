@@ -22,12 +22,13 @@
   window.cancelAnimationFrame = cancelAnimationFrame;
 })();
 
-(function() {
+(function() { "use strict";
 
   var GameEngineClass = Class.extend({
 
-    startTime: 0,
+    // for game state and animation frame request handling
     request: null,
+    startTime: 0,
     gameState: 0,
     STATE: {
       PLAY: 1,
@@ -35,15 +36,23 @@
       WIN: 3
     },
 
-    move_dir: new Vec2(0,0),
-    dirVec: new Vec2(0,0),
+    // levels
+    numLevels: 2,
+    currentLevel: -1,
 
+    // for handling all game entities
     entities: [],
     factory: {},
     _deferredKill: [],
 
+    // loading
+    loadingHTML: '',
+
     // ******************************************************************************************** setup
     setup: function () {
+
+      // save initial loading gif
+      gGameEngine.loadingHTML += gLoading.innerHTML;
 
       var assets = [
           'images/blend.png',
@@ -61,34 +70,13 @@
         // setup the rest of the game's engine
         gSM.setup();
         gInputEngine.setup();
-        gPhysicsEngine.setup();
-        gPlayer.setup(500, 300);
         gBackground.setup('images/background.png');
 
-        // load & parse the map and start game once it's loaded
-        gMap.load('images/level0.json', function() {
+        gGameEngine.setupSounds();
+        gGameEngine.setupSpritesAndEntities();
 
-          gGameEngine.setupSounds();
-          gGameEngine.setupSpritesAndEntities();
-
-          gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
-          gMap.preDrawCache(); // pre-render canvas tiles
-          gMap.createEntities();
-
-          // let user know we are ready
-          gLoading.innerHTML = "click to start";
-
-          function startGame() {
-            gLoading.style.visibility = 'hidden';
-
-            gGameEngine.startTime = Date.now();
-            gGameEngine.gameState = gGameEngine.STATE.PLAY;
-            gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
-            gCanvas.removeEventListener('click', startGame, false);
-          }
-
-          gCanvas.addEventListener('click', startGame, false);
-        }, 1000, 600);
+        // load first level and start game
+        gGameEngine.loadNextLevel();
       });
     },
 
@@ -108,9 +96,9 @@
       } else if (gGameEngine.gameState === gGameEngine.STATE.GAMEOVER) {
         alert('game over');
         cancelAnimationFrame(gGameEngine.request);
-      } else if (gGameEngine.gameState === gGameEngine.STATE.WIN){
-        alert('you did it!');
+      } else if (gGameEngine.gameState === gGameEngine.STATE.WIN) {
         cancelAnimationFrame(gGameEngine.request);
+        gGameEngine.loadNextLevel();
       }
     },
 
@@ -180,6 +168,59 @@
 
       // draw frame
       gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
+    },
+
+    // ******************************************************************************************** next level
+    loadNextLevel: function() {
+
+      gGameEngine.currentLevel += 1;
+      if (gGameEngine.currentLevel === gGameEngine.numLevels) {
+        alert('you have finished the game, would you like to restart?');
+
+      } else {
+
+        if (gGameEngine.currentLevel !== 0) {
+          gContext.clearRect(0,0,gCanvas.width, gCanvas.height);
+          gContext.font = "1.6em Helvetica, sans-serif";
+          gContext.fillStyle = 'black';
+          gContext.fillText('ready for next level?', gCanvas.width/2 - 100, gCanvas.height/2);
+        }
+
+        // let user know we are loading
+        gLoading.innerHTML = gGameEngine.loadingHTML;
+        gLoading.style.visibility = 'visible';
+
+        // load & parse the map and start game once it's loaded
+        var level = 'images/level' + gGameEngine.currentLevel + '.json';
+
+        // reset game
+        gPhysicsEngine.setup();
+        gGameEngine.entities = [];
+        gGameEngine._deferredKill = [];
+        gPlayer.setup(500, 300);
+
+        gMap = new TILEDMapClass();
+        gMap.load(level, function() {
+
+          gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
+          gMap.preDrawCache(); // pre-render canvas tiles
+          gMap.createEntities();
+
+          // let user know we are ready
+          gLoading.innerHTML = "click to start";
+
+          function startGame() {
+            gLoading.style.visibility = 'hidden';
+
+            gGameEngine.startTime = Date.now();
+            gGameEngine.gameState = gGameEngine.STATE.PLAY;
+            gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
+            document.removeEventListener('click', startGame, false);
+          }
+
+          document.addEventListener('click', startGame, false);
+        }, 1000, 600);
+      }
     },
 
     // ******************************************************************************************** utils

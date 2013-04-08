@@ -15,8 +15,6 @@
 
 (function() {
 
-  var breakcount = 0;
-
   // ******************************************************************************************** CanvasTile Class
   var CanvasTile = Class.extend({
     x: 0,
@@ -64,7 +62,7 @@
   });
 
   // ******************************************************************************************** TILEDMapClass
-  var TILEDMapClass = Class.extend({
+  window.TILEDMapClass = Class.extend({
 
     // used to construct entities out of tiles on layer border
     platformBuilder: {
@@ -569,7 +567,7 @@
                                        64, 64  * gMap.platformBuilder.size);
 
           } else if ( (vertical[i].x !== vertical[i+1].x) || (vertical[i].y !==  (vertical[i+1].y-64)) ) {
-
+            gMap.platformBuilder.size += 1;
             gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y,
                                        64, 64  * gMap.platformBuilder.size);
             gMap.platformBuilder.newPlatform = true;
