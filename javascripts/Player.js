@@ -10,6 +10,8 @@
 
 (function() { "use strict";
 
+  var velocityCheck = 0.8;
+
   var PlayerClass = Class.extend({
     // positions for physics, movement, rendering, beaming
     startPos: { x: 0, y: 0},
@@ -18,32 +20,72 @@
     newpos: { x: 0, y: 0},
     canvaspos: { x: 0, y: 0},
 
+    size: {x: 0, y: 0},
+    halfsize: {x: 0, y: 0},
+
     stateTime: 0,
     physBody: null,
 
     // jump logic
     readyToJump: false,
-    jumpStrength: 40,
-    jumpVec: { x: 0, y: 0},
+    jumpStrength: 230,
+    jumpVec: { x: 0, y: -1},
+    oldJumpVec: { x: 0, y: 0},
 
     // move logic
-    speed: 5,
-    maxSpeed: 7,
+    speed: 8,
+    maxSpeed: 24,
     currVel: null,
 
+    // animations
+    walkRight: ['creamywalk01.png', 'creamywalk02.png'],
+    walkLeft: ['creamywalk01L.png', 'creamywalk02L.png'],
+
+    walkJumpRight: ['creamywalk04.png', 'creamywalk05.png'],
+    walkJumpLeft: ['creamywalk04L.png', 'creamywalk05L.png'],
+
+    ceilingRight: [ 'creamyhang05.png', 'creamyhang04.png'],
+    ceilingLeft: [ 'creamyhang05L.png', 'creamyhang04L.png'],
+
+    ceilingJumpR: ['creamywalk05.png', 'creamywalk05.png'],
+    ceilingJumpL: ['creamywalk05L.png', 'creamywalk05L.png'],
+
+    stand: ['creamyjump01.png', 'creamyjump01.png'],
+    standJump: ['creamyjump00.png', 'creamyjump03.png'],
+
+    wallWalkRight: ['creamywall01.png', 'creamywall03.png'],
+    wallWalkLeft: ['creamywall01L.png', 'creamywall03L.png'],
+
+    // animation control
+    currentFrame: 0,
+    updateTime: 100,
+    animTime: 0,
+    animDir: 1,
+    jumper: false,
+    dirX: 1,
+    dirY: 1,
+    currentAnimation: null,
+
     // ******************************************************************************************** setup
-    setup: function(x, y) {
+    setup: function(x, y, w, h) {
       this.startPos.x = x;
       this.startPos.y = y;
+
+      this.size.x = w;
+      this.size.y = h;
+      this.halfsize.x = w/2;
+      this.halfsize.y = h/2;
+
+      this.currentAnimation = this.stand;
 
       this.physBody = gPhysicsEngine.addBody( {
         x: x,
         y: y,
         type: 'dynamic',
-        density: 1.0,
+        density: 0.7,
         friction: 1,
         restitution: -2, // sticky
-        radius: 32,
+        radius: (w/2),
         userData: {
           "id": 'player',
           "ent": this
@@ -55,11 +97,8 @@
     draw: function() {
       this.convertPosToScreen();
 
-      gContext.beginPath();
-      gContext.arc(this.canvaspos.x, this.canvaspos.y, 32, 0 , 2 * Math.PI, false);
-      gContext.fillStyle = 'blue';
-      gContext.fill();
-      gContext.closePath();
+      drawSprite(this.currentAnimation[this.currentFrame], this.canvaspos.x - this.halfsize.x,
+                                       this.canvaspos.y - this.halfsize.y, this.size.x, this.size.y);
     },
 
     // ******************************************************************************************** update
@@ -82,7 +121,12 @@
       // attach to surface by applying negative gravity
       if (this.jumpVec.y > 0) {
         this.physBody.ApplyImpulse({ x: 0, y:-(gPhysicsEngine.gravity.y)}, this.pos);
+      } else if (this.jumpVec.x > 0) {
+        this.physBody.ApplyImpulse({ x: -(gPhysicsEngine.gravity.y), y:-(gPhysicsEngine.gravity.y/5)}, this.pos);
+      } else if (this.jumpVec.x < 0) {
+        this.physBody.ApplyImpulse({ x: (gPhysicsEngine.gravity.y), y:-(gPhysicsEngine.gravity.y/5)}, this.pos);
       }
+
 
       this.stateTime += deltaTime;
       if (this.stateTime > 50) {
@@ -96,6 +140,8 @@
           if (this.readyToJump) {
             this.physBody.ApplyImpulse(this.jumpVec, this.pos);
 
+            this.setJumpAnimation();
+
             // detach from surface
             this.jumpVec.x = 0;
             this.jumpVec.y = 0;
@@ -104,6 +150,7 @@
         }
 
         if (this.readyToJump === true) { // only move left or right when not jumping
+          this.setWalkAnimation();
 
           if (gInputEngine.actions['move-right']) {
 
@@ -136,6 +183,11 @@
       this.newpos.y = this.pos.y * gPhysicsEngine.scale;
 
       gMap.centerAt(this.newpos.x, this.newpos.y, 600, 1000);
+
+      this.oldJumpVec.x = this.jumpVec.x;
+      this.oldJumpVec.y = this.jumpVec.y;
+
+      this.updateAnimations(deltaTime);
     },
 
     // ******************************************************************************************** collisions
@@ -173,6 +225,85 @@
       this.jumpVec.y = 0;
       this.readyToJump = false;
     },
+
+    // ******************************************************************************************** animations
+    updateAnimations: function(deltaTime) {
+
+      this.animTime += deltaTime;
+      if (this.animTime > this.updateTime) {
+        this.animTime = 0;
+
+        this.currentFrame += this.animDir;
+        if (this.jumper) this.currentFrame = 1;
+
+        if (this.currentFrame >= this.currentAnimation.length || this.currentFrame < 0) {
+          this.currentFrame -= this.animDir;
+          this.animDir *= -1;
+        }
+      }
+
+      if (this.oldJumpVec.x !== this.jumpVec.x && this.oldJumpVec.y !== this.jumpVec.y) {
+        this.setWalkAnimation();
+      }
+    },
+
+    setJumpAnimation: function() {
+      if (this.jumpVec.y < 0 && this.currVel.x > 0) {
+        this.currentAnimation = this.walkJumpRight;
+        this.jumper = true;
+      } else if (this.jumpVec.y < 0 && this.currVel.x < 0) {
+        this.currentAnimation = this.walkJumpLeft;
+        this.jumper = true;
+
+      } if (this.jumpVec.y > 0 && this.currVel.x > 0) {
+        this.currentAnimation = this.ceilingJumpR;
+        this.jumper = true;
+      } else if (this.jumpVec.y > 0 && this.currVel.x < 0) {
+        this.currentAnimation = this.ceilingJumpL;
+        this.jumper = true;
+
+
+      } if (this.jumpVec.x > 0) {
+        this.currentAnimation = this.ceilingJumpR;
+        this.jumper = true;
+      } else if (this.jumpVec.x < 0) {
+        this.currentAnimation = this.ceilingJumpL;
+        this.jumper = true;
+
+      } else {
+        this.currentAnimation = this.standJump;
+        this.jumper = true;
+      }
+    },
+
+    setWalkAnimation: function() {
+      if (this.jumpVec.y < 0 && this.currVel.x > 0) {
+        this.currentAnimation = this.walkRight;
+        this.jumper = false;
+      } else if (this.jumpVec.y < 0 && this.currVel.x < 0) {
+        this.currentAnimation = this.walkLeft;
+        this.jumper = false;
+
+      } else if (this.jumpVec.y > 0 && this.currVel.x > 0) {
+        this.currentAnimation = this.ceilingRight;
+        this.jumper = false;
+      } else if (this.jumpVec.y > 0 && this.currVel.x < 0) {
+        this.currentAnimation = this.ceilingLeft;
+        this.jumper = false;
+
+      } else if (this.jumpVec.x < 0 && this.currVel.x > 0) {
+        this.currentAnimation = this.wallWalkRight;
+        this.jumper = false;
+      } else if (this.jumpVec.x > 0 && this.currVel.x < 0) {
+        this.currentAnimation = this.wallWalkLeft;
+        this.jumper = false;
+
+      } else if (this.jumpVec.y < 0 && this.currVel.x < velocityCheck && this.currVel.x > -velocityCheck) {
+        this.currentAnimation = this.stand;
+        this.jumper = false;
+      }
+    },
+
 
     // ******************************************************************************************** utils
     convertPosToScreen: function() {

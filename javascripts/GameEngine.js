@@ -72,7 +72,7 @@
         gInputEngine.setup();
         gBackground.setup('images/background.png');
 
-        gGameEngine.setupSounds();
+        // gGameEngine.setupSounds();
         gGameEngine.setupSpritesAndEntities();
 
         // load first level and start game
@@ -183,7 +183,7 @@
           gContext.clearRect(0,0,gCanvas.width, gCanvas.height);
           gContext.font = "1.6em Helvetica, sans-serif";
           gContext.fillStyle = 'black';
-          gContext.fillText('ready for next level?', gCanvas.width/2 - 100, gCanvas.height/2);
+          gContext.fillText('ready for next the level?', gCanvas.width/2 - 130, gCanvas.height/2);
         }
 
         // let user know we are loading

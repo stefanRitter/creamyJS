@@ -43,8 +43,6 @@ var AnimatedEntity = EntityClass.extend({
           this._killed = true;
         }
       }
-
-      if (this.currentFrame < 0 || this.currentFrame >= this.numFrames) alert('wrong frame');
     }
   },
 

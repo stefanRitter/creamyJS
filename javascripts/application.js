@@ -29,7 +29,7 @@
 
     var inter = setInterval(function() {
       gLoading.style.top =  (parseInt(gLoading.style.top, 10) + 1) + '%';
-      if (parseInt(gLoading.style.top, 10) > 80) {
+      if (parseInt(gLoading.style.top, 10) > 70) {
         clearInterval(inter);
       }
     }, 10);

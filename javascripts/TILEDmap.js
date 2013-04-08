@@ -352,7 +352,6 @@
       // adjust the position to draw to based on the position
       // of our 'viewRect'.
 
-      // console.log('tiles to check: ' + gMap.canvasTileArray.length);
       for(var q = 0; q < gMap.canvasTileArray.length; q++) {
 
           var r1 = gMap.canvasTileArray[q];
@@ -504,7 +503,7 @@
             }
 
             if (tID === 4576) {
-              gPlayer.setup(worldX, worldY);
+              gPlayer.setup(worldX, worldY, 200, 200);
             }
 
             if (tID === 4577) {
@@ -540,11 +539,11 @@
         if (tID !== 4573) {
           // either push it onto vertical if size = 1 or create it
           if (gMap.platformBuilder.size === 1) {
-            gMap.platformBuilder.vertical.push({ x: gMap.platformBuilder.start.x, y: gMap.platformBuilder.start.y});
+            gMap.platformBuilder.vertical.push({ x: gMap.platformBuilder.start.x*1, y: gMap.platformBuilder.start.y*1});
             gMap.platformBuilder.newPlatform = true;
           } else {
             gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y + correctionValue,
-                                       64 * gMap.platformBuilder.size, 50);
+                                       64 * gMap.platformBuilder.size, 15);
             gMap.platformBuilder.newPlatform = true;
           }
 
@@ -557,35 +556,102 @@
 
     buildVerticalPlatforms: function() {
 
-      var len = gMap.platformBuilder.vertical.length,
-          vertical = gMap.platformBuilder.vertical;
+      var correctionValueY = 20,
+          correctionValueX = 22; // adjust position to graphics
 
-      for (var i = 0; i < len; i++) {
+      // Bucket tiles by xCoord
+      var vertical = gMap.platformBuilder.vertical;
+      var xIndex_array = [],
+          tiles_bucketed_by_xIndex = {};
 
-        if (gMap.platformBuilder.newPlatform) {
-          gMap.platformBuilder.newPlatform = false;
-          gMap.platformBuilder.size = 1;
-          gMap.platformBuilder.start.x = vertical[i].x;
-          gMap.platformBuilder.start.y = vertical[i].y;
+      vertical.forEach( function(tile) {
 
-        } else {
-          // create a platform for each time tiles have not the same X or an incremental Y
-          // or if we reached the end of the array
-          if (!vertical[i+1]) {
+        // Bucket the entities in the tiles list by their x coord
+        if (xIndex_array.indexOf(tile.x) === -1) {
+            xIndex_array.push(tile.x);
+            tiles_bucketed_by_xIndex[tile.x] = [];
+        }
+
+        tiles_bucketed_by_xIndex[tile.x].push(tile);
+      });
+
+      xIndex_array.forEach( function(index) {
+
+        // sort by y coordinate
+        tiles_bucketed_by_xIndex[index].sort( function(a,b) {
+          if (a.x === b.x) return 0;
+          if (a.x < b.x) return -1;
+          return 1;
+        });
+
+        var tiles = tiles_bucketed_by_xIndex[index];
+        var len = tiles.length;
+        gMap.platformBuilder.size = 1;
+        gMap.platformBuilder.start.x = tiles[0].x;
+        gMap.platformBuilder.start.y = tiles[0].y;
+
+        for (var i = 1; i < len; i++) {
+
+          // end of the array
+          if (i+1 === len) {
             gMap.platformBuilder.size += 1;
-            gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y,
-                                       64, 64  * gMap.platformBuilder.size);
+            gGameEngine.createPlatform(gMap.platformBuilder.start.x  + correctionValueX, gMap.platformBuilder.start.y + correctionValueY,
+                                       20, 64  * gMap.platformBuilder.size);
 
-          } else if ( (vertical[i].x !== vertical[i+1].x) || (vertical[i].y !==  (vertical[i+1].y-64)) ) {
-            gMap.platformBuilder.size += 1;
+          } else {
+
+            // same x but is there a gap in the y?
+            if (tiles[i].y !== tiles[i-1].y - 64) {
+
+              gGameEngine.createPlatform(gMap.platformBuilder.start.x  + correctionValueX, gMap.platformBuilder.start.y + correctionValueY,
+                                       20, 64  * gMap.platformBuilder.size);
+              gMap.platformBuilder.size = 1;
+              gMap.platformBuilder.start.x = tiles[i].x;
+              gMap.platformBuilder.start.y = tiles[i].y;
+
+            } else {
+              gMap.platformBuilder.size += 1;
+            }
+          }
+        }
+      });
+
+      /*
+      gMap.platformBuilder.size = 1;
+      gMap.platformBuilder.start.x = vertical[0].x;
+      gMap.platformBuilder.start.y = vertical[0].y;
+      for (var i = 1; i < len; i++) {
+
+        // console.log('tile: ' + i + ' of ' + len + ' ' + vertical[i].x + ' ' + vertical[i].y);
+
+        // create a platform for each time tiles have not the same X or an incremental Y
+        // or if we reached the end of the array
+
+      
+
+          // same x but is there a gap in the y?
+          if (vertical[i].y !== vertical[i-1].y - 64) {
+
             gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y,
-                                       64, 64  * gMap.platformBuilder.size);
-            gMap.platformBuilder.newPlatform = true;
+                                     64, 64  * gMap.platformBuilder.size);
+            gMap.platformBuilder.size = 1;
+            gMap.platformBuilder.start.x = vertical[i].x;
+            gMap.platformBuilder.start.y = vertical[i].y;
+
           } else {
             gMap.platformBuilder.size += 1;
           }
+          gMap.platformBuilder.size += 1;
+        } else {
+          // different x
+
+          gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y,
+                                     64, 64  * gMap.platformBuilder.size);
+          gMap.platformBuilder.size = 1;
+          gMap.platformBuilder.start.x = vertical[i].x;
+          gMap.platformBuilder.start.y = vertical[i].y;
         }
-      }
+      } */
     },
 
     // ******************************************************************************************** utils
