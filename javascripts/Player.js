@@ -29,7 +29,7 @@
     // jump logic
     readyToJump: false,
     jumpStrength: 230,
-    jumpVec: { x: 0, y: -1},
+    jumpVec: { x: 0, y: 0},
     oldJumpVec: { x: 0, y: 0},
 
     // move logic
@@ -82,9 +82,9 @@
         x: x,
         y: y,
         type: 'dynamic',
-        density: 0.7,
-        friction: 1,
-        restitution: -2, // sticky
+        density: 0.6,
+        friction: 2,
+        restitution: -4, // sticky
         radius: (w/2),
         userData: {
           "id": 'player',
@@ -105,7 +105,7 @@
     update: function(deltaTime) {
 
       if (this.newpos.y > gMap.pixelSize.y) {
-        // we are off the map we get sent back to the start
+        // if we are off the map we get sent back to the start
         this.forcePos = { x: this.startPos.x , y: this.startPos.y };
       }
       if (this.forcePos) { // set by onTouch when we hit an enemy entity
@@ -133,7 +133,7 @@
         this.stateTime = 0;
 
         // slow down
-        this.physBody.ApplyImpulse({ x: -(this.currVel.x/10), y:-(this.currVel.x/10)}, this.pos);
+        this.physBody.ApplyImpulse({ x: -(this.currVel.x/3), y:-(this.currVel.x/3)}, this.pos);
 
         if (gInputEngine.actions['jump']) {
           // apply vertical impulse only if ready to jump
@@ -212,9 +212,11 @@
         } else if (physOwner.id === 'enemy') {
           // if we hit an enemy we have to start over
           this.forcePos = { x: this.startPos.x , y: this.startPos.y };
+          this.physBody.SetLinearVelocity( new Vec2(0,0));
 
         } else if (physOwner.id === 'goal') {
           gGameEngine.gameState = gGameEngine.STATE.WIN;
+          gSM.playSound('sound/coin.ogg');
         }
       }
     },
@@ -229,21 +231,25 @@
     // ******************************************************************************************** animations
     updateAnimations: function(deltaTime) {
 
-      this.animTime += deltaTime;
-      if (this.animTime > this.updateTime) {
-        this.animTime = 0;
+      if (this.currVel.x > velocityCheck || this.currVel.x < -velocityCheck ||
+        this.currVel.y > velocityCheck || this.currVel.y < -velocityCheck) {
 
-        this.currentFrame += this.animDir;
-        if (this.jumper) this.currentFrame = 1;
+        this.animTime += deltaTime;
+        if (this.animTime > this.updateTime) {
+          this.animTime = 0;
 
-        if (this.currentFrame >= this.currentAnimation.length || this.currentFrame < 0) {
-          this.currentFrame -= this.animDir;
-          this.animDir *= -1;
+          this.currentFrame += this.animDir;
+          if (this.jumper) this.currentFrame = 1;
+
+          if (this.currentFrame >= this.currentAnimation.length || this.currentFrame < 0) {
+            this.currentFrame -= this.animDir;
+            this.animDir *= -1;
+          }
         }
-      }
 
-      if (this.oldJumpVec.x !== this.jumpVec.x && this.oldJumpVec.y !== this.jumpVec.y) {
-        this.setWalkAnimation();
+        if (this.oldJumpVec.x !== this.jumpVec.x && this.oldJumpVec.y !== this.jumpVec.y) {
+          this.setWalkAnimation();
+        }
       }
     },
 
@@ -255,7 +261,8 @@
         this.currentAnimation = this.walkJumpLeft;
         this.jumper = true;
 
-      } if (this.jumpVec.y > 0 && this.currVel.x > 0) {
+
+      } else if (this.jumpVec.y > 0 && this.currVel.x > 0) {
         this.currentAnimation = this.ceilingJumpR;
         this.jumper = true;
       } else if (this.jumpVec.y > 0 && this.currVel.x < 0) {
@@ -263,7 +270,7 @@
         this.jumper = true;
 
 
-      } if (this.jumpVec.x > 0) {
+      } else if (this.jumpVec.x > 0) {
         this.currentAnimation = this.ceilingJumpR;
         this.jumper = true;
       } else if (this.jumpVec.x < 0) {
@@ -297,11 +304,7 @@
       } else if (this.jumpVec.x > 0 && this.currVel.x < 0) {
         this.currentAnimation = this.wallWalkLeft;
         this.jumper = false;
-
-      } else if (this.jumpVec.y < 0 && this.currVel.x < velocityCheck && this.currVel.x > -velocityCheck) {
-        this.currentAnimation = this.stand;
-        this.jumper = false;
-      }
+      } 
     },
 
 

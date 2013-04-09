@@ -43,7 +43,7 @@ var EnemyEntity = AnimatedEntity.extend({
 
     } else { // static
       this.parent(x, (y + correctionValue), w, h, images, animLength, true);
-      this.startAnim = Math.random() * 1000;
+      this.startAnim = Math.random() * 500;
 
       this.physBody = gPhysicsEngine.addBody( {
         x: x,

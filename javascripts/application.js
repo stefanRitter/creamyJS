@@ -42,7 +42,9 @@
       'javascripts/InputEngine.js',
       'javascripts/Spritesheet.js',
       'javascripts/TILEDmap.js',
-      'javascripts/AnimatedEntity.js' ];
+      'javascripts/AnimatedEntity.js',
+      'images/doneloading.png',
+      'images/winner.png'];
 
 	// ******************************************************************************* onload
 	window.onload = function () {

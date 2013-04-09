@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 2,
+    numLevels: 4,
     currentLevel: -1,
 
     // for handling all game entities
@@ -72,7 +72,7 @@
         gInputEngine.setup();
         gBackground.setup('images/background.png');
 
-        // gGameEngine.setupSounds();
+        gGameEngine.setupSounds();
         gGameEngine.setupSpritesAndEntities();
 
         // load first level and start game
@@ -175,7 +175,7 @@
 
       gGameEngine.currentLevel += 1;
       if (gGameEngine.currentLevel === gGameEngine.numLevels) {
-        alert('you have finished the game, would you like to restart?');
+        gContext.drawImage(gCachedAssets['images/winner.png'], 0, 0);
 
       } else {
 
@@ -183,7 +183,7 @@
           gContext.clearRect(0,0,gCanvas.width, gCanvas.height);
           gContext.font = "1.6em Helvetica, sans-serif";
           gContext.fillStyle = 'black';
-          gContext.fillText('ready for next the level?', gCanvas.width/2 - 130, gCanvas.height/2);
+          gContext.fillText('ready for the next level?', gCanvas.width/2 - 130, gCanvas.height/2);
         }
 
         // let user know we are loading
@@ -203,6 +203,7 @@
         gMap.load(level, function() {
 
           gMap.preDrawCache(); // pre-render canvas tiles
+          gContext.drawImage(gCachedAssets['images/doneloading.png'], 0, 0);
           gMap.createEntities();
           gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
 
