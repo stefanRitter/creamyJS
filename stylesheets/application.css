@@ -47,7 +47,7 @@ html, body {
   clear: both;
 }
 
-/* line 21, ../sass/application.sass */
+/* line 13, ../sass/application.sass */
 .horizontal-container {
   height: 100%;
   width: 90%;
@@ -55,13 +55,13 @@ html, body {
   margin: 0 auto;
 }
 
-/* line 28, ../sass/application.sass */
+/* line 20, ../sass/application.sass */
 .vertical-container {
   display: table-cell;
   vertical-align: middle;
 }
 
-/* line 32, ../sass/application.sass */
+/* line 24, ../sass/application.sass */
 #loading {
   position: fixed;
   top: 45%;
@@ -69,44 +69,46 @@ html, body {
   text-align: center;
   font: bold 1.6em Helvetica, sans-serif;
 }
-/* line 38, ../sass/application.sass */
+/* line 30, ../sass/application.sass */
 #loading img {
   display: inline-block;
   height: 2em;
 }
 
-/* line 44, ../sass/application.sass */
+/* line 36, ../sass/application.sass */
 .mainheader {
   width: 1000px;
   margin: 0 auto;
   font: bold 2em Helvetica, sans-serif;
 }
-/* line 50, ../sass/application.sass */
+/* line 41, ../sass/application.sass */
 .mainheader p {
   float: right;
   font: 0.5em "EB Garamond", serif;
   font-variant: small-caps;
-  padding-bottom: 0.4em;
 }
-/* line 55, ../sass/application.sass */
+/* line 45, ../sass/application.sass */
 .mainheader p a {
   text-decoration: none;
   color: black;
 }
 
-/* line 61, ../sass/application.sass */
+/* line 51, ../sass/application.sass */
 canvas {
   display: block;
   clear: both;
-  margin: 2% auto;
+  margin: 0 auto;
+  padding-bottom: 3%;
+  padding-top: 3%;
 }
 
-/* line 68, ../sass/application.sass */
+/* line 60, ../sass/application.sass */
 .mainfooter {
+  display: block;
   font: italic 0.7em "EB Garamond", serif;
   text-align: center;
 }
-/* line 71, ../sass/application.sass */
+/* line 64, ../sass/application.sass */
 .mainfooter a {
   color: black;
 }

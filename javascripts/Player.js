@@ -213,6 +213,7 @@
           // if we hit an enemy we have to start over
           this.forcePos = { x: this.startPos.x , y: this.startPos.y };
           this.physBody.SetLinearVelocity( new Vec2(0,0));
+          this.currentAnimation = this.stand;
           gSM.playSound('sound/hit.ogg');
 
         } else if (physOwner.id === 'goal') {
@@ -305,7 +306,7 @@
       } else if (this.jumpVec.x > 0 && this.currVel.x < 0) {
         this.currentAnimation = this.wallWalkLeft;
         this.jumper = false;
-      } 
+      }
     },
 
 
