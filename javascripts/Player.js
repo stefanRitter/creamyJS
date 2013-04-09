@@ -213,6 +213,7 @@
           // if we hit an enemy we have to start over
           this.forcePos = { x: this.startPos.x , y: this.startPos.y };
           this.physBody.SetLinearVelocity( new Vec2(0,0));
+          gSM.playSound('sound/hit.ogg');
 
         } else if (physOwner.id === 'goal') {
           gGameEngine.gameState = gGameEngine.STATE.WIN;

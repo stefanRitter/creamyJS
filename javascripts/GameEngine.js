@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 4,
+    numLevels: 5,
     currentLevel: -1,
 
     // for handling all game entities
@@ -282,9 +282,11 @@
     // ******************************************************************************************** load sounds and entities
     setupSounds: function() {
       gSM.loadAsync('sound/coin.ogg', function()  {
+        gSM.loadAsync('sound/hit.ogg', function()  {
         gSM.loadAsync('sound/music.mp3', function() {
           gSM.playSound('sound/music.mp3', { looping: true });
           gSM.playSound('sound/coin.ogg');
+        });
         });
       });
     },
