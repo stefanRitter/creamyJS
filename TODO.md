@@ -2,13 +2,13 @@
 
 /// TODO
 
+1.    logo like image for entry post
+
 1.    update static enemy spites to new map size
 1.2.  shrink sprites to final display size
 1.3.  repack with trim turned on
 
 2. when falling onto a wall - reset y velocity!
-
-2. vertical solid creation bug!
 
 3. adjust physics of creamy
 
@@ -21,9 +21,11 @@
 
 7. minify with closure
 
-8. create 10 nice levels
 
 
 game design:
+
+create 10 nice levels
+
 add coins? points? score? cookies saving score and level?
 

@@ -494,23 +494,25 @@
             worldX = Math.floor(tileIDX % gMap.numXTiles) * gMap.tileSize.x;
             worldY = Math.floor(tileIDX / gMap.numXTiles) * gMap.tileSize.y;
 
+            // test all tiles for horizontal platform beginning and end
+            gMap.buildHorizontalPlatform(tID, worldX, worldY);
+
             if (tID === 2) {
               gGameEngine.createGoal(worldX, worldY);
-            }
 
-            if (tID === 3) {
+            } else if (tID === 3) {
               gGameEngine.createDynamicEnemy(worldX, worldY);
-            }
 
-            if (tID === 4) {
+            } else if (tID === 4) {
               gPlayer.setup(worldX, worldY, 200, 200);
-            }
 
-            if (tID === 5) {
+            } else if (tID === 5) {
               gGameEngine.createStaticEnemy(worldX, worldY);
-            }
 
-            gMap.buildHorizontalPlatform(tID, worldX, worldY);
+            } else if (tID === 6) {
+              // collect all vertical platform tiles
+              gMap.platformBuilder.vertical.push({ x: worldX, y: worldY});
+            }
 
             // register linebreak
             if ((tileIDX+1) % gMap.numXTiles === 0) {
@@ -519,7 +521,7 @@
           }
         }
       }
-      gMap.platformBuilder.newPlatform = true;
+
       gMap.buildVerticalPlatforms();
     },
 
@@ -537,15 +539,10 @@
       } else {
 
         if (tID !== 1) {
-          // either push it onto vertical if size = 1 or create it
-          if (gMap.platformBuilder.size === 1) {
-            gMap.platformBuilder.vertical.push({ x: gMap.platformBuilder.start.x*1, y: gMap.platformBuilder.start.y*1});
-            gMap.platformBuilder.newPlatform = true;
-          } else {
-            gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y + correctionValue,
-                                       gMap.tileSize.x * gMap.platformBuilder.size, gMap.tileSize.y - (2*correctionValue));
-            gMap.platformBuilder.newPlatform = true;
-          }
+          // we have hit the end of one platform
+          gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y + correctionValue,
+                                     gMap.tileSize.x * gMap.platformBuilder.size, gMap.tileSize.y - (2*correctionValue));
+          gMap.platformBuilder.newPlatform = true;
 
         } else {
           //growing platform
@@ -555,6 +552,7 @@
     },
 
     buildVerticalPlatforms: function() {
+      var count = 0;
 
       var correctionValueY = 12,
           correctionValueX = 5; // adjust position to graphics
@@ -590,18 +588,22 @@
         gMap.platformBuilder.start.x = tiles[0].x;
         gMap.platformBuilder.start.y = tiles[0].y;
 
+        console.log('new index: ' + index);
+        console.log('x: ' + tiles[0].x + ' y: ' + tiles[0].y);
         for (var i = 1; i < len; i++) {
-
+          console.log('x: ' + tiles[i].x + ' y: ' + tiles[i].y);
           // end of the array
           if (i+1 === len) {
             gMap.platformBuilder.size += 1;
             gGameEngine.createPlatform(gMap.platformBuilder.start.x  + correctionValueX, gMap.platformBuilder.start.y + correctionValueY,
                                        gMap.tileSize.x - (2*correctionValueX), gMap.tileSize.y  * gMap.platformBuilder.size);
+            count++;
+            console.log(count);
 
           } else {
 
             // same x but is there a gap in the y?
-            if (tiles[i].y !== tiles[i-1].y - 64) {
+            if (tiles[i].y !== tiles[i-1].y + gMap.tileSize.y) {
 
               gGameEngine.createPlatform(gMap.platformBuilder.start.x  + correctionValueX, gMap.platformBuilder.start.y + correctionValueY,
                                        gMap.tileSize.x - (2*correctionValueX), gMap.tileSize.y  * gMap.platformBuilder.size);
@@ -609,6 +611,8 @@
               gMap.platformBuilder.start.x = tiles[i].x;
               gMap.platformBuilder.start.y = tiles[i].y;
 
+              count++;
+              console.log(count);
             } else {
               gMap.platformBuilder.size += 1;
             }
