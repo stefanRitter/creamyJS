@@ -158,8 +158,10 @@
 
               if (this.jumpVec.x === 0) { // move normal to jump vector
                 this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
-              } else {
+              } else  if (this.jumpVec.x > 0) { // on left sided wall
                 this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
+              } else { // on right sided wall
+                this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
               }
             }
           }
@@ -170,8 +172,10 @@
 
               if (this.jumpVec.x === 0) {
                 this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
-              } else {
+              } else if (this.jumpVec.x > 0) { // on left sided wall
                 this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
+              } else {
+                this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
               }
             }
           }
