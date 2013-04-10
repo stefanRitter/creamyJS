@@ -51,11 +51,12 @@
     // ******************************************************************************************** setup
     setup: function () {
 
+      gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);
+
       // save initial loading gif
       gGameEngine.loadingHTML += gLoading.innerHTML;
 
       var assets = [
-          'images/blend.png',
           'images/background.png',
           'images/gamesprite.png',
           'images/gamesprite.json',
@@ -166,8 +167,7 @@
 
       gPlayer.draw();
 
-      // draw frame
-      gContext.drawImage(gCachedAssets['images/blend.png'],-1,-1, 1002, 601);
+      gGameEngine.drawFrame();
     },
 
     // ******************************************************************************************** next level
@@ -203,7 +203,10 @@
         gMap.load(level, function() {
 
           gMap.preDrawCache(); // pre-render canvas tiles
+
           gContext.drawImage(gCachedAssets['images/doneloading.png'], 0, 0);
+          gGameEngine.drawFrame();
+
           gMap.createEntities();
           gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
 
@@ -231,6 +234,11 @@
       gGameEngine.entities.push(ent);
 
       return ent;
+    },
+
+    drawFrame: function() {
+      drawSprite('blendL.png', -1, -1, 30, 601);
+      drawSprite('blendR.png', 971, -1, 30, 601);
     },
 
     //----------------------------

@@ -525,7 +525,7 @@
 
     buildHorizontalPlatform: function (tID, worldX, worldY) {
 
-      var correctionValue = 26; // adjust position to graphics
+      var correctionValue = 6; // adjust position to graphics
 
       if (gMap.platformBuilder.newPlatform) {
         if (tID === 1) {
@@ -543,7 +543,7 @@
             gMap.platformBuilder.newPlatform = true;
           } else {
             gGameEngine.createPlatform(gMap.platformBuilder.start.x, gMap.platformBuilder.start.y + correctionValue,
-                                       64 * gMap.platformBuilder.size, 15);
+                                       gMap.tileSize.x * gMap.platformBuilder.size, gMap.tileSize.y - (2*correctionValue));
             gMap.platformBuilder.newPlatform = true;
           }
 
@@ -556,8 +556,8 @@
 
     buildVerticalPlatforms: function() {
 
-      var correctionValueY = 20,
-          correctionValueX = 22; // adjust position to graphics
+      var correctionValueY = 12,
+          correctionValueX = 5; // adjust position to graphics
 
       // Bucket tiles by xCoord
       var vertical = gMap.platformBuilder.vertical;
@@ -596,7 +596,7 @@
           if (i+1 === len) {
             gMap.platformBuilder.size += 1;
             gGameEngine.createPlatform(gMap.platformBuilder.start.x  + correctionValueX, gMap.platformBuilder.start.y + correctionValueY,
-                                       20, 64  * gMap.platformBuilder.size);
+                                       gMap.tileSize.x - (2*correctionValueX), gMap.tileSize.y  * gMap.platformBuilder.size);
 
           } else {
 
@@ -604,7 +604,7 @@
             if (tiles[i].y !== tiles[i-1].y - 64) {
 
               gGameEngine.createPlatform(gMap.platformBuilder.start.x  + correctionValueX, gMap.platformBuilder.start.y + correctionValueY,
-                                       20, 64  * gMap.platformBuilder.size);
+                                       gMap.tileSize.x - (2*correctionValueX), gMap.tileSize.y  * gMap.platformBuilder.size);
               gMap.platformBuilder.size = 1;
               gMap.platformBuilder.start.x = tiles[i].x;
               gMap.platformBuilder.start.y = tiles[i].y;

@@ -84,3 +84,5 @@ var EntityClass = Class.extend({
       }
     }
 });
+
+gGameEngine.factory['EntityClass'] = EntityClass;
