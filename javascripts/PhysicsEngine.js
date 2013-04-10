@@ -84,7 +84,7 @@
     update: function (deltaTime) {
 
       var timestamp = deltaTime/1000;
-      if (timestamp > 2/60) timestamp = 2/60;
+      if (timestamp > 0.033333333) timestamp = 0.033333333; // 0.033333333 = 2/60
 
       gPhysicsEngine.world.Step(
           timestamp,                 //frame-rate

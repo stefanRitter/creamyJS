@@ -211,7 +211,7 @@
           gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
 
           // let user know we are ready
-          gLoading.innerHTML = "click to start";
+          gLoading.innerHTML = "... hit any key to start ...";
 
           function startGame() {
             gLoading.style.visibility = 'hidden';
@@ -219,10 +219,10 @@
             gGameEngine.startTime = Date.now();
             gGameEngine.gameState = gGameEngine.STATE.PLAY;
             gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
-            document.removeEventListener('click', startGame, false);
+            document.addEventListener('keyup', startGame, false);
           }
 
-          document.addEventListener('click', startGame, false);
+          document.addEventListener('keyup', startGame, false);
         }, 1000, 600);
       }
     },

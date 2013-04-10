@@ -67,7 +67,7 @@ html, body {
   top: 45%;
   width: 100%;
   text-align: center;
-  font: bold 1.6em Helvetica, sans-serif;
+  font: 1.6em "EB Garamond", serif;
 }
 /* line 30, ../sass/application.sass */
 #loading img {
