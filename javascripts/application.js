@@ -61,7 +61,12 @@
       gCanvas = document.getElementById('game');
       gContext = gCanvas.getContext('2d');
 
+      slideDown(gLoading, 20);
+      gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);
+
       // setup UI
+      gSM.setup();
+
       soundcontrol.addEventListener('click', function(event) {
         event.preventDefault();
         gSM.togglemute();
@@ -73,8 +78,10 @@
         createScreenshot();
       });
 
-      slideDown(gLoading, 20);
-      gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);
+      // load and start playing music
+      gSM.loadAsync('sound/music.mp3', function() {
+          gSM.playSound('sound/music.mp3', { looping: true });
+      });
 
       gGameEngine.setup();
     }

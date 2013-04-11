@@ -59,9 +59,12 @@ html, body {
 .vertical-container {
   display: table-cell;
   vertical-align: middle;
+  height: inherit;
+  width: inherit;
+  overflow: hidden;
 }
 
-/* line 24, ../sass/application.sass */
+/* line 27, ../sass/application.sass */
 #loading {
   position: fixed;
   top: 45%;
@@ -69,48 +72,63 @@ html, body {
   text-align: center;
   font: 1.6em "EB Garamond", serif;
 }
-/* line 30, ../sass/application.sass */
+/* line 33, ../sass/application.sass */
 #loading img {
   display: inline-block;
-  height: 2em;
 }
 
-/* line 36, ../sass/application.sass */
+/* line 38, ../sass/application.sass */
 .mainheader {
   width: 1000px;
   margin: 0 auto;
   font: bold 2em Helvetica, sans-serif;
+  display: block;
+  padding-bottom: 2.5%;
 }
-/* line 41, ../sass/application.sass */
+/* line 45, ../sass/application.sass */
 .mainheader p {
   float: right;
   font: 0.5em "EB Garamond", serif;
   font-variant: small-caps;
 }
-/* line 45, ../sass/application.sass */
+/* line 49, ../sass/application.sass */
 .mainheader p a {
   text-decoration: none;
   color: black;
 }
 
-/* line 51, ../sass/application.sass */
-canvas {
-  display: block;
+/* line 56, ../sass/application.sass */
+#gamecontainer {
   clear: both;
-  margin: 0 auto;
-  padding-bottom: 1.5%;
-  padding-top: 1.5%;
+  display: block;
+  position: relative;
+  left: 50%;
+  width: 1000px;
+  height: 600px;
 }
 
-/* line 60, ../sass/application.sass */
+/* line 64, ../sass/application.sass */
+canvas {
+  position: absolute;
+  left: -50%;
+}
+
+/* line 68, ../sass/application.sass */
+#logo {
+  position: absolute;
+  left: -50%;
+}
+
+/* line 75, ../sass/application.sass */
 .mainfooter {
   display: block;
+  padding-top: 1.5%;
   width: 1000px;
   margin: 0 auto;
   font: italic 0.8em/1.5em "EB Garamond", serif;
   text-align: center;
 }
-/* line 66, ../sass/application.sass */
+/* line 82, ../sass/application.sass */
 .mainfooter a {
   color: black;
 }

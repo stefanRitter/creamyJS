@@ -2,10 +2,6 @@
 
 /// TODO
 
-1.    logo like image for entry post
-
-4. nicer loading.gif
-
 5. nicer ready for next level font? one continuous story? / experience? 
    while loading new level the goal runs away from creamy?
 
@@ -18,5 +14,4 @@
 game design:
 
 create 10 nice levels
-add cookies saving level?
 

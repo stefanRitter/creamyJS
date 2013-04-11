@@ -20,6 +20,9 @@
 .vertical-container
   display: table-cell
   vertical-align: middle
+  height: inherit
+  width: inherit
+  overflow: hidden
 
 #loading
   position: fixed
@@ -29,7 +32,6 @@
   font: 1.6em 'EB Garamond', serif
   img
     display: inline-block
-    height: 2em
 
 
 // ********************************************************************************** HEADER
@@ -37,6 +39,8 @@
   width: 1000px // same as canvas
   margin: 0 auto
   font: bold 2em Helvetica, sans-serif
+  display: block
+  padding-bottom: 2.5%
 
   p
     float: right
@@ -47,18 +51,30 @@
       color: black
 
 
-// ********************************************************************************** CANVAS
-canvas
-  display: block
+// ********************************************************************************** GAME
+
+#gamecontainer
   clear: both
-  margin: 0 auto
-  padding-bottom: 1.5%
-  padding-top: 1.5%
+  display: block
+  position: relative
+  left: 50%
+  width: 1000px // same as canvas
+  height: 600px // same as canvas
+
+canvas
+  position: absolute
+  left: -50%
+
+#logo
+  position: absolute
+  left: -50%
+  // bottom: 600px
 
 
 // ********************************************************************************** FOOTER
 .mainfooter
   display: block
+  padding-top: 1.5%
   width: 1000px // same as canvas
   margin: 0 auto
   font: italic 0.8em/1.5em 'EB Garamond', serif

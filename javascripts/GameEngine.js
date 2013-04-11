@@ -69,7 +69,6 @@
       loadAssets(assets, function() {
 
         // setup the rest of the game's engine
-        gSM.setup();
         gInputEngine.setup();
         gBackground.setup('images/background.png');
 
@@ -183,7 +182,8 @@
     loadNextLevel: function() {
 
       gGameEngine.currentLevel += 1;
-      if (gGameEngine.currentLevel === gGameEngine.numLevels) {
+
+      if (gGameEngine.currentLevel >= gGameEngine.numLevels) {
         gContext.drawImage(gCachedAssets['images/winner.png'], 0, 0);
 
       } else {
@@ -214,6 +214,7 @@
           gMap.preDrawCache(); // pre-render canvas tiles
 
           gContext.drawImage(gCachedAssets['images/doneloading.png'], 0, 0);
+          document.getElementById('logo').style.visibility = 'hidden';
           gGameEngine.drawFrame();
 
           gMap.createEntities();
@@ -300,10 +301,7 @@
     setupSounds: function() {
       gSM.loadAsync('sound/coin.ogg', function()  {
         gSM.loadAsync('sound/hit.ogg', function()  {
-        gSM.loadAsync('sound/music.mp3', function() {
-          gSM.playSound('sound/music.mp3', { looping: true });
           gSM.playSound('sound/coin.ogg');
-        });
         });
       });
     },
