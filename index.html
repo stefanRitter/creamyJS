@@ -18,7 +18,7 @@
 
     <!-- fonts -->
     <link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
-		
+
 		<!-- styles -->
 		<link href="stylesheets/application.css" rel="stylesheet" type="text/css">
 
@@ -27,28 +27,21 @@
     <script src="javascripts/Box2dWeb-2.1.a.3.min.js"></script>
     <script src="javascripts/PhysicsEngine.js"></script>
 	</head>
-	
-	<body>
 
-    <script>
-    if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/) || !navigator.userAgent.match(/(Chrome)/)  ) { 
-      alert("Sorry, I've only been testing this code on Google Chrome for Desktop!");
-    }
-    </script>
+	<body>
 
     <div class="horizontal-container">
       <div class="vertical-container">
-			
+
     		<header class="mainheader">
     			<!-- <h1>Welcome to Creamy</h1> -->
-          <p><a href="#" id="screenshot">screenshot</a> &#166; <a href="#" id="soundcontrol">sound</a></p>
+          <p id="browserwarning">Sorry, I only tested this code in Google Chrome for desktop</p><p><a href="#" id="screenshot">screenshot</a> &#166; <a href="#" id="soundcontrol">sound</a></p>
     		</header>
-        
+
         <div id="gamecontainer">
           <img id="logo" src="images/logo.jpg" height="600" width="1000"></img>
           <canvas id="game" height="600" width="1000"></canvas>
         </div>
-    				
 
     		<footer class="mainfooter">
     			<p>
@@ -64,6 +57,11 @@
 		<div id="loading"><img src="images/loading.gif" alt="loading..." /></div>
 
 		<!-- scripts -->
+    <script>
+      if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/) || !navigator.userAgent.match(/(Chrome)/)  ) { 
+        document.getElementById('browserwarning').style.visibility = 'visible';
+      }
+    </script>
     <script src="javascripts/AssetManager.js"></script>
     <script src="javascripts/GameEngine.js"></script>
     <script src="javascripts/Entity.js"></script>

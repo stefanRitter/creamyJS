@@ -97,7 +97,16 @@ html, body {
   color: black;
 }
 
-/* line 56, ../sass/application.sass */
+/* line 53, ../sass/application.sass */
+#browserwarning {
+  float: left;
+  visibility: hidden;
+  background-color: pink;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+/* line 62, ../sass/application.sass */
 #gamecontainer {
   clear: both;
   display: block;
@@ -107,19 +116,19 @@ html, body {
   height: 600px;
 }
 
-/* line 64, ../sass/application.sass */
+/* line 70, ../sass/application.sass */
 canvas {
   position: absolute;
   left: -50%;
 }
 
-/* line 68, ../sass/application.sass */
+/* line 74, ../sass/application.sass */
 #logo {
   position: absolute;
   left: -50%;
 }
 
-/* line 75, ../sass/application.sass */
+/* line 80, ../sass/application.sass */
 .mainfooter {
   display: block;
   padding-top: 1.5%;
@@ -128,7 +137,7 @@ canvas {
   font: italic 0.8em/1.5em "EB Garamond", serif;
   text-align: center;
 }
-/* line 82, ../sass/application.sass */
+/* line 87, ../sass/application.sass */
 .mainfooter a {
   color: black;
 }
