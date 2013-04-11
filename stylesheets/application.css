@@ -128,7 +128,14 @@ canvas {
   left: -50%;
 }
 
-/* line 80, ../sass/application.sass */
+/* line 78, ../sass/application.sass */
+#levelup {
+  position: absolute;
+  left: -50%;
+  display: none;
+}
+
+/* line 85, ../sass/application.sass */
 .mainfooter {
   display: block;
   padding-top: 1.5%;
@@ -137,7 +144,7 @@ canvas {
   font: italic 0.8em/1.5em "EB Garamond", serif;
   text-align: center;
 }
-/* line 87, ../sass/application.sass */
+/* line 92, ../sass/application.sass */
 .mainfooter a {
   color: black;
 }

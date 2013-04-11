@@ -29,7 +29,7 @@
     // for game state and animation frame request handling
     request: null,
     startTime: 0,
-    gameState: 0,
+    gameState: 3, // set to WIN initially to load first level
     STATE: {
       PLAY: 1,
       GAMEOVER: 2,
@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 5,
+    numLevels: 3,
     currentLevel: -1,
 
     // for handling all game entities
@@ -88,15 +88,6 @@
 
         var deltaTime = Date.now() - gGameEngine.startTime;
         gGameEngine.startTime = Date.now();
-
-        /*
-        if (deltaTime < 16.7) { // in the small levels low FPS would drive the system crazy
-          setTimeout(function() {
-            gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
-          }, 16.7);
-        } else {
-          gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
-        }*/
 
         gGameEngine.update(deltaTime);
         gGameEngine.draw();
@@ -181,6 +172,10 @@
     // ******************************************************************************************** next level
     loadNextLevel: function() {
 
+      // prevent requestAnimationFrame to call more than once
+      if (gGameEngine.gameState !== gGameEngine.STATE.WIN) return;
+      gGameEngine.gameState = 0;
+
       gGameEngine.currentLevel += 1;
 
       if (gGameEngine.currentLevel >= gGameEngine.numLevels) {
@@ -189,16 +184,31 @@
       } else {
 
         if (gGameEngine.currentLevel !== 0) {
-          gContext.clearRect(0,0,gCanvas.width, gCanvas.height);
-          gContext.font = "1.6em Helvetica, sans-serif";
-          gContext.fillStyle = 'black';
-          gContext.fillText('ready for the next level?', gCanvas.width/2 - 130, gCanvas.height/2);
+          gContext.fillStyle = 'white';
+          gContext.fillRect(0,0,gCanvas.width, gCanvas.height);
+
+          var gif = document.getElementById('levelup');
+          gif.onload = function() {
+
+            setTimeout(function() {
+              gLoading.style.visibility = 'visible';
+              gif.style.display = 'none';
+
+            }, 3000);
+          };
+
+          gif.src = 'images/levelup.gif'  + '?' + (new Date().valueOf());
+          gif.style.display = 'block';
+
+        } else {
+          // while player plays level 0 & 1 cache the big tileset for later levels
+          setTimeout( function() {
+            loadAssets(['images/map_tileset.png'], function() {} );
+          }, 8000);
         }
 
         // let user know we are loading
         gLoading.innerHTML = gGameEngine.loadingHTML;
-        gLoading.style.visibility = 'visible';
-
 
         // reset game
         gPhysicsEngine.setup();
