@@ -19,7 +19,7 @@ var EnemyEntity = AnimatedEntity.extend({
   currVel: null,
 
   create: function(x, y, w, h, images, animLength, dynamic) {
-    var correctionValue = 53; // how far to move the static entity into the ground
+    var correctionValue = 2; // -7; // how far to move the static entity into the ground
 
     this.dynamic = dynamic;
 
@@ -48,8 +48,8 @@ var EnemyEntity = AnimatedEntity.extend({
       this.physBody = gPhysicsEngine.addBody( {
         x: x,
         y: (y + correctionValue),
-        halfWidth: w/2,
-        halfHeight: h/2,
+        halfWidth: w/2 - 34,
+        halfHeight: h/2 - 25,
         type: 'static',
         density: 1.0,
         friction: 0.5,
@@ -70,7 +70,7 @@ var EnemyEntity = AnimatedEntity.extend({
       this.position(this.newPos.x * gPhysicsEngine.scale, this.newPos.y * gPhysicsEngine.scale);
 
       if (this.currVel.y < 0.4) {
-        this.physBody.ApplyImpulse({ x: 0, y:-0.8}, this.newPos);
+        this.physBody.ApplyImpulse({ x: 0, y:-0.4}, this.newPos);
       }
     }
     this.currentTime += deltaTime;

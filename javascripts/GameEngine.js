@@ -354,7 +354,7 @@
     },
     createStaticEnemy: function(x, y) {
       var entity = gGameEngine.spawnEntity('EnemyEntity');
-      entity.create(x, y, 408, 141, ['enemystatic01.png', 'enemystatic02.png', 'enemystatic03.png', 'enemystatic04.png',
+      entity.create(x, y, 300, 104, ['enemystatic01.png', 'enemystatic02.png', 'enemystatic03.png', 'enemystatic04.png',
         'enemystatic05.png', 'enemystatic06.png', 'enemystatic06.png'], 800, false);
     }
   });

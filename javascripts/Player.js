@@ -28,7 +28,7 @@
 
     // jump logic
     readyToJump: false,
-    jumpStrength: 130,
+    jumpStrength: 100,
     jumpVec: { x: 0, y: -1},
     oldJumpVec: { x: 0, y: 0},
 
