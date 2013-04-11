@@ -31,7 +31,7 @@
 
   var PhysicsEngineClass = Class.extend({
     gravity: new Vec2(0,9.8),
-    stateTime: 0,
+    stateTime: 0.0,
     world: null,
     scale: 32, // one map tile = 1 meter
 
@@ -82,18 +82,18 @@
 
     //-----------------------------------------
     update: function (deltaTime) {
+      this.stateTime += deltaTime;
+      if (this.stateTime >= 1000/60) {
+        this.stateTime = 0.0;
+        gPhysicsEngine.world.Step(
+            1/60,                     // physics frame-rate
+            8,                        // velocity iterations
+            3                         // position iterations
+        );
+        gPhysicsEngine.world.ClearForces();
 
-      var timestamp = deltaTime/1000;
-      if (timestamp > 0.033333333) timestamp = 0.033333333; // 0.033333333 = 2/60
-
-      gPhysicsEngine.world.Step(
-          timestamp,                 //frame-rate
-          8,                         //velocity iterations
-          3                          //position iterations
-      );
-      gPhysicsEngine.world.ClearForces();
-
-      // gPhysicsEngine.world.DrawDebugData();
+        // gPhysicsEngine.world.DrawDebugData();
+      }
     },
 
     //-----------------------------------------

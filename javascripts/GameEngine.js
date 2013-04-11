@@ -83,16 +83,25 @@
 
     // ******************************************************************************************** game loop
     gameLoop: function() {
-      gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
 
       if (gGameEngine.gameState === gGameEngine.STATE.PLAY) {
+        gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
 
         var deltaTime = Date.now() - gGameEngine.startTime;
         gGameEngine.startTime = Date.now();
 
+        /*
+        if (deltaTime < 16.7) { // in the small levels low FPS would drive the system crazy
+          setTimeout(function() {
+            gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
+          }, 16.7);
+        } else {
+          gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
+        }*/
 
         gGameEngine.update(deltaTime);
         gGameEngine.draw();
+        // gContext.fillText('FPS: ' + 1000/deltaTime, gCanvas.width/2, gCanvas.height/2);
 
       } else if (gGameEngine.gameState === gGameEngine.STATE.GAMEOVER) {
         alert('game over');

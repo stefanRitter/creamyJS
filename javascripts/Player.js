@@ -28,14 +28,17 @@
 
     // jump logic
     readyToJump: false,
-    jumpStrength: 230,
-    jumpVec: { x: 0, y: 0},
+    jumpStrength: 130,
+    jumpVec: { x: 0, y: -1},
     oldJumpVec: { x: 0, y: 0},
 
     // move logic
     speed: 8,
     maxSpeed: 24,
     currVel: null,
+    antiForce: 0,
+    onWall: false,
+    onCeiling: false,
 
     // animations
     walkRight: ['creamywalk01.png', 'creamywalk02.png'],
@@ -83,14 +86,16 @@
         y: y,
         type: 'dynamic',
         density: 0.6,
-        friction: 2,
-        restitution: -4, // sticky
+        friction: 1,
+        restitution: -200, // sticky
         radius: (w/2),
         userData: {
           "id": 'player',
           "ent": this
         }
       });
+
+      this.antiForce = gPhysicsEngine.gravity.y * this.physBody.GetMass()/20;
     },
 
     // ******************************************************************************************** draw
@@ -113,75 +118,36 @@
         this.forcePos = null;
       }
 
-
-
       this.pos = this.physBody.GetPosition();
       this.currVel = this.physBody.GetLinearVelocity();
 
-      // attach to surface by applying negative gravity
-      if (this.jumpVec.y > 0) {
-        this.physBody.ApplyImpulse({ x: 0, y:-(gPhysicsEngine.gravity.y)}, this.pos);
-      } else if (this.jumpVec.x > 0) {
-        this.physBody.ApplyImpulse({ x: -(gPhysicsEngine.gravity.y), y:-(gPhysicsEngine.gravity.y/5)}, this.pos);
-      } else if (this.jumpVec.x < 0) {
-        this.physBody.ApplyImpulse({ x: (gPhysicsEngine.gravity.y), y:-(gPhysicsEngine.gravity.y/5)}, this.pos);
+      // attach to ceiling
+      if (this.onCeiling) {
+        this.physBody.ApplyForce( { x: 0, y: -(this.antiForce*8) }, this.physBody.GetWorldCenter());
       }
-
 
       this.stateTime += deltaTime;
-      if (this.stateTime > 50) {
+      if (this.stateTime > 16) {
         this.stateTime = 0;
 
-        // slow down
-        this.physBody.ApplyImpulse({ x: -(this.currVel.x/3), y:-(this.currVel.x/3)}, this.pos);
+        if (this.readyToJump === true) { // only update if not falling or jumping
 
-        if (gInputEngine.actions['jump']) {
-          // apply vertical impulse only if ready to jump
-          if (this.readyToJump) {
-            this.physBody.ApplyImpulse(this.jumpVec, this.pos);
-
-            this.setJumpAnimation();
-
-            // detach from surface
-            this.jumpVec.x = 0;
-            this.jumpVec.y = 0;
-            this.readyToJump = false;
+          // attach to surface by applying negative gravity
+          if (this.onWall) {
+            this.physBody.ApplyForce( { x: 0, y: -this.antiForce }, this.physBody.GetWorldCenter());
           }
-        }
-
-        if (this.readyToJump === true) { // only move left or right when not jumping
+          // slow down
+          // this.physBody.ApplyImpulse({ x: -(this.currVel.x/3), y:-(this.currVel.x/3)}, this.pos);
           this.setWalkAnimation();
 
-          if (gInputEngine.actions['move-right']) {
+          this.updatePlayerInput();
 
-            if (this.currVel.x < this.maxSpeed) { // limit max velocity
-
-              if (this.jumpVec.x === 0) { // move normal to jump vector
-                this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
-              } else  if (this.jumpVec.x > 0) { // on left sided wall
-                this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
-              } else { // on right sided wall
-                this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
-              }
-            }
-          }
-
-          if (gInputEngine.actions['move-left']) {
-
-            if (this.currVel.x > -this.maxSpeed) {
-
-              if (this.jumpVec.x === 0) {
-                this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
-              } else if (this.jumpVec.x > 0) { // on left sided wall
-                this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
-              } else {
-                this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
-              }
-            }
-          }
+        } else if (this.jumpVec.x === 0) {
+          this.onWall = false;
+        } else if (this.jumpVec.x <= 0) {
+          this.onCeiling = false;
         }
       }
-
       // convert back to pixels for renderer
       this.newpos.x = this.pos.x * gPhysicsEngine.scale;
       this.newpos.y = this.pos.y * gPhysicsEngine.scale;
@@ -192,6 +158,54 @@
       this.oldJumpVec.y = this.jumpVec.y;
 
       this.updateAnimations(deltaTime);
+    },
+
+    updatePlayerInput: function() {
+      if (gInputEngine.actions['jump']) {
+        // apply vertical impulse only if ready to jump
+        if (this.readyToJump) {
+          this.physBody.ApplyImpulse(this.jumpVec, this.pos);
+
+          this.setJumpAnimation();
+
+          // detach from surface
+          this.jumpVec.x = 0;
+          this.jumpVec.y = 0;
+          this.readyToJump = false;
+          this.onCeiling = false;
+        }
+      }
+
+      if (this.readyToJump === true) { // only move left or right when not jumping
+
+        if (gInputEngine.actions['move-right']) {
+
+          if (this.currVel.x < this.maxSpeed) { // limit max velocity
+
+            if (this.jumpVec.x === 0) { // move normal to jump vector
+              this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
+            } else  if (this.jumpVec.x > 0) { // on left sided wall
+              this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
+            } else { // on right sided wall
+              this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
+            }
+          }
+        }
+
+        if (gInputEngine.actions['move-left']) {
+
+          if (this.currVel.x > -this.maxSpeed) {
+
+            if (this.jumpVec.x === 0) {
+              this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
+            } else if (this.jumpVec.x > 0) { // on left sided wall
+              this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
+            } else {
+              this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
+            }
+          }
+        }
+      }
     },
 
     // ******************************************************************************************** collisions
@@ -212,6 +226,14 @@
 
           // jump normal to current surface
           this.jumpVec = { x: normal.x * this.jumpStrength, y: normal.y * this.jumpStrength};
+
+          if (this.jumpVec.x !== 0 && this.onWall === false) {
+            this.onWall = true;
+            this.physBody.SetLinearVelocity(new Vec2(0,0));
+
+          } else if (this.jumpVec.y > 0 && this.onCeiling === false) {
+            this.onCeiling = true;
+          }
 
         } else if (physOwner.id === 'enemy') {
           // if we hit an enemy we have to start over
@@ -256,6 +278,8 @@
         if (this.oldJumpVec.x !== this.jumpVec.x && this.oldJumpVec.y !== this.jumpVec.y) {
           this.setWalkAnimation();
         }
+      } else if (this.jumpVec.y < 0) {
+        this.currentAnimation = this.stand;
       }
     },
 
@@ -290,7 +314,14 @@
     },
 
     setWalkAnimation: function() {
-      if (this.jumpVec.y < 0 && this.currVel.x > 0) {
+      if (this.jumpVec.x < 0) {
+        this.currentAnimation = this.wallWalkRight;
+        this.jumper = false;
+      } else if (this.jumpVec.x > 0) {
+        this.currentAnimation = this.wallWalkLeft;
+        this.jumper = false;
+
+      } else if (this.jumpVec.y < 0 && this.currVel.x > 0) {
         this.currentAnimation = this.walkRight;
         this.jumper = false;
       } else if (this.jumpVec.y < 0 && this.currVel.x < 0) {
@@ -302,13 +333,6 @@
         this.jumper = false;
       } else if (this.jumpVec.y > 0 && this.currVel.x < 0) {
         this.currentAnimation = this.ceilingLeft;
-        this.jumper = false;
-
-      } else if (this.jumpVec.x < 0 && this.currVel.x > 0) {
-        this.currentAnimation = this.wallWalkRight;
-        this.jumper = false;
-      } else if (this.jumpVec.x > 0 && this.currVel.x < 0) {
-        this.currentAnimation = this.wallWalkLeft;
         this.jumper = false;
       }
     },

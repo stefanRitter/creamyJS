@@ -8,10 +8,6 @@
 1.2.  shrink sprites to final display size
 1.3.  repack with trim turned on
 
-2. when falling onto a wall - reset y velocity!
-
-3. adjust physics of creamy
-
 4. nicer loading.gif
 
 5. nicer ready for next level font? one continuous story? / experience? 

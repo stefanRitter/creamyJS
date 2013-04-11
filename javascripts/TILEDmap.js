@@ -552,8 +552,6 @@
     },
 
     buildVerticalPlatforms: function() {
-      var count = 0;
-
       var correctionValueY = 12,
           correctionValueX = 5; // adjust position to graphics
 
@@ -588,17 +586,13 @@
         gMap.platformBuilder.start.x = tiles[0].x;
         gMap.platformBuilder.start.y = tiles[0].y;
 
-        console.log('new index: ' + index);
-        console.log('x: ' + tiles[0].x + ' y: ' + tiles[0].y);
         for (var i = 1; i < len; i++) {
-          console.log('x: ' + tiles[i].x + ' y: ' + tiles[i].y);
+
           // end of the array
           if (i+1 === len) {
             gMap.platformBuilder.size += 1;
             gGameEngine.createPlatform(gMap.platformBuilder.start.x  + correctionValueX, gMap.platformBuilder.start.y + correctionValueY,
                                        gMap.tileSize.x - (2*correctionValueX), gMap.tileSize.y  * gMap.platformBuilder.size);
-            count++;
-            console.log(count);
 
           } else {
 
@@ -611,8 +605,6 @@
               gMap.platformBuilder.start.x = tiles[i].x;
               gMap.platformBuilder.start.y = tiles[i].y;
 
-              count++;
-              console.log(count);
             } else {
               gMap.platformBuilder.size += 1;
             }
