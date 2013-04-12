@@ -29,7 +29,7 @@
 
     var inter = setInterval(function() {
       gLoading.style.top =  (parseInt(gLoading.style.top, 10) + 1) + '%';
-      if (parseInt(gLoading.style.top, 10) > 70) {
+      if (parseInt(gLoading.style.top, 10) >= 70) {
         clearInterval(inter);
       }
     }, 10);
@@ -38,11 +38,6 @@
   // ******************************************************************************* assets
   var assets = [
       'images/controls.png',
-      'javascripts/SoundManager.js',
-      'javascripts/InputEngine.js',
-      'javascripts/Spritesheet.js',
-      'javascripts/TILEDmap.js',
-      'javascripts/AnimatedEntity.js',
       'images/doneloading.png',
       'images/winner.png'];
 

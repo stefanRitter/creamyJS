@@ -47,11 +47,32 @@
 
     // loading
     loadingHTML: '',
+    fullyLoaded: false,
+    loadInterval: 0,
 
     // ******************************************************************************************** setup
     setup: function () {
 
       gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);
+      document.addEventListener('keyup', continueIntro);
+
+      function continueIntro() {
+        document.removeEventListener('keyup', continueIntro, false);
+
+        gContext.drawImage(gCachedAssets['images/doneloading.png'], 0, 0);
+        gGameEngine.drawFrame();
+        document.getElementById('logo').style.visibility = 'hidden';
+
+        gGameEngine.loadInterval = setInterval(function() {
+          // check if game is loaded
+          if (gGameEngine.fullyLoaded) {
+            clearInterval(gGameEngine.loadInterval);
+            document.addEventListener('keyup', gGameEngine.startGame, false);
+            // let user know we are ready
+            gLoading.innerHTML = "... hit any key to start ...";
+          }
+        }, 200);
+      }
 
       // save initial loading gif
       gGameEngine.loadingHTML += gLoading.innerHTML;
@@ -59,12 +80,7 @@
       var assets = [
           'images/background.png',
           'images/gamesprite.png',
-          'images/gamesprite.json',
-          'javascripts/EnemyEntity.js',
-          'javascripts/Background.js',
-          'javascripts/GoalEntity.js',
-          'javascripts/PlatformEntity.js',
-          'javascripts/Player.js' ];
+          'images/gamesprite.json' ];
 
       loadAssets(assets, function() {
 
@@ -73,7 +89,7 @@
         gBackground.setup('images/background.png');
 
         gGameEngine.setupSounds();
-        gGameEngine.setupSpritesAndEntities();
+        gGameEngine.setupSprites();
 
         // load first level and start game
         gGameEngine.loadNextLevel();
@@ -172,7 +188,7 @@
     // ******************************************************************************************** next level
     loadNextLevel: function() {
 
-      // prevent requestAnimationFrame to call more than once
+      // prevent calling more than once
       if (gGameEngine.gameState !== gGameEngine.STATE.WIN) return;
       gGameEngine.gameState = 0;
 
@@ -189,16 +205,14 @@
 
           var gif = document.getElementById('levelup');
           gif.onload = function() {
-
+            gif.style.display = 'block';
             setTimeout(function() {
-              gLoading.style.visibility = 'visible';
               gif.style.display = 'none';
-
+              gGameEngine.startGame(); // no loading necessary so we can just dive right in
             }, 3000);
           };
 
           gif.src = 'images/levelup.gif'  + '?' + (new Date().valueOf());
-          gif.style.display = 'block';
 
         } else {
           // while player plays level 0 & 1 cache the big tileset for later levels
@@ -222,30 +236,23 @@
         gMap.load(level, function() {
 
           gMap.preDrawCache(); // pre-render canvas tiles
-
-          gContext.drawImage(gCachedAssets['images/doneloading.png'], 0, 0);
-          document.getElementById('logo').style.visibility = 'hidden';
-          gGameEngine.drawFrame();
-
           gMap.createEntities();
           gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
 
-          // let user know we are ready
-          gLoading.innerHTML = "... hit any key to start ...";
-
-          function startGame() {
-            gLoading.style.visibility = 'hidden';
-
-            gGameEngine.startTime = Date.now();
-            gGameEngine.gameState = gGameEngine.STATE.PLAY;
-            gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
-            document.addEventListener('keyup', startGame, false);
-          }
-
-          document.addEventListener('keyup', startGame, false);
+          if (gGameEngine.currentLevel === 0) gGameEngine.fullyLoaded = true;
         }, 1000, 600);
       }
     },
+
+    startGame: function() {
+      gLoading.style.visibility = 'hidden';
+      document.removeEventListener('keyup', gGameEngine.startGame, false);
+
+      gGameEngine.startTime = Date.now();
+      gGameEngine.gameState = gGameEngine.STATE.PLAY;
+      gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
+    },
+
 
     // ******************************************************************************************** utils
     spawnEntity: function (typename) {
@@ -316,33 +323,10 @@
       });
     },
 
-    setupSpritesAndEntities: function() {
+    setupSprites: function() {
       var sprite = new SpriteSheetClass();
       sprite.setAsset('images/gamesprite.png', gCachedAssets['images/gamesprite.png']);
       sprite.parseAtlasDefinition(gCachedAssets['images/gamesprite.json']);
-
-      /*
-      // main walls around the perimeter of the map
-      var top = gGameEngine.spawnEntity('PlatformEntity');
-      top.create(0, 0,
-                  gMap.pixelSize.x, gPhysicsEngine.scale,
-                  'platform.png', null);
-
-      var right = gGameEngine.spawnEntity('PlatformEntity');
-      right.create(gMap.pixelSize.x - gPhysicsEngine.scale, 0,
-                  gPhysicsEngine.scale, gMap.pixelSize.y,
-                  'platform.png', null);
-
-      var bottom = gGameEngine.spawnEntity('PlatformEntity');
-      bottom.create(0, gMap.pixelSize.y - gPhysicsEngine.scale,
-                  gMap.pixelSize.x, gPhysicsEngine.scale,
-                  'platform.png', null);
-
-      var left = gGameEngine.spawnEntity('PlatformEntity');
-      left.create(0, 0,
-                  gPhysicsEngine.scale, gMap.pixelSize.y,
-                  'platform.png', null);
-      */
     },
 
     // these helpers are used by gMap to populate the level
