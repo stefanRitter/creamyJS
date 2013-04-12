@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 1,
+    numLevels: 2,
     currentLevel: -1,
 
     // for handling all game entities
@@ -71,6 +71,7 @@
             document.addEventListener('keyup', gGameEngine.startGame, false);
             // let user know we are ready
             gLoading.innerHTML = "... press any key to start ...";
+            fadeout(document.getElementsByClassName('mainfooter')[0]);
           }
         }, 200);
       }
@@ -122,11 +123,7 @@
       } else if (gGameEngine.gameState === gGameEngine.STATE.WIN) {
         cancelAnimationFrame(gGameEngine.request);
 
-        // go gold and then back to white
-        gContext.fadeToColor('rgba(255,195,90, 0.2)', 600, function() {
-          gContext.fillStyle = 'white';
-          gContext.fillRect(0,0,gCanvas.width, gCanvas.height);
-        });
+        gContext.fadeToColor('rgba(255,255,255, 0.3)', 600);
         gGameEngine.loadNextLevel();
       }
     },

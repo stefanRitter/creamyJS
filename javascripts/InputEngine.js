@@ -37,8 +37,9 @@
       // bind keys to events
       gInputEngine.bind(32, 'jump'); // 87 = W, 32 = SPACE
       gInputEngine.bind(37, 'move-left'); // 65 = A, 37 = left arrow
-      // gInputEngine.bind(83, 'move-down');
       gInputEngine.bind(39, 'move-right'); // 68 = D, 39 = right arrow
+      gInputEngine.bind(40, 'move-down');
+      gInputEngine.bind(38, 'move-up');
 
       // Adding the event listeners for the appropriate DOM events.
       //document.getElementById('my_canvas').addEventListener('mousemove', gInputEngine.onMouseMove);
@@ -61,7 +62,7 @@
       // You'll need to use the bindings object you set in 'bind'
       // in order to do this.
       var action = gInputEngine.bindings[event.keyCode];
-      // console.log(event.keyCode);
+
 
       if (action) {
         gInputEngine.actions[action] = true;

@@ -123,7 +123,7 @@
 
       // attach to ceiling
       if (this.onCeiling) {
-        this.physBody.ApplyForce( { x: 0, y: -(this.antiForce*8) }, this.physBody.GetWorldCenter());
+        this.physBody.ApplyForce( { x: 0, y: -(this.antiForce*20) }, this.physBody.GetWorldCenter());
       }
 
       this.stateTime += deltaTime;
@@ -178,7 +178,7 @@
 
       if (this.readyToJump === true) { // only move left or right when not jumping
 
-        if (gInputEngine.actions['move-right']) {
+        if (gInputEngine.actions['move-right'] || gInputEngine.actions['move-up']) {
 
           if (this.currVel.x < this.maxSpeed) { // limit max velocity
 
@@ -192,7 +192,7 @@
           }
         }
 
-        if (gInputEngine.actions['move-left']) {
+        if (gInputEngine.actions['move-left'] || gInputEngine.actions['move-down']) {
 
           if (this.currVel.x > -this.maxSpeed) {
 
