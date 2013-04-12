@@ -93,8 +93,7 @@
   // ******************************************************************************* assets
   var assets = [
       'images/controls.png',
-      'images/doneloading.png',
-      'images/winner.png'];
+      'images/doneloading.png' ];
 
 	// ******************************************************************************* onload
 	window.onload = function () {
@@ -137,6 +136,9 @@
       gSM.loadAsync('sound/music.mp3', function() {
           gSM.playSound('sound/music.mp3', { looping: true });
       });
+      gSM.loadAsync('sound/coin.ogg', function() {});
+      gSM.loadAsync('sound/jump.ogg', function() {});
+      gSM.loadAsync('sound/hit.ogg', function()  {});
 
       gGameEngine.setup();
     }

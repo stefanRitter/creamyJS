@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 2,
+    numLevels: 5,
     currentLevel: -1,
 
     // for handling all game entities
@@ -114,7 +114,7 @@
       } else if (gGameEngine.gameState === gGameEngine.STATE.GAMEOVER) {
         cancelAnimationFrame(gGameEngine.request);
 
-        gContext.fadeToColor('rgba(200,100,100, 0.1)', 1000, function() {
+        gContext.fadeToColor('rgba(200,100,100, 0.1)', 1500, function() {
           gGameEngine.gameState = gGameEngine.STATE.PLAY;
           gContext.fadeGlobalAlpha(400);
           gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
@@ -231,6 +231,7 @@
           document.addEventListener('click', function() {
             window.location='mailto:stefan@stefanritter.com';
           });
+          fadein(document.getElementsByClassName('mainfooter')[0]);
           return;
         } else {
           // replay next level animation
@@ -240,7 +241,7 @@
       } else {
         // while player plays level 0 & 1 cache the big tileset for later levels
         setTimeout( function() {
-          loadAssets(['images/map_tileset.png'], function() {} );
+          loadAssets(['images/map_tileset.png', 'images/winner.png'], function() {} );
         }, 8000);
       }
 
@@ -340,11 +341,7 @@
 
     // ******************************************************************************************** load sounds and entities
     setupSounds: function() {
-      gSM.loadAsync('sound/coin.ogg', function()  {
-        gSM.loadAsync('sound/hit.ogg', function()  {
-          gSM.playSound('sound/coin.ogg');
-        });
-      });
+
     },
 
     setupSprites: function() {

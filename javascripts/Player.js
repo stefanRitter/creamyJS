@@ -115,6 +115,7 @@
       }
       if (this.forcePos) { // set by onTouch when we hit an enemy entity
         this.physBody.SetPosition(new Vec2(this.forcePos.x/gPhysicsEngine.scale, this.forcePos.y/gPhysicsEngine.scale));
+        this.physBody.SetLinearVelocity(new Vec2(0,0));
         this.forcePos = null;
       }
 
@@ -178,7 +179,7 @@
 
       if (this.readyToJump === true) { // only move left or right when not jumping
 
-        if (gInputEngine.actions['move-right'] || gInputEngine.actions['move-up']) {
+        if (gInputEngine.actions['move-right']) {
 
           if (this.currVel.x < this.maxSpeed) { // limit max velocity
 
@@ -190,9 +191,15 @@
               this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
             }
           }
+        } else if (gInputEngine.actions['move-up']) {
+          if (this.jumpVec.x === 0) { // move normal to jump vector
+            this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
+          } else  { // on wall
+            this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
+          }
         }
 
-        if (gInputEngine.actions['move-left'] || gInputEngine.actions['move-down']) {
+        if (gInputEngine.actions['move-left']) {
 
           if (this.currVel.x > -this.maxSpeed) {
 
@@ -203,6 +210,12 @@
             } else {
               this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
             }
+          }
+        } else if (gInputEngine.actions['move-down']) {
+          if (this.jumpVec.x === 0) { // on ceiling or floor
+            this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
+          } else { // on wall
+            this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
           }
         }
       }
@@ -238,7 +251,6 @@
         } else if (physOwner.id === 'enemy') {
           // if we hit an enemy we have to start over
           this.forcePos = { x: this.startPos.x , y: this.startPos.y };
-          this.physBody.SetLinearVelocity( new Vec2(0,0));
 
           this.currentAnimation = this.stand;
           gSM.playSound('sound/hit.ogg');
@@ -252,10 +264,19 @@
     },
 
     onEndContact: function () {
+      if (gGameEngine.gameState !== gGameEngine.STATE.GAMEOVER && this.readyToJump === false) {
+        gSM.playSound('sound/jump.ogg');
+      }
+      if (this.readyToJump === true) {
+        // Creamy is falling
+        this.currentAnimation = this.stand;
+      }
       // detach from surface
       this.jumpVec.x = 0;
       this.jumpVec.y = 0;
       this.readyToJump = false;
+      this.onCeiling = false;
+      this.onWall = false;
     },
 
     // ******************************************************************************************** animations
