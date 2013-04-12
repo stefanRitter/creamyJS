@@ -35,6 +35,61 @@
     }, 10);
   }
 
+  // fades canvas to a color
+  function fadeToColor(color, ms, callback) {
+    var time = ms || 1000,
+        interv = setInterval( function() {
+          gContext.fillStyle = color;
+          gContext.fillRect(0,0, gCanvas.width, gCanvas.height);
+        }, time/20);
+
+    setTimeout(function () {
+      clearInterval(interv);
+
+      if(callback) {
+        callback();
+      }
+    }, time+5);
+  }
+
+  // fade image over canvas
+  function fadeToImage(image, ms, callback) {
+    gContext.globalAlpha = 0.0;
+    var time = ms || 1000,
+        interv = setInterval( function() {
+          gContext.globalAlpha += 1/20;
+          gContext.drawImage(image, 0,0);
+        }, time/20);
+
+    setTimeout(function () {
+      clearInterval(interv);
+      gContext.globalAlpha = 1.0;
+      gContext.drawImage(image, 0,0);
+
+      if(callback) {
+        callback();
+      }
+    }, time+5);
+  }
+
+  // fade in global alpha
+  function fadeGlobalAlpha(ms, callback) {
+    gContext.globalAlpha = 0.0;
+    var time = ms || 1000,
+        interv = setInterval( function() {
+          gContext.globalAlpha += 1/20;
+        }, time/20);
+
+    setTimeout(function () {
+      clearInterval(interv);
+      gContext.globalAlpha = 1.0;
+
+      if(callback) {
+        callback();
+      }
+    }, time+5);
+  }
+
   // ******************************************************************************* assets
   var assets = [
       'images/controls.png',
@@ -55,6 +110,11 @@
       gLoading = document.getElementById('loading');
       gCanvas = document.getElementById('game');
       gContext = gCanvas.getContext('2d');
+
+      // extend context
+      gContext.fadeToColor = fadeToColor;
+      gContext.fadeToImage = fadeToImage;
+      gContext.fadeGlobalAlpha = fadeGlobalAlpha;
 
       slideDown(gLoading, 20);
       gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);

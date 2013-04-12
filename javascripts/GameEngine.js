@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 3,
+    numLevels: 1,
     currentLevel: -1,
 
     // for handling all game entities
@@ -53,14 +53,15 @@
     // ******************************************************************************************** setup
     setup: function () {
 
-      gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);
+      gContext.fadeToImage(gCachedAssets['images/controls.png'], 500);
       document.addEventListener('keyup', continueIntro);
+      gLoading.style.visibility = 'hidden';
 
       function continueIntro() {
-        document.removeEventListener('keyup', continueIntro, false);
+        document.removeEventListener('keyup', continueIntro);
+        gLoading.style.visibility = 'visible';
 
-        gContext.drawImage(gCachedAssets['images/doneloading.png'], 0, 0);
-        gGameEngine.drawFrame();
+        gContext.fadeToImage(gCachedAssets['images/doneloading.png'], 500);
         document.getElementById('logo').style.visibility = 'hidden';
 
         gGameEngine.loadInterval = setInterval(function() {
@@ -69,7 +70,7 @@
             clearInterval(gGameEngine.loadInterval);
             document.addEventListener('keyup', gGameEngine.startGame, false);
             // let user know we are ready
-            gLoading.innerHTML = "... hit any key to start ...";
+            gLoading.innerHTML = "... press any key to start ...";
           }
         }, 200);
       }
@@ -110,10 +111,22 @@
         // gContext.fillText('FPS: ' + 1000/deltaTime, gCanvas.width/2, gCanvas.height/2);
 
       } else if (gGameEngine.gameState === gGameEngine.STATE.GAMEOVER) {
-        alert('game over');
         cancelAnimationFrame(gGameEngine.request);
+
+        gContext.fadeToColor('rgba(200,100,100, 0.1)', 1000, function() {
+          gGameEngine.gameState = gGameEngine.STATE.PLAY;
+          gContext.fadeGlobalAlpha(400);
+          gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
+        });
+
       } else if (gGameEngine.gameState === gGameEngine.STATE.WIN) {
         cancelAnimationFrame(gGameEngine.request);
+
+        // go gold and then back to white
+        gContext.fadeToColor('rgba(255,195,90, 0.2)', 600, function() {
+          gContext.fillStyle = 'white';
+          gContext.fillRect(0,0,gCanvas.width, gCanvas.height);
+        });
         gGameEngine.loadNextLevel();
       }
     },
@@ -192,56 +205,69 @@
       if (gGameEngine.gameState !== gGameEngine.STATE.WIN) return;
       gGameEngine.gameState = 0;
 
+
       gGameEngine.currentLevel += 1;
 
-      if (gGameEngine.currentLevel >= gGameEngine.numLevels) {
-        gContext.drawImage(gCachedAssets['images/winner.png'], 0, 0);
+      if (gGameEngine.currentLevel !== 0) {
+        // this is not the first level so we can assume a completed engine setup
+        gContext.fillStyle = 'white';
+        gContext.fillRect(0,0,gCanvas.width, gCanvas.height);
 
-      } else {
+        var gif = document.getElementById('levelup');
+        gif.onload = function() {
+          fadein(this, 400); // appear gradually
+          gif.style.display = 'block';
 
-        if (gGameEngine.currentLevel !== 0) {
-          gContext.fillStyle = 'white';
-          gContext.fillRect(0,0,gCanvas.width, gCanvas.height);
-
-          var gif = document.getElementById('levelup');
-          gif.onload = function() {
-            gif.style.display = 'block';
+          if (gGameEngine.currentLevel < gGameEngine.numLevels) {
             setTimeout(function() {
-              gif.style.display = 'none';
+              // fade after animation
+              fadeout(gif, 400, function() {
+                gif.style.display = 'none';
+              });
               gGameEngine.startGame(); // no loading necessary so we can just dive right in
             }, 3000);
-          };
-
-          gif.src = 'images/levelup.gif'  + '?' + (new Date().valueOf());
-
+          }
+        };
+        if (gGameEngine.currentLevel >= gGameEngine.numLevels) {
+          // player final animation
+          gif.src = 'images/winner.png';
+          document.addEventListener('click', function() {
+            window.location='mailto:stefan@stefanritter.com';
+          });
+          return;
         } else {
-          // while player plays level 0 & 1 cache the big tileset for later levels
-          setTimeout( function() {
-            loadAssets(['images/map_tileset.png'], function() {} );
-          }, 8000);
+          // replay next level animation
+          gif.src = 'images/levelup.gif'  + '?' + (new Date().valueOf());
         }
 
-        // let user know we are loading
-        gLoading.innerHTML = gGameEngine.loadingHTML;
-
-        // reset game
-        gPhysicsEngine.setup();
-        gGameEngine.entities = [];
-        gGameEngine._deferredKill = [];
-
-
-        // load & parse the map and start game once it's loaded
-        var level = 'images/level' + gGameEngine.currentLevel + '.json';
-        gMap = new TILEDMapClass();
-        gMap.load(level, function() {
-
-          gMap.preDrawCache(); // pre-render canvas tiles
-          gMap.createEntities();
-          gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
-
-          if (gGameEngine.currentLevel === 0) gGameEngine.fullyLoaded = true;
-        }, 1000, 600);
+      } else {
+        // while player plays level 0 & 1 cache the big tileset for later levels
+        setTimeout( function() {
+          loadAssets(['images/map_tileset.png'], function() {} );
+        }, 8000);
       }
+
+
+      // let user know we are loading
+      gLoading.innerHTML = gGameEngine.loadingHTML;
+
+      // reset game
+      gPhysicsEngine.setup();
+      gGameEngine.entities = [];
+      gGameEngine._deferredKill = [];
+
+
+      // load & parse the map and start game once it's loaded
+      var level = 'images/level' + gGameEngine.currentLevel + '.json';
+      gMap = new TILEDMapClass();
+      gMap.load(level, function() {
+
+        gMap.preDrawCache(); // pre-render canvas tiles
+        gMap.createEntities();
+        gMap.centerAt(gPlayer.pos.x, gPlayer.pos.y, 600, 1000);
+
+        if (gGameEngine.currentLevel === 0) gGameEngine.fullyLoaded = true;
+      }, 1000, 600);
     },
 
     startGame: function() {
@@ -250,6 +276,7 @@
 
       gGameEngine.startTime = Date.now();
       gGameEngine.gameState = gGameEngine.STATE.PLAY;
+      gContext.fadeGlobalAlpha(400);
       gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
     },
 
@@ -352,6 +379,44 @@
   });
 
   window.gGameEngine = new GameEngineClass();
+
+
+
+  // ******************************************************************************************** DOM fadein fadeout
+
+  function fadein(element, ms, callback) {
+
+    var time = ms || 1000,
+      interv = setInterval(function() {
+      element.style.opacity = parseFloat(element.style.opacity) + 0.05;
+    }, time/20);
+
+    setTimeout(function () {
+      clearInterval(interv);
+      element.style.opacity = 1;
+
+      if(callback) {
+        callback();
+      }
+    }, time);
+  }
+
+  function fadeout(element, ms, callback) {
+
+    var time = ms || 1000,
+      interv = setInterval(function() {
+      element.style.opacity = parseFloat(element.style.opacity) - 0.05;
+    }, time/20);
+
+    setTimeout(function () {
+      clearInterval(interv);
+      element.style.opacity = 0;
+
+      if(callback) {
+        callback();
+      }
+    }, time);
+  }
 }).call(this);
 
 

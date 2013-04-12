@@ -138,8 +138,8 @@
       // Return false if either of these sanity checks
       // fail.
       var sd = this.clips[path];
-      if (sd === null) return false;
-      if (sd.l === false) return false;
+      if (!sd) return false;
+      if (!sd.l) return false;
 
       var currentClip = null;
 
