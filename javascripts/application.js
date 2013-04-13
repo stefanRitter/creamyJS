@@ -115,12 +115,20 @@
       gContext.fadeToImage = fadeToImage;
       gContext.fadeGlobalAlpha = fadeGlobalAlpha;
 
+      // draw controls
       slideDown(gLoading, 20);
       gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);
 
-      // setup UI
+      // load and start playing music
       gSM.setup();
+      gSM.loadAsync('sound/music.mp3', function() {
+          gSM.playSound('sound/music.mp3', { looping: true });
+      });
+      gSM.loadAsync('sound/coin.ogg', function() {});
+      gSM.loadAsync('sound/jump.ogg', function() {});
+      gSM.loadAsync('sound/hit.ogg', function()  {});
 
+      // setup UI
       soundcontrol.addEventListener('click', function(event) {
         event.preventDefault();
         gSM.togglemute();
@@ -132,15 +140,47 @@
         createScreenshot();
       });
 
-      // load and start playing music
-      gSM.loadAsync('sound/music.mp3', function() {
-          gSM.playSound('sound/music.mp3', { looping: true });
+      // setup reset button
+      document.getElementById('resetbutton').addEventListener('click', function(event) {
+          event.preventDefault();
+          setCookie('lastlevel', -1, 10);
+          window.location.reload(true);
       });
-      gSM.loadAsync('sound/coin.ogg', function() {});
-      gSM.loadAsync('sound/jump.ogg', function() {});
-      gSM.loadAsync('sound/hit.ogg', function()  {});
 
       gGameEngine.setup();
     }
 	};
+
+  // ******************************************************************************************** Cookies
+
+  //cookie code is based on the w3school's cookie tutorial
+  window.setCookie = function (c_name,value,exdays) {
+    var exdate=new Date();
+    exdate.setDate(exdate.getDate() + exdays);
+    var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+    document.cookie=c_name + "=" + c_value;
+  };
+
+  //returns the value of a cookie
+  window.getCookie = function (c_name) {
+    var c_value = document.cookie;
+    var c_start = c_value.indexOf(" " + c_name + "=");
+
+    if (c_start == -1) {
+      c_start = c_value.indexOf(c_name + "=");
+    }
+
+    if (c_start == -1) {
+      c_value = null;
+    } else {
+      c_start = c_value.indexOf("=", c_start) + 1;
+      var c_end = c_value.indexOf(";", c_start);
+
+      if (c_end == -1) {
+        c_end = c_value.length;
+      }
+      c_value = unescape(c_value.substring(c_start,c_end));
+    }
+    return c_value;
+  };
 }).call(this);

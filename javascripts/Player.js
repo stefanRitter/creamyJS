@@ -223,6 +223,13 @@
             this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
           }
         }
+
+      } else { // when jumping slightly allow change of direction
+        if (gInputEngine.actions['move-right']) {
+
+        } else if (gInputEngine.actions['move-left']) {
+
+        }
       }
     },
 
