@@ -55,7 +55,7 @@
 
       // get last level
       var level = getCookie('lastlevel');
-      if (level) {
+      if (level !== null) {
         gGameEngine.currentLevel = parseInt(level, 10);
       } else {
         gGameEngine.currentLevel = -1;
