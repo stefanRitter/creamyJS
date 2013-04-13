@@ -79,6 +79,11 @@
       this.halfsize.x = w/2;
       this.halfsize.y = h/2;
 
+      this.onCeiling = false;
+      this.onWall = false;
+      this.jumpVec = { x: 0, y: -1};
+      this.oldJumpVec = { x: 0, y: 0};
+
       this.currentAnimation = this.stand;
 
       this.physBody = gPhysicsEngine.addBody( {

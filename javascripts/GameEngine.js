@@ -93,6 +93,10 @@
         gGameEngine.setupSounds();
         gGameEngine.setupSprites();
 
+        // get last level
+        var level = getCookie('lastlevel');
+        if (level) this.currentLevel = parseInt(level, 10);
+
         // load first level and start game
         gGameEngine.loadNextLevel();
       });
@@ -124,6 +128,7 @@
         cancelAnimationFrame(gGameEngine.request);
 
         gContext.fadeToColor('rgba(255,255,255, 0.3)', 600);
+        setCookie('lastlevel', this.currentLevel, 10);
         gGameEngine.loadNextLevel();
       }
     },
@@ -410,6 +415,54 @@
         callback();
       }
     }, time);
+  }
+
+  // ******************************************************************************************** Cookies
+
+  //cookies.js code is based on the w3school's cookie tutorial, comments are mine
+
+
+  function setCookie(c_name, value, exdays) {
+
+    var exdate = new Date();
+    //get system date&time
+    exdate.setDate(exdate.getDate() + exdays);
+    //calculates the expiration date, adding exdays to the current date
+
+    var c_value = escape(value) + ((exdays === null) ? "" : "; expires=" + exdate.toUTCString());
+    //escape() makes the string stored in value ASCII conform, i.e. no special characters
+    //example: c_value = "value string; expires=Wed, 21 Nov 2012 16:38:52 GMT"
+
+    document.cookie = c_name + "=" + c_value;
+    //writes out cookie:
+    //MyCookieName=MyCookieValue; expires=Wed, 21 Nov 2012 16:38:52 GMT
+  }
+
+  //returns the value of a cookie
+  function getCookie(c_name) {
+
+    var i, x, y;
+    //counters and iterators
+
+    var ARRcookies = document.cookie.split(";");
+    //this creates an array of strings for all the arguments in the cookie
+
+    for ( i = 0; i < ARRcookies.length; i++) {//loop through the elements of the array
+
+      x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+      //this extracts the name of cookie
+
+      y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+      //this extracts the rest of the argument after the equal-sign
+
+      x = x.replace(/^\s+|\s+$/g, "");
+      //this deletes all white and empty spaces in the string, using RegExp
+
+      if (x === c_name) {
+        return unescape(y);
+        //if this is what we are looking for then return the value
+      }
+    }
   }
 }).call(this);
 
