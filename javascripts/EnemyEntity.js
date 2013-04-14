@@ -12,6 +12,7 @@
 var EnemyEntity = AnimatedEntity.extend({
   zindex: 2,
   physBody: null,
+  startPos: {x: 0, y: 0},
   newPos: {x:0,y:0},
   dynamic: false,
   startAnim: 0,
@@ -22,6 +23,8 @@ var EnemyEntity = AnimatedEntity.extend({
     var correctionValue = 2; // -7; // how far to move the static entity into the ground
 
     this.dynamic = false;
+    this.startPos.x = x;
+    this.startPos.y = y;
 
     if (type === 'dynamic') {
       this.dynamic = true;
@@ -33,8 +36,8 @@ var EnemyEntity = AnimatedEntity.extend({
         y: y,
         type: 'dynamic',
         density: 1.0,
-        friction: 0.5,
-        restitution: 0.7,
+        friction: 0.0,
+        restitution: 1,
         radius: 50,
         userData: {
           "id": "enemy",
@@ -50,7 +53,7 @@ var EnemyEntity = AnimatedEntity.extend({
         x: x,
         y: (y + correctionValue),
         halfWidth: w/2 - 34,
-        halfHeight: h/2 - 25,
+        halfHeight: h/2 - 38,
         type: 'static',
         density: 1.0,
         friction: 0.5,
@@ -90,8 +93,8 @@ var EnemyEntity = AnimatedEntity.extend({
 
       this.position(this.newPos.x * gPhysicsEngine.scale, this.newPos.y * gPhysicsEngine.scale);
 
-      if (this.currVel.y < 0.4) {
-        this.physBody.ApplyImpulse({ x: 0, y:-0.4}, this.newPos);
+      if (this.currVel.y < 0.8) {
+        // this.physBody.ApplyImpulse({ x: 0, y: -0.8}, this.newPos);
       }
     }
     this.currentTime += deltaTime;
@@ -103,6 +106,14 @@ var EnemyEntity = AnimatedEntity.extend({
 
   kill: function() {
     gPhysicsEngine.removeBody(this.physBody);
+  },
+
+  // reset when player has to start over
+  reset: function() {
+    if (this.dynamic) {
+      this.physBody.SetPosition(new Vec2(this.startPos.x/gPhysicsEngine.scale, this.startPos.y/gPhysicsEngine.scale));
+      this.physBody.SetLinearVelocity(new Vec2(0,0));
+    }
   }
 });
 

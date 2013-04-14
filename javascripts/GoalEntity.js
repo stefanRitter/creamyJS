@@ -20,7 +20,7 @@ var GoalEntity = AnimatedEntity.extend({
       x: x,
       y: y,
       type: 'static',
-      radius: 40,
+      radius: 50,
       userData: {
         "id": "goal",
         "ent": this

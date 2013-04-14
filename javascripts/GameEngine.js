@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 5,
+    numLevels: 6,
     currentLevel: -1,
 
     // for handling all game entities
@@ -127,6 +127,14 @@
         gContext.fadeToColor('rgba(200,100,100, 0.1)', 1500, function() {
           gGameEngine.gameState = gGameEngine.STATE.PLAY;
           gContext.fadeGlobalAlpha(400);
+
+          // reset entities to start of level
+          for (var i = 0; i < gGameEngine.entities.length; i++) {
+            if(gGameEngine.entities[i].reset) {
+              gGameEngine.entities[i].reset();
+            }
+          }
+
           gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
         });
 
