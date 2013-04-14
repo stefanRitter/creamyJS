@@ -34,7 +34,7 @@
 
     // move logic
     speed: 8,
-    maxSpeed: 24,
+    maxSpeed: 16,
     currVel: null,
     antiForce: 0,
     onWall: false,
@@ -187,50 +187,49 @@
 
         if (gInputEngine.actions['move-right']) {
 
-          if (this.currVel.x < this.maxSpeed) { // limit max velocity
+          if (this.jumpVec.x === 0) { // move normal to jump vector
+            if (this.currVel.x < this.maxSpeed) this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
 
-            if (this.jumpVec.x === 0) { // move normal to jump vector
-              this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
-            } else  if (this.jumpVec.x > 0) { // on left sided wall
-              this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
-            } else { // on right sided wall
-              this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
-            }
+          } else  if (this.jumpVec.x > 0) { // on left sided wall
+            if (this.currVel.y < this.maxSpeed) this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
+
+          } else { // on right sided wall
+            if (this.currVel.y > -this.maxSpeed) this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
           }
+
         } else if (gInputEngine.actions['move-up']) {
           if (this.jumpVec.x === 0) { // move normal to jump vector
-            this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
+            if (this.currVel.x < this.maxSpeed) this.physBody.ApplyImpulse({ x: this.speed, y:0}, this.pos);
+
           } else  { // on wall
-            this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
+            if (this.currVel.y > -this.maxSpeed) this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
           }
         }
 
         if (gInputEngine.actions['move-left']) {
 
-          if (this.currVel.x > -this.maxSpeed) {
-
-            if (this.jumpVec.x === 0) {
-              this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
-            } else if (this.jumpVec.x > 0) { // on left sided wall
-              this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
-            } else {
-              this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
-            }
+          if (this.jumpVec.x === 0) {
+            if (this.currVel.x > -this.maxSpeed) this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
+          } else if (this.jumpVec.x > 0) { // on left sided wall
+            if (this.currVel.y > -this.maxSpeed) this.physBody.ApplyImpulse({ x:0, y: -this.speed}, this.pos);
+          } else {
+            if (this.currVel.y < this.maxSpeed) this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
           }
+
         } else if (gInputEngine.actions['move-down']) {
           if (this.jumpVec.x === 0) { // on ceiling or floor
-            this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
+            if (this.currVel.x > -this.maxSpeed) this.physBody.ApplyImpulse({ x: -this.speed, y:0}, this.pos);
           } else { // on wall
-            this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
+            if (this.currVel.y < this.maxSpeed) this.physBody.ApplyImpulse({ x:0, y: this.speed}, this.pos);
           }
         }
 
       } else { // when jumping slightly allow change of direction
         if (gInputEngine.actions['move-right']) {
-          this.physBody.ApplyImpulse({ x: 1.5, y:0}, this.pos);
+          if (this.currVel.x < this.maxSpeed) this.physBody.ApplyImpulse({ x: 1.5, y:0}, this.pos);
 
         } else if (gInputEngine.actions['move-left']) {
-          this.physBody.ApplyImpulse({ x: -1.5, y:0}, this.pos);
+          if (this.currVel.x > -this.maxSpeed) this.physBody.ApplyImpulse({ x: -1.5, y:0}, this.pos);
 
         }
       }
