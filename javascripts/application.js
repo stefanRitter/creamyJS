@@ -144,7 +144,7 @@
       document.getElementById('resetbutton').addEventListener('click', function(event) {
           event.preventDefault();
           setCookie('lastlevel', -1, 10);
-          window.location.reload(true);
+          window.location.reload();
       });
 
       gGameEngine.setup();
