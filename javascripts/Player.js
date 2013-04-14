@@ -146,13 +146,13 @@
           // this.physBody.ApplyImpulse({ x: -(this.currVel.x/3), y:-(this.currVel.x/3)}, this.pos);
           this.setWalkAnimation();
 
-          this.updatePlayerInput();
-
         } else if (this.jumpVec.x === 0) {
           this.onWall = false;
         } else if (this.jumpVec.x <= 0) {
           this.onCeiling = false;
         }
+
+        this.updatePlayerInput();
       }
       // convert back to pixels for renderer
       this.newpos.x = this.pos.x * gPhysicsEngine.scale;
@@ -167,9 +167,13 @@
     },
 
     updatePlayerInput: function() {
-      if (gInputEngine.actions['jump']) {
-        // apply vertical impulse only if ready to jump
-        if (this.readyToJump) {
+
+      // apply vertical impulse only if ready to jump
+      // only move left or right when not jumping
+      if (this.readyToJump === true) {
+
+        if (gInputEngine.actions['jump']) {
+
           this.physBody.ApplyImpulse(this.jumpVec, this.pos);
 
           this.setJumpAnimation();
@@ -180,9 +184,6 @@
           this.readyToJump = false;
           this.onCeiling = false;
         }
-      }
-
-      if (this.readyToJump === true) { // only move left or right when not jumping
 
         if (gInputEngine.actions['move-right']) {
 
@@ -225,10 +226,13 @@
         }
 
       } else { // when jumping slightly allow change of direction
+        var jumpAdjust = 1.5;
         if (gInputEngine.actions['move-right']) {
-
+          this.physBody.ApplyImpulse({ x: jumpAdjust, y:0}, this.pos);
+          console.log('move-right');
         } else if (gInputEngine.actions['move-left']) {
-
+          this.physBody.ApplyImpulse({ x: -jumpAdjust, y:0}, this.pos);
+          console.log('move-left');
         }
       }
     },
