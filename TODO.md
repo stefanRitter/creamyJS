@@ -2,12 +2,12 @@
 
 /// TODO
 
-7. minify with closure
+- minify with closure
 
+- Make a level walk through, and or a game screen cast!
 
+- winning gif
 
-game design:
+- more levels
 
-create 10 nice levels
-when doing level0 and 1 use reduced tileset!
-
+- flying creamy bonus level

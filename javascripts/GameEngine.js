@@ -380,12 +380,18 @@
     createDynamicEnemy: function(x, y) {
       var entity = gGameEngine.spawnEntity('EnemyEntity');
       entity.create(x, y, 139, 120, ['enemydynamic01.png', 'enemydynamic02.png', 'enemydynamic03.png', 'enemydynamic04.png',
-        'enemydynamic05.png', 'enemydynamic06.png', 'enemydynamic07.png'], 500, true);
+        'enemydynamic05.png', 'enemydynamic06.png', 'enemydynamic07.png'], 500, 'dynamic');
     },
     createStaticEnemy: function(x, y) {
       var entity = gGameEngine.spawnEntity('EnemyEntity');
       entity.create(x, y, 300, 104, ['enemystatic01.png', 'enemystatic02.png', 'enemystatic03.png', 'enemystatic04.png',
-        'enemystatic05.png', 'enemystatic06.png', 'enemystatic06.png'], 800, false);
+        'enemystatic05.png', 'enemystatic06.png', 'enemystatic06.png'], 800, 'static');
+    },
+    createStaticRoundEnemy: function(x, y) {
+      var entity = gGameEngine.spawnEntity('EnemyEntity');
+      alert('round');
+      entity.create(x, y, 139, 120, ['enemydynamic01.png', 'enemydynamic02.png', 'enemydynamic03.png', 'enemydynamic04.png',
+        'enemydynamic05.png', 'enemydynamic06.png', 'enemydynamic07.png'], 500, 'staticRound');
     }
   });
 

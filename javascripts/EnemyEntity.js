@@ -18,12 +18,13 @@ var EnemyEntity = AnimatedEntity.extend({
   currentTime: 0,
   currVel: null,
 
-  create: function(x, y, w, h, images, animLength, dynamic) {
+  create: function(x, y, w, h, images, animLength, type) {
     var correctionValue = 2; // -7; // how far to move the static entity into the ground
 
-    this.dynamic = dynamic;
+    this.dynamic = false;
 
-    if (dynamic) {
+    if (type === 'dynamic') {
+      this.dynamic = true;
       this.parent(x, y, w, h, images, animLength, true);
       this.startAnim = Math.random() * 100;
 
@@ -41,7 +42,7 @@ var EnemyEntity = AnimatedEntity.extend({
         }
       });
 
-    } else { // static
+    } else if (type === 'static') {
       this.parent(x, (y + correctionValue), w, h, images, animLength, true);
       this.startAnim = Math.random() * 300;
 
@@ -59,6 +60,26 @@ var EnemyEntity = AnimatedEntity.extend({
           "ent": this
         }
       });
+
+    } else { // round static
+      this.dynamic = true;
+      this.parent(x, y, w, h, images, animLength, true);
+      this.startAnim = Math.random() * 100;
+
+      this.physBody = gPhysicsEngine.addBody( {
+        x: x,
+        y: y,
+        type: 'static',
+        density: 1.0,
+        friction: 0.5,
+        restitution: 0.7,
+        radius: 50,
+        userData: {
+          "id": "enemy",
+          "ent": this
+        }
+      });
+
     }
   },
 

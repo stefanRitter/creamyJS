@@ -226,13 +226,12 @@
         }
 
       } else { // when jumping slightly allow change of direction
-        var jumpAdjust = 1.5;
         if (gInputEngine.actions['move-right']) {
-          this.physBody.ApplyImpulse({ x: jumpAdjust, y:0}, this.pos);
-          console.log('move-right');
+          this.physBody.ApplyImpulse({ x: 1.5, y:0}, this.pos);
+
         } else if (gInputEngine.actions['move-left']) {
-          this.physBody.ApplyImpulse({ x: -jumpAdjust, y:0}, this.pos);
-          console.log('move-left');
+          this.physBody.ApplyImpulse({ x: -1.5, y:0}, this.pos);
+
         }
       }
     },

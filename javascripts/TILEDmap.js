@@ -509,6 +509,10 @@
             } else if (tID === 5) {
               gGameEngine.createStaticEnemy(worldX, worldY);
 
+            } else if (tID === 7) {
+              alert('7');
+              gGameEngine.createStaticRoundEnemy(worldX, worldY);
+
             } else if (tID === 6) {
               // collect all vertical platform tiles
               gMap.platformBuilder.vertical.push({ x: worldX, y: worldY});
