@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 6,
+    numLevels: 7,
     currentLevel: -1,
 
     // for handling all game entities
@@ -397,7 +397,6 @@
     },
     createStaticRoundEnemy: function(x, y) {
       var entity = gGameEngine.spawnEntity('EnemyEntity');
-      alert('round');
       entity.create(x, y, 139, 120, ['enemydynamic01.png', 'enemydynamic02.png', 'enemydynamic03.png', 'enemydynamic04.png',
         'enemydynamic05.png', 'enemydynamic06.png', 'enemydynamic07.png'], 500, 'staticRound');
     }

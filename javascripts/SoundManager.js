@@ -117,7 +117,7 @@
     //                   volume: a number between 0 and 1.
     //               }
     //----------------------------
-    playSound: function (path, settings) {
+    playSound: function (path, settings, callback) {
       // Check if the Sound Manager has been enabled,
       // return false if not.
       if (!gSM.enabled) return false;
@@ -159,6 +159,7 @@
       currentClip.connect(gSM._mainNode);
       currentClip.noteOn(0);
 
+      if (callback) callback();
       return true;
     }
   });

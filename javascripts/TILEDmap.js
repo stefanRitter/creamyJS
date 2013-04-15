@@ -510,7 +510,6 @@
               gGameEngine.createStaticEnemy(worldX, worldY);
 
             } else if (tID === 7) {
-              alert('7');
               gGameEngine.createStaticRoundEnemy(worldX, worldY);
 
             } else if (tID === 6) {

@@ -10,7 +10,9 @@
 
 (function() { "use strict";
 
+  // private var
   var velocityCheck = 0.8;
+  var jumpSound = false;
 
   var PlayerClass = Class.extend({
     // positions for physics, movement, rendering, beaming
@@ -267,20 +269,28 @@
           this.forcePos = { x: this.startPos.x , y: this.startPos.y };
 
           this.currentAnimation = this.stand;
-          gSM.playSound('sound/hit.ogg');
+          gSM.playSound('sound/hit.ogg', {volume: 2.0});
           gGameEngine.gameState = gGameEngine.STATE.GAMEOVER;
 
         } else if (physOwner.id === 'goal') {
           gGameEngine.gameState = gGameEngine.STATE.WIN;
-          gSM.playSound('sound/coin.ogg');
+          gSM.playSound('sound/coin.ogg', {volume: 1.5});
         }
       }
     },
 
     onEndContact: function () {
-      if (gGameEngine.gameState !== gGameEngine.STATE.GAMEOVER && this.readyToJump === false) {
-        gSM.playSound('sound/jump.ogg');
+      if (this.readyToJump === false) {
+        if (jumpSound === false) { // play jump only once
+          jumpSound = true;
+          gSM.playSound('sound/jump.ogg', {volume: 0.3}, function() {
+            setTimeout( function() {
+              jumpSound = false;
+            }, 100);
+          });
+        }
       }
+
       if (this.readyToJump === true) {
         // Creamy is falling
         this.currentAnimation = this.stand;
