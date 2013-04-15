@@ -512,6 +512,11 @@
             } else if (tID === 7) {
               gGameEngine.createStaticRoundEnemy(worldX, worldY);
 
+            } else if (tID === 8) {
+              // flying level
+              gInputEngine.bind(32, 'no-jump'); // don't allow jumping
+              gPlayer.setup(worldX, worldY, 200, 200, true);
+
             } else if (tID === 6) {
               // collect all vertical platform tiles
               gMap.platformBuilder.vertical.push({ x: worldX, y: worldY});

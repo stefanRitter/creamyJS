@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 7,
+    numLevels: 8,
     currentLevel: -1,
 
     // for handling all game entities
@@ -253,6 +253,8 @@
           document.addEventListener('click', function() {
             window.location='mailto:stefan@stefanritter.com';
           });
+
+          // show credits again
           fadein(document.getElementsByClassName('mainfooter')[0]);
 
           // reset cookie

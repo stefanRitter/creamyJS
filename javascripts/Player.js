@@ -41,6 +41,7 @@
     antiForce: 0,
     onWall: false,
     onCeiling: false,
+    flying: false,
 
     // animations
     walkRight: ['creamywalk01.png', 'creamywalk02.png'],
@@ -72,7 +73,7 @@
     currentAnimation: null,
 
     // ******************************************************************************************** setup
-    setup: function(x, y, w, h) {
+    setup: function(x, y, w, h, flying) {
       this.startPos.x = x;
       this.startPos.y = y;
 
@@ -103,6 +104,15 @@
       });
 
       this.antiForce = gPhysicsEngine.gravity.y * this.physBody.GetMass()/20;
+
+      if (flying) {
+        // this is a flying level
+        this.onCeiling = true;
+        this.jumpVec.y = 1;
+        this.jumpVec.x = 0;
+        this.readyToJump = true;
+        this.flying = true;
+      }
     },
 
     // ******************************************************************************************** draw
@@ -116,7 +126,9 @@
     // ******************************************************************************************** update
     update: function(deltaTime) {
 
-      if (this.newpos.y > gMap.pixelSize.y) {
+      if (this.newpos.y < 0 || this.newpos.y > gMap.pixelSize.y ||
+          this.newpos.x < 0 || this.newpos.x > gMap.pixelSize.x) {
+
         // if we are off the map we get sent back to the start
         this.forcePos = { x: this.startPos.x , y: this.startPos.y };
       }
@@ -130,8 +142,10 @@
       this.currVel = this.physBody.GetLinearVelocity();
 
       // attach to ceiling
-      if (this.onCeiling) {
+      if (this.onCeiling && this.flying === false) {
         this.physBody.ApplyForce( { x: 0, y: -(this.antiForce*20) }, this.physBody.GetWorldCenter());
+      } else if (this.flying) {
+        this.physBody.ApplyForce( { x: 0, y: -(this.antiForce*15) }, this.physBody.GetWorldCenter());
       }
 
       this.stateTime += deltaTime;
@@ -144,8 +158,7 @@
           if (this.onWall) {
             this.physBody.ApplyForce( { x: 0, y: -this.antiForce }, this.physBody.GetWorldCenter());
           }
-          // slow down
-          // this.physBody.ApplyImpulse({ x: -(this.currVel.x/3), y:-(this.currVel.x/3)}, this.pos);
+
           this.setWalkAnimation();
 
         } else if (this.jumpVec.x === 0) {
@@ -295,6 +308,9 @@
         // Creamy is falling
         this.currentAnimation = this.stand;
       }
+
+      if (this.flying) return;
+
       // detach from surface
       this.jumpVec.x = 0;
       this.jumpVec.y = 0;
@@ -361,7 +377,14 @@
     },
 
     setWalkAnimation: function() {
-      if (this.jumpVec.x < 0) {
+      if (this.flying && this.currVel.x > 0) {
+        this.currentAnimation = this.ceilingRight;
+        this.jumper = false;
+      } else if (this.flying && this.currVel.x < 0) {
+        this.currentAnimation = this.ceilingLeft;
+        this.jumper = false;
+
+      } else if (this.jumpVec.x < 0) {
         this.currentAnimation = this.wallWalkRight;
         this.jumper = false;
       } else if (this.jumpVec.x > 0) {
