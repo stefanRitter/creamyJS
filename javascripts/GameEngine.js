@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 2, //8
+    numLevels: 8,
     currentLevel: -1,
 
     // for handling all game entities
