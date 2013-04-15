@@ -37,7 +37,7 @@
     },
 
     // levels
-    numLevels: 8,
+    numLevels: 2, //8
     currentLevel: -1,
 
     // for handling all game entities
@@ -60,34 +60,6 @@
       } else {
         gGameEngine.currentLevel = -1;
       }
-
-      // if we load level 0 then show controls
-      gContext.fadeToImage(gCachedAssets['images/controls.png'], 500);
-      gLoading.style.visibility = 'hidden';
-
-      document.addEventListener('keyup', continueIntro);
-
-      function continueIntro() {
-        document.removeEventListener('keyup', continueIntro);
-        gLoading.style.visibility = 'visible';
-
-        gContext.fadeToImage(gCachedAssets['images/doneloading.png'], 500);
-        document.getElementById('logo').style.visibility = 'hidden';
-
-        gGameEngine.loadInterval = setInterval(function() {
-          // check if game is loaded
-          if (gGameEngine.fullyLoaded) {
-            clearInterval(gGameEngine.loadInterval);
-            document.addEventListener('keyup', gGameEngine.startGame, false);
-            // let user know we are ready
-            gLoading.innerHTML = "... press any key to start ...";
-            fadeout(document.getElementsByClassName('mainfooter')[0]);
-          }
-        }, 200);
-      }
-
-      // save initial loading gif
-      gGameEngine.loadingHTML += gLoading.innerHTML;
 
       var assets = [
           'images/background.png',
@@ -226,8 +198,8 @@
 
       if (gGameEngine.fullyLoaded && gGameEngine.currentLevel !== 0) {
         // this is not the first level so we can assume a completed engine setup
-        gContext.fillStyle = 'white';
-        gContext.fillRect(0,0,gCanvas.width, gCanvas.height);
+        // gContext.fillStyle = 'white';
+        // gContext.fillRect(0,0,gCanvas.width, gCanvas.height);
 
         var gif = document.getElementById('levelup');
         gif.onload = function() {
@@ -242,10 +214,22 @@
               });
               gGameEngine.startGame(); // no loading necessary so we can just dive right in
             }, 3000);
+
+          } else {
+            var background = document.getElementById('winnerbackground');
+            background.style.opacity = 0;
+            background.innerHTML = '<img src="images/gold.png" class="won"></img>';
+            fadein(background);
           }
         };
 
+        // depending on the level load the appropriate src into the gif element
         if (gGameEngine.currentLevel >= gGameEngine.numLevels) {
+
+          // ********************************************************************* Winning Logic
+          // we don't need the canvas any longer
+          fadeout(gCanvas, 500, function() { gCanvas.style.display = 'none'; });
+
           // play final animation
           gif.src = 'images/winner.png';
 
@@ -260,6 +244,8 @@
           // reset cookie
           setCookie('lastlevel', -1, 10);
           return;
+          // ********************************************************************* Winning Logic
+
         } else {
           // replay next level animation
           gif.src = 'images/levelup.gif'  + '?' + (new Date().valueOf());
@@ -405,44 +391,6 @@
   });
 
   window.gGameEngine = new GameEngineClass();
-
-
-
-  // ******************************************************************************************** DOM fadein fadeout
-
-  function fadein(element, ms, callback) {
-
-    var time = ms || 1000,
-      interv = setInterval(function() {
-      element.style.opacity = parseFloat(element.style.opacity) + 0.05;
-    }, time/20);
-
-    setTimeout(function () {
-      clearInterval(interv);
-      element.style.opacity = 1;
-
-      if(callback) {
-        callback();
-      }
-    }, time);
-  }
-
-  function fadeout(element, ms, callback) {
-
-    var time = ms || 1000,
-      interv = setInterval(function() {
-      element.style.opacity = parseFloat(element.style.opacity) - 0.05;
-    }, time/20);
-
-    setTimeout(function () {
-      clearInterval(interv);
-      element.style.opacity = 0;
-
-      if(callback) {
-        callback();
-      }
-    }, time);
-  }
 }).call(this);
 
 

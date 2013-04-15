@@ -13,26 +13,15 @@
 
 (function() { "use strict";
 
-	// ******************************************************************************* globals
+	// ******************************************************************************************** globals
 	window.gLoading = null;
   window.gCanvas = null;
   window.gContext = null;
 
-	// ******************************************************************************* utils
+
+	// ******************************************************************************************** utils
   function createScreenshot() {
     window.open(gCanvas.toDataURL(), 'screen shot');
-  }
-
-  function slideDown() {
-    gLoading.style.position = 'fixed';
-    gLoading.style.top = '45%';
-
-    var inter = setInterval(function() {
-      gLoading.style.top =  (parseInt(gLoading.style.top, 10) + 1) + '%';
-      if (parseInt(gLoading.style.top, 10) >= 70) {
-        clearInterval(inter);
-      }
-    }, 10);
   }
 
   // fades canvas to a color
@@ -90,13 +79,48 @@
     }, time+5);
   }
 
-  // ******************************************************************************* assets
-  var assets = [
+
+  // ******************************************************************************************** DOM fadein fadeout
+  window.fadein = function (element, ms, callback) {
+
+    var time = ms || 1000,
+      interv = setInterval(function() {
+      element.style.opacity = parseFloat(element.style.opacity) + 0.05;
+    }, time/20);
+
+    setTimeout(function () {
+      clearInterval(interv);
+      element.style.opacity = 1;
+
+      if(callback) {
+        callback();
+      }
+    }, time);
+  };
+
+  window.fadeout = function (element, ms, callback) {
+
+    var time = ms || 1000,
+      interv = setInterval(function() {
+      element.style.opacity = parseFloat(element.style.opacity) - 0.05;
+    }, time/20);
+
+    setTimeout(function () {
+      clearInterval(interv);
+      element.style.opacity = 0;
+
+      if(callback) {
+        callback();
+      }
+    }, time);
+  };
+
+
+	// ******************************************************************************************** onload
+	window.onload = function () {
+    var assets = [
       'images/controls.png',
       'images/doneloading.png' ];
-
-	// ******************************************************************************* onload
-	window.onload = function () {
 
     loadAssets(assets, init);
 
@@ -115,9 +139,8 @@
       gContext.fadeToImage = fadeToImage;
       gContext.fadeGlobalAlpha = fadeGlobalAlpha;
 
-      // draw controls
-      slideDown(gLoading, 20);
-      gContext.drawImage(gCachedAssets['images/controls.png'], 0, 0);
+      // start the laoding screen chain this should distract the player form the loading time
+      startLoadingScreenChain();
 
       // load and start playing music
       gSM.setup();
@@ -150,6 +173,61 @@
       gGameEngine.setup();
     }
 	};
+
+  // ******************************************************************************************** Loading Screens
+
+  function startLoadingScreenChain() {
+    // save initial loading gif
+    gGameEngine.loadingHTML += gLoading.innerHTML;
+
+    //first slide down the loading gif
+    slideDown(function() {
+
+      // second: show controls
+      gContext.fadeToImage(gCachedAssets['images/controls.png'], 1000, function() {
+        gLoading.style.visibility = 'hidden';
+        document.addEventListener('keyup', continueIntro);
+
+        // third: show creamy heart jawbreaker (goal)
+        function continueIntro() {
+          document.removeEventListener('keyup', continueIntro);
+          gLoading.style.visibility = 'visible';
+
+          gContext.fadeToImage(gCachedAssets['images/doneloading.png'], 500);
+          document.getElementById('logo').style.display = 'none';
+
+          gGameEngine.loadInterval = setInterval(function() {
+            // wait for loading to finish
+            if (gGameEngine.fullyLoaded) {
+              clearInterval(gGameEngine.loadInterval);
+
+              document.addEventListener('keyup', gGameEngine.startGame, false);
+
+              // let user know we are ready
+              gLoading.innerHTML = "... press any key to start ...";
+
+              // fade credits away during play
+              fadeout(document.getElementsByClassName('mainfooter')[0]);
+            }
+          }, 200);
+        }
+      });
+    });
+  }
+
+  function slideDown(callback) {
+    gLoading.style.position = 'fixed';
+    gLoading.style.top = '45%';
+
+    var inter = setInterval(function() {
+      gLoading.style.top =  (parseInt(gLoading.style.top, 10) + 1) + '%';
+      if (parseInt(gLoading.style.top, 10) >= 70) {
+        clearInterval(inter);
+        callback();
+      }
+    }, 10);
+  }
+
 
   // ******************************************************************************************** Cookies
 
