@@ -107,6 +107,7 @@
 
       if (flying) {
         // this is a flying level
+        this.currentAnimation = this.ceilingRight;
         this.onCeiling = true;
         this.jumpVec.y = 1;
         this.jumpVec.x = 0;
