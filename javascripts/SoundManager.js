@@ -16,7 +16,7 @@
 
   var SoundManager = Class.extend({
    clips: {},
-   enabled: true,
+   enabled: false,
    _context: null,
    _mainNode: null,
 
@@ -29,10 +29,13 @@
        gSM._context = null;
        gSM.enabled = false;
        return;
-     }
+      }
 
-     gSM._mainNode = gSM._context.createGainNode(0);
-     gSM._mainNode.connect(gSM._context.destination);
+      if(gSM._context !== null){
+        gSM.enabled = true;
+        gSM._mainNode = gSM._context.createGainNode(0);
+        gSM._mainNode.connect(gSM._context.destination);
+      }
    },
 
     //----------------------------
@@ -81,7 +84,7 @@
 
     //----------------------------
     togglemute: function() {
-      if (!gSM.enabled) return false;
+      if (!gSM.enabled) return;
       // Check if the gain value of the main node is 
       // 0. If so, set it to 1. Otherwise, set it to 0.
       if(gSM._mainNode.gain.value>0) {
@@ -95,6 +98,8 @@
     //----------------------------
     stopAll: function()
     {
+      if (!gSM.enabled) return;
+
       // Disconnect the main node, then create a new 
       // Gain Node, attach it to the main node, and 
       // connect it to the audio context's destination. 
@@ -120,7 +125,7 @@
     playSound: function (path, settings, callback) {
       // Check if the Sound Manager has been enabled,
       // return false if not.
-      if (!gSM.enabled) return false;
+      if (!gSM.enabled) return;
 
       // Set default values for looping and volume.
       var looping = false;
@@ -174,6 +179,7 @@
 
   //----------------------------
   function playSoundInstance(soundpath) {
+    if (!gSM.enabled) return;
     // Load a new Sound object, then call its play method.
     var sound = gSM.loadAsync(soundpath, function(sObj) {sObj.play(false);});
   }
