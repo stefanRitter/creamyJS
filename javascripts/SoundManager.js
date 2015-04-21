@@ -2,8 +2,8 @@
  *
  *  Hi there, have a look at my source files here:
  *  https://github.com/stefanRitter/
- *  
- *  SoundManager based on Udacity game dev course: 
+ *
+ *  SoundManager based on Udacity game dev course:
  *  https://www.udacity.com/course/cs255
  *
  *  shared under the Creative Commons CC BY-NC-SA license:
@@ -13,7 +13,7 @@
 
 
 (function() { "use strict";
-
+  /*
   var SoundManager = Class.extend({
    clips: {},
    enabled: true,
@@ -82,7 +82,7 @@
     //----------------------------
     togglemute: function() {
       if (!gSM.enabled) return false;
-      // Check if the gain value of the main node is 
+      // Check if the gain value of the main node is
       // 0. If so, set it to 1. Otherwise, set it to 0.
       if(gSM._mainNode.gain.value>0) {
         gSM._mainNode.gain.value = 0;
@@ -95,9 +95,9 @@
     //----------------------------
     stopAll: function()
     {
-      // Disconnect the main node, then create a new 
-      // Gain Node, attach it to the main node, and 
-      // connect it to the audio context's destination. 
+      // Disconnect the main node, then create a new
+      // Gain Node, attach it to the main node, and
+      // connect it to the audio context's destination.
       gSM._mainNode.disconnect();
       gSM._mainNode = gSM._context.createGainNode(0);
       gSM._mainNode.connect(gSM._context.destination);
@@ -179,5 +179,13 @@
   }
 
   window.gSM = new SoundManager();
+  */
 
+  window.gSM = {
+    playSound: function () {},
+    loadAsync: function () {},
+    setup: function () {},
+    togglemute: function () {},
+    
+  };
 }).call(this);
