@@ -39,6 +39,7 @@
     // levels
     numLevels: 8,
     currentLevel: -1,
+    nextLevelGif: null,
 
     // for handling all game entities
     entities: [],
@@ -248,7 +249,7 @@
 
         } else {
           // replay next level animation
-          gif.src = 'images/levelup.gif'  + '?' + (new Date().valueOf());
+          gif.src = gGameEngine.nextLevelGif.src; // 'images/levelup.gif'  + '?' + (new Date().valueOf());
         }
 
       } else {
@@ -289,6 +290,10 @@
       gGameEngine.gameState = gGameEngine.STATE.PLAY;
       gContext.fadeGlobalAlpha(400);
       gGameEngine.request = requestAnimationFrame(gGameEngine.gameLoop);
+
+      // fetch next level gif while playing
+      gGameEngine.nextLevelGif = new Image();
+      gGameEngine.nextLevelGif.src = 'images/levelup.gif'  + '?' + (new Date().valueOf());
     },
 
 
